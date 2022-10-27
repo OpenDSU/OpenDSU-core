@@ -1,6 +1,18 @@
 const openDSU = require("opendsu");
 const keySSISpace = openDSU.loadAPI("keyssi");
 
+const mergeMappings = (dest, source) => {
+    for (let ssiType in source) {
+        if (typeof dest[ssiType] === "undefined") {
+            dest[ssiType] = source[ssiType];
+        }else{
+            dest[ssiType] = {...dest[ssiType], ...source[ssiType]};
+        }
+    }
+
+    return dest;
+}
+
 const getKeySSIsMappingFromPathKeys = (pathKeyMap, callback) => {
     let keySSIMap = {};
     const props = Object.keys(pathKeyMap);
@@ -23,7 +35,7 @@ const getKeySSIsMappingFromPathKeys = (pathKeyMap, callback) => {
                 return callback(err);
             }
 
-            keySSIMap = {...keySSIMap, ...derivedKeySSIs};
+            keySSIMap = mergeMappings(keySSIMap, derivedKeySSIs);
             __deriveAllKeySSIsFromPathKeysRecursively(index + 1);
         })
 
@@ -45,7 +57,7 @@ const getKeySSIMapping = (keySSI, callback) => {
     const __getDerivedKeySSIsRecursively = (currentKeySSI, derivedKeySSIsObj, callback) => {
         derivedKeySSIsObj[currentKeySSI.getTypeName()] = currentKeySSI.getIdentifier();
         try {
-            currentKeySSI = currentKeySSI.derive((err, derivedKeySSI) => {
+            currentKeySSI.derive((err, derivedKeySSI) => {
                 if (err) {
                     return callback(err);
                 }
@@ -77,5 +89,6 @@ const getKeySSIMapping = (keySSI, callback) => {
 
 module.exports = {
     getKeySSIsMappingFromPathKeys,
-    getKeySSIMapping
+    getKeySSIMapping,
+    mergeMappings
 }

@@ -144,6 +144,22 @@ registry.defineApi("createDSU", async function (domain, ssiType, options) {
     return this.registerDSU(dsu);
 });
 
+registry.defineApi("createPathSSIDSU", async function (domain, path, options) {
+    const scAPI = require("opendsu").loadAPI("sc");
+    let enclave;
+    try{
+        enclave = await $$.promisify(scAPI.getSharedEnclave)();
+    }catch (e) {
+        enclave = await $$.promisify(scAPI.getMainEnclave)();
+    }
+    const pathKeySSI = await $$.promisify(enclave.createPathKeySSI)(domain, path);
+    const seedSSI = await $$.promisify(pathKeySSI.derive)();
+    let resolver = await this.getResolver();
+    let dsu = await resolver.createDSUForExistingSSI(seedSSI, options);
+    //take note that this.registerDSU returns a Proxy Object over the DSU and this Proxy we need to return also
+    return this.registerDSU(dsu);
+});
+
 registry.defineApi("loadDSU", async function (keySSI, options) {
     let resolver = await this.getResolver();
     let dsu = await resolver.loadDSU(keySSI, options);

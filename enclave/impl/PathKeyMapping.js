@@ -33,7 +33,7 @@ function PathKeyMapping(enclaveHandler) {
                 }
                 try {
                     const derivedKeySSIs = await $$.promisify(utils.getKeySSIMapping)(pathKeySSI);
-                    pathKeysMapping = {...pathKeysMapping, ...derivedKeySSIs};
+                    pathKeysMapping = utils.mergeMappings(pathKeysMapping, derivedKeySSIs);
                     callback();
                 } catch (e) {
                     callback(e);
@@ -60,9 +60,14 @@ function PathKeyMapping(enclaveHandler) {
         }
 
         if (typeof capableOfSigningKeySSI === "undefined") {
-            return callback(Error("Could not get a keySSI that can sign."));
+            return callback(Error("The provided key SSI does not have write privileges."));
         }
 
+        try {
+            capableOfSigningKeySSI = keySSISpace.parse(capableOfSigningKeySSI);
+        } catch (e) {
+            return callback(e);
+        }
         callback(undefined, capableOfSigningKeySSI);
     };
 
@@ -83,11 +88,21 @@ function PathKeyMapping(enclaveHandler) {
         }
 
         if (typeof readKeySSI === "undefined") {
-            return callback(Error("Could not get a keySSI with read access."));
+            return callback(Error("The provided key SSI does not have read privileges."));
+        }
+
+        try {
+            readKeySSI = keySSISpace.parse(readKeySSI);
+        } catch (e) {
+            return callback(e);
         }
 
         callback(undefined, readKeySSI);
     }
+
+    this._getMapping = (callback) => {
+        callback(undefined, pathKeysMapping);
+    };
 
     utilsAPI.bindAutoPendingFunctions(this);
     init();

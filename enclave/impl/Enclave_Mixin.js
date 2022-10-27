@@ -1,6 +1,4 @@
 const constants = require("./constants");
-const EnclaveHandler = require("./WalletDBEnclaveHandler");
-const PathKeyMapping = require("./PathKeyMapping");
 
 function Enclave_Mixin(target, did, keySSI) {
     const openDSU = require("opendsu");
@@ -62,14 +60,14 @@ function Enclave_Mixin(target, did, keySSI) {
 
     const getPathKeyMapping = (callback) => {
         if (pathKeyMapping) {
-            return callback(pathKeyMapping);
+            return callback(undefined, pathKeyMapping);
         }
 
         const EnclaveHandler = require("./WalletDBEnclaveHandler");
         const PathKeyMapping = require("../impl/PathKeyMapping");
 
         try {
-            target.storageDB.getKeySSI((err, keySSI) => {
+            target.getKeySSI((err, keySSI) => {
                 if (err) {
                     return callback(err);
                 }
@@ -105,6 +103,11 @@ function Enclave_Mixin(target, did, keySSI) {
     }
 
     target.getPrivateKeyForSlot = (forDID, slot, callback) => {
+        if (typeof slot === "function") {
+            callback = slot;
+            slot = forDID;
+            forDID = undefined;
+        }
         target.storageDB.getRecord(constants.TABLE_NAMES.PATH_KEY_SSI_PRIVATE_KEYS, slot, (err, privateKeyRecord) => {
             if (err) {
                 return callback(err);
@@ -436,23 +439,26 @@ function Enclave_Mixin(target, did, keySSI) {
     }
 
     target.signForKeySSI = (forDID, keySSI, hash, callback) => {
-        getPathKeyMapping((err, pathKeyMapping)=>{
-            if (err) {
-                return getCapableOfSigningKeySSI(keySSI, (err, capableOfSigningKeySSI) => {
-                    if (err) {
-                        return callback(err);
-                    }
-                    if (typeof capableOfSigningKeySSI === "undefined") {
-                        return callback(Error(`The provided SSI does not grant writing rights`));
-                    }
-
-                    capableOfSigningKeySSI.sign(hash, callback);
-                });
-            }
-
-            pathKeyMapping.getCapableOfSigningKeySSI((err, capableOfSigningKeySSI)=>{
+        const __signHashForKeySSI = (keySSI, hash) => {
+            getCapableOfSigningKeySSI(keySSI, (err, capableOfSigningKeySSI) => {
                 if (err) {
                     return callback(err);
+                }
+                if (typeof capableOfSigningKeySSI === "undefined") {
+                    return callback(Error(`The provided SSI does not grant writing rights`));
+                }
+
+                capableOfSigningKeySSI.sign(hash, callback);
+            });
+        }
+        getPathKeyMapping((err, pathKeyMapping)=>{
+            if (err) {
+                return __signHashForKeySSI(keySSI, hash);
+            }
+
+            pathKeyMapping.getCapableOfSigningKeySSI(keySSI,(err, capableOfSigningKeySSI)=>{
+                if (err) {
+                    return __signHashForKeySSI(keySSI, hash);
                 }
 
                 capableOfSigningKeySSI.sign(hash, callback);
