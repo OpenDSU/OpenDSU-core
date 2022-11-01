@@ -11,6 +11,6 @@ module.exports = {
         COMPACTED_PATH_KEYS: "/paths/compactedPathKeys"
     },
     DB_NAMES: {
-        WALLET_DB_ENCLAVE: "wallet-db-enclave"
+        WALLET_DB_ENCLAVE: "walletdb_enclave"
     }
 };
