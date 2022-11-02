@@ -1,6 +1,7 @@
 const {createJWTVc, loadJWTVc} = require('./vc/jwtVc');
 const {createJWTVp, loadJWTVp} = require('./vp/jwtVp');
-const validationStrategies = require("./validationStrategies");
+const validationStrategies = require('./validationStrategies');
+const {parseJWTSegments} = require('./utils');
 
 function createJWTVerifiableCredential(issuer, subject, options, callback) {
     if (typeof options === 'function') {
@@ -82,5 +83,6 @@ module.exports = {
     loadJWTVerifiablePresentation,
     loadJWTVerifiablePresentationAsync,
     validationStrategies,
+    parseJWTSegments,
     JWT_ERRORS: require('./constants').JWT_ERRORS
 };
