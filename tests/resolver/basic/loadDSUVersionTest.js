@@ -24,7 +24,7 @@ assert.callback('load DSU version test', (testFinished) => {
         dsuVersionFileContent = dsuVersionFileContent.toString();
         assert.equal(dsuVersionFileContent, INITIAL_FILE_CONTENT);
 
-        let newKeySSI = keySSISpace.createTemplateKeySSI(keySSI.getTypeName(), keySSI.getDLDomain(), keySSI.getSpecificString(), keySSI.getControlString(), keySSI.getVn(), 1);
+        let newKeySSI = keySSISpace.createTemplateKeySSI(keySSI.getTypeName(), keySSI.getDLDomain(), keySSI.getSpecificString(), keySSI.getControlString(), keySSI.getVn(), {dsuVersion: 1});
         const loadedDSU = await $$.promisify(resolver.loadDSU)(newKeySSI);
         let content = await $$.promisify(loadedDSU.readFile)(FILEPATH);
         content = content.toString();

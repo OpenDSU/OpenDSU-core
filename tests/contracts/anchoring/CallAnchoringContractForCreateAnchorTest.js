@@ -4,9 +4,9 @@ const dc = require("double-check");
 const assert = dc.assert;
 
 const contracts = require("../../../contracts");
-const { createHashLinkSSI, createTemplateKeySSI } = require("../../../keyssi");
+const {createHashLinkSSI, createTemplateKeySSI} = require("../../../keyssi");
 
-const { launchApiHubTestNodeWithContractAsync } = require("../utils");
+const {launchApiHubTestNodeWithContractAsync} = require("../utils");
 
 assert.callback(
     "Call anchoring contract methods createAnchor and appendToAnchor and checking getAllVersions for results",
@@ -21,12 +21,12 @@ assert.callback(
 
             // create a token SSI since it doesn't required digital signing for anchoring
             const tokenSSI = createTemplateKeySSI("token", "contract");
-            tokenSSI.initialize("contract", undefined, undefined, "vn0", "hint");
+            tokenSSI.initialize("contract", undefined, undefined, "vn0");
 
             const anchorId = await $$.promisify(tokenSSI.getAnchorId)();
             await generateSafeCommand(domain, contract, "createAnchor", [anchorId]);
 
-            const { optimisticResult: versionsAfterCreateAnchor } = await generateSafeCommand(
+            const {optimisticResult: versionsAfterCreateAnchor} = await generateSafeCommand(
                 domain,
                 contract,
                 "getAllVersions",
@@ -39,11 +39,11 @@ assert.callback(
                 last: null,
                 new: hl.getIdentifier(),
             };
-            const digitalProof = { signature: "", safeKey: "" };
+            const digitalProof = {signature: "", safeKey: ""};
             const zkp = "";
             await generateSafeCommand(domain, contract, "appendToAnchor", [anchorId, hashLinkIds, digitalProof, zkp]);
 
-            const { optimisticResult: versionsAfterAppendAnchor } = await generateSafeCommand(
+            const {optimisticResult: versionsAfterAppendAnchor} = await generateSafeCommand(
                 domain,
                 contract,
                 "getAllVersions",

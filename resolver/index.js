@@ -284,9 +284,9 @@ const loadDSU = (keySSI, options, callback) => {
         }
     }
 
-    const versionNumber = getVersionNumberFromKeySSI(keySSI);
+    const versionNumber = keySSI.getDSUVersionHint();
     if (Number.isInteger(versionNumber)) {
-        return loadDSUVersionBasedOnVersionNumber(keySSI.getNoHintIdentifier(), versionNumber, callback);
+        return loadDSUVersionBasedOnVersionNumber(keySSI, versionNumber, callback);
     }
 
     if (recoveryMode) {

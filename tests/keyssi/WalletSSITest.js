@@ -5,17 +5,16 @@ const keySSISpace = require('../../keyssi');
 const crypto = require('../../crypto');
 
 assert.callback('Test buildWalletSSI ', (callback) => {
-  const walletSSI = keySSISpace.createTemplateWalletSSI('default', ['cred1', 'cred2'], 'hint');
+    const walletSSI = keySSISpace.createTemplateWalletSSI('default', ['cred1', 'cred2']);
 
-  const hint = walletSSI.getHint();
-  const type = walletSSI.getTypeName();
-  const DLDomain = walletSSI.getDLDomain();
+    const hint = walletSSI.getHint();
+    const type = walletSSI.getTypeName();
+    const DLDomain = walletSSI.getDLDomain();
 
-  console.log(hint, type, DLDomain);
+    console.log(hint, type, DLDomain);
 
-  assert.true(hint === 'hint', 'Invalid hint property');
-  assert.true(type === 'wallet', 'Invalid seed property');
-  assert.true(DLDomain === 'default', 'Invalid domain property');
+    assert.true(type === 'wallet', 'Invalid seed property');
+    assert.true(DLDomain === 'default', 'Invalid domain property');
 
-  callback();
+    callback();
 });

@@ -5,28 +5,27 @@ const keySSISpace = require('../../keyssi');
 const crypto = require('../../crypto');
 
 assert.callback('Build array SSI test', (callback) => {
-  const arraySSI = keySSISpace.createArraySSI('default', ['openDsu', 16], 'vn0', 'hint');
+    const arraySSI = keySSISpace.createArraySSI('default', ['openDsu', 16], 'vn0');
 
-  const vn = arraySSI.getVn();
-  const hint = arraySSI.getHint();
-  const type = arraySSI.getTypeName();
-  const DLDomain = arraySSI.getDLDomain();
+    const vn = arraySSI.getVn();
+    const hint = arraySSI.getHint();
+    const type = arraySSI.getTypeName();
+    const DLDomain = arraySSI.getDLDomain();
 
-  assert.true(vn === 'vn0', 'Invalid vn0 property');
-  assert.true(hint === 'hint', 'Invalid hint property');
-  assert.true(type === 'array', 'Invalid seed property');
-  assert.true(DLDomain === 'default', 'Invalid domain property');
+    assert.true(vn === 'vn0', 'Invalid vn0 property');
+    assert.true(type === 'array', 'Invalid seed property');
+    assert.true(DLDomain === 'default', 'Invalid domain property');
 
-  callback();
+    callback();
 });
 
 assert.callback('Pass non-array object check', (callback) => {
-  try {
-    keySSISpace.createArraySSI('default', 12, 'vn0', 'hint');
-  } catch (err) {
-    console.log(err);
+    try {
+        keySSISpace.createArraySSI('default', 12, 'vn0');
+    } catch (err) {
+        console.log(err);
+        callback();
+        return;
+    }
     callback();
-    return;
-  }
-  callback();
 });

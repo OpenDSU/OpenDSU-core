@@ -6,7 +6,7 @@ const keyssispace = require("../../index").loadApi("keyssi");
 const keySSIResolver = require("key-ssi-resolver");
 const keySSIFactory = keySSIResolver.KeySSIFactory;
 const SSITypes = keySSIResolver.SSITypes;
-const { JWT_ERRORS } = crypto;
+const {JWT_ERRORS} = crypto;
 
 const templateSeedSSI = keySSIFactory.createType(SSITypes.SEED_SSI);
 templateSeedSSI.load(SSITypes.SEED_SSI, "default");
@@ -14,12 +14,12 @@ templateSeedSSI.load(SSITypes.SEED_SSI, "default");
 const DUMMY_IDENTIFIER = templateSeedSSI.getIdentifier(true);
 
 const credentials = [];
-const options = { subject: DUMMY_IDENTIFIER };
+const options = {subject: DUMMY_IDENTIFIER};
 
 assert.callback("Create and verify valid JWT test", (callback) => {
     const seedSSI = keyssispace.createTemplateSeedSSI("default");
 
-    seedSSI.initialize("default", undefined, undefined, undefined, "hint", (err) => {
+    seedSSI.initialize("default", undefined, undefined, undefined, (err) => {
         if (err) throw err;
 
         crypto.createJWT(seedSSI, "/", credentials, options, (error, jwt) => {
@@ -36,7 +36,7 @@ assert.callback("Create and verify valid JWT test", (callback) => {
 
 assert.callback("Create and verify valid JWT and rootOfTrustVerificationStrategy success test", (callback) => {
     const seedSSI = keyssispace.createTemplateSeedSSI("default");
-    seedSSI.initialize("default", undefined, undefined, undefined, "hint", (err) => {
+    seedSSI.initialize("default", undefined, undefined, undefined, (err) => {
         if (err) throw err;
 
         crypto.createJWT(seedSSI, "/", credentials, options, (error, jwt) => {
@@ -62,7 +62,7 @@ assert.callback("Create and verify valid JWT and rootOfTrustVerificationStrategy
 
 assert.callback("Create and verify valid JWT and rootOfTrustVerificationStrategy failure test", (callback) => {
     const seedSSI = keyssispace.createTemplateSeedSSI("default");
-    seedSSI.initialize("default", undefined, undefined, undefined, "hint", (err) => {
+    seedSSI.initialize("default", undefined, undefined, undefined, (err) => {
         if (err) throw err;
 
         crypto.createJWT(seedSSI, "/", credentials, options, (error, jwt) => {
@@ -88,7 +88,7 @@ assert.callback("Create and verify valid JWT and rootOfTrustVerificationStrategy
 
 assert.callback("Create and verify invalid JWT test", (callback) => {
     const seedSSI = keyssispace.createTemplateSeedSSI("default");
-    seedSSI.initialize("default", undefined, undefined, undefined, "hint", (err) => {
+    seedSSI.initialize("default", undefined, undefined, undefined, (err) => {
         if (err) throw err;
 
         crypto.createJWT(seedSSI, "/", credentials, options, (error, jwt) => {
@@ -108,10 +108,10 @@ assert.callback("Create and verify invalid JWT (someone modifies the payload) te
     const seedSSI = keyssispace.createTemplateSeedSSI("default");
     const seedSSI2 = keyssispace.createTemplateSeedSSI("default");
 
-    seedSSI.initialize("default", undefined, undefined, undefined, "hint", (err) => {
+    seedSSI.initialize("default", undefined, undefined, undefined, (err) => {
         if (err) throw err;
 
-        seedSSI2.initialize("default", undefined, undefined, undefined, "hint", (err) => {
+        seedSSI2.initialize("default", undefined, undefined, undefined, (err) => {
             if (err) throw err;
 
             crypto.createJWT(seedSSI, "/", credentials, options, (error, jwt) => {
@@ -137,7 +137,7 @@ assert.callback("Create and verify invalid JWT (someone modifies the payload) te
 
 assert.callback("createCredential test", (callback) => {
     const seedSSI = keyssispace.createTemplateSeedSSI("default");
-    seedSSI.initialize("default", undefined, undefined, undefined, "hint", (err) => {
+    seedSSI.initialize("default", undefined, undefined, undefined, (err) => {
         if (err) throw err;
 
         crypto.createCredential(seedSSI, DUMMY_IDENTIFIER, (error, jwt) => {
@@ -166,13 +166,13 @@ assert.callback("full manual verifyAuthToken test", (callback) => {
     const seedSSI2 = keyssispace.createTemplateSeedSSI("default");
 
 
-    seedSSI.initialize("default", undefined, undefined, undefined, "hint", (err) => {
+    seedSSI.initialize("default", undefined, undefined, undefined, (err) => {
         if (err) throw err;
 
-        seedSSI2.initialize("default", undefined, undefined, undefined, "hint", (err) => {
+        seedSSI2.initialize("default", undefined, undefined, undefined, (err) => {
             if (err) throw err;
 
-            seedSSI2.derive((err, userSReadSSI)=>{
+            seedSSI2.derive((err, userSReadSSI) => {
                 if (err) {
                     throw err;
                 }
@@ -221,10 +221,10 @@ assert.callback("verifyAuthToken test", (callback) => {
     const seedSSI2 = keyssispace.createTemplateSeedSSI("default");
 
 
-    seedSSI.initialize("default", undefined, undefined, undefined, "hint", (err) => {
+    seedSSI.initialize("default", undefined, undefined, undefined, (err) => {
         if (err) throw err;
 
-        seedSSI2.initialize("default", undefined, undefined, undefined, "hint", async (err) => {
+        seedSSI2.initialize("default", undefined, undefined, undefined, async (err) => {
             if (err) throw err;
 
             let organizationSReadSSI = await $$.promisify(seedSSI.derive)()
@@ -254,10 +254,10 @@ assert.callback("verifyAuthToken with invalid issuer test", (callback) => {
     const seedSSI2 = keyssispace.createTemplateSeedSSI("default");
 
 
-    seedSSI.initialize("default", undefined, undefined, undefined, "hint", (err) => {
+    seedSSI.initialize("default", undefined, undefined, undefined, (err) => {
         if (err) throw err;
 
-        seedSSI2.initialize("default", undefined, undefined, undefined, "hint", async (err) => {
+        seedSSI2.initialize("default", undefined, undefined, undefined, async (err) => {
             if (err) throw err;
 
             let userSReadSSI = await $$.promisify(seedSSI2.derive)();

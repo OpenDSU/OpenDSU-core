@@ -68,12 +68,7 @@ function getMainDSUForIframe(callback) {
             return callback(createOpenDSUErrorWrapper("Failed to get main DSU SSI", err));
         }
 
-        let config = openDSU.loadApi("config");
-
         let mainSSI = keySSISpace.parse(res);
-        if (mainSSI.getHint() === "server") {
-            config.disableLocalVault();
-        }
         resolver.loadDSU(mainSSI, (err, mainDSU) => {
             if (err) {
                 return callback(createOpenDSUErrorWrapper("Failed to load main DSU ", err));

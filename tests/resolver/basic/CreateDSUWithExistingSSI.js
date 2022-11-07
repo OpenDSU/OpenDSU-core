@@ -11,16 +11,15 @@ const keyssispace = openDSU.loadApi("keyssi");
 
 assert.callback('Create DSU with existing SSI on configured domain', (testfinished) => {
 
-    dc.createTestFolder('createDSU',(err,folder) => {
+    dc.createTestFolder('createDSU', (err, folder) => {
         testIntegration.launchApiHubTestNode(10, folder, (err) => {
-            if (err)
-            {
+            if (err) {
                 throw err;
             }
 
             const domain = 'default';
             const seedSSI = keyssispace.buildTemplateSeedSSI(domain);
-            seedSSI.initialize(domain, undefined, undefined, undefined, "hint", (err) => {
+            seedSSI.initialize(domain, undefined, undefined, undefined, (err) => {
                 if (err)
                     throw err;
                 createdsuexisiting(seedSSI, domain, (err, keySSI, dsuHashLink) => {
@@ -34,12 +33,11 @@ assert.callback('Create DSU with existing SSI on configured domain', (testfinish
 }, 5000);
 
 
-function createdsuexisiting(ssi, domain, keyssireturn)
-{
+function createdsuexisiting(ssi, domain, keyssireturn) {
     resolver.createDSUForExistingSSI(ssi, (err, dsu) => {
         if (err) {
             printOpenDSUError(err);
-            assert.notEqual(typeof err,'undefined');
+            assert.notEqual(typeof err, 'undefined');
             throw err;
         }
 
@@ -62,21 +60,17 @@ function createdsuexisiting(ssi, domain, keyssireturn)
 }
 
 
-function loadDsuAndCheck(err, dsuKeySSI, dsuAlreadyCreatedHashLink , testFinishedCallback)
-{
-    if (err)
-    {
+function loadDsuAndCheck(err, dsuKeySSI, dsuAlreadyCreatedHashLink, testFinishedCallback) {
+    if (err) {
         throw err;
     }
     resolver.loadDSU(dsuKeySSI, (err, dsu) => {
-        if (err)
-        {
+        if (err) {
             throw err;
         }
 
         dsu.getLastHashLinkSSI((err, hashlink) => {
-            if (err)
-            {
+            if (err) {
                 throw err;
             }
             assert.equal(hashlink.getIdentifier(true), dsuAlreadyCreatedHashLink);

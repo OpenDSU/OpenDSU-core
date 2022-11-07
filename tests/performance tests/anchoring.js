@@ -14,7 +14,7 @@ const PARALLEL_CALLS = 100;
 const DOMAIN = "default";
 
 function createAnchorObject(callback) {
-    keySSISpace.createSeedSSI(DOMAIN, 'v0', 'hint', async (err, seedSSI) => {
+    keySSISpace.createSeedSSI(DOMAIN, 'v0', async (err, seedSSI) => {
         if (err) {
             return callback(err);
         }
