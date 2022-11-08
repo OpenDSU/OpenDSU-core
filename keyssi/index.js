@@ -286,6 +286,12 @@ const createSizeSSI = (domain, totalSize, bufferSize) => {
     return sizeSSI;
 }
 
+const createEmbedSSI = (domain, data) => {
+    const embedSSI = keySSIFactory.createType(SSITypes.EMBED_SSI);
+    embedSSI.initialize(domain, data);
+    return embedSSI;
+}
+
 module.exports = {
     parse,
     createSeedSSI,
@@ -312,5 +318,6 @@ module.exports = {
     createAliasSSI,
     createSizeSSI,
     createPathKeySSI,
-    we_createPathKeySSI
+    we_createPathKeySSI,
+    createEmbedSSI
 };
