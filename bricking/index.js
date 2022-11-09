@@ -2,13 +2,7 @@ const openDSU = require("opendsu");
 const {fetch, doPut} = openDSU.loadApi("http");
 const constants = require("../moduleConstants");
 const cache = require("../cache/").getCacheForVault(constants.CACHE.ENCRYPTED_BRICKS_CACHE);
-const cachedBricking = require("./cachedBricking");
 const promiseRunner = require("../utils/promise-runner");
-const config = require("../config");
-
-const isValidVaultCache = () => {
-    return typeof config.get(constants.CACHE.VAULT_TYPE) !== "undefined" && config.get(constants.CACHE.VAULT_TYPE) !== constants.CACHE.NO_CACHE;
-}
 
 const isValidBrickHash = (hashLinkSSI, brickData) => {
     const ensureIsBuffer = require("swarmutils").ensureIsBuffer;
@@ -72,10 +66,10 @@ const getBrick = (hashLinkSSI, authToken, callback) => {
             };
 
             const runnerCallback = (error, result) => {
-                if(error) {
+                if (error) {
                     return OpenDSUSafeCallback(callback)(createOpenDSUErrorWrapper(`Failed to get brick <${brickHash}> from brick storage`, error));
                 }
-                
+
                 callback(null, result);
             }
 
@@ -97,43 +91,32 @@ const getMultipleBricks = (hashLinkSSIList, authToken, callback) => {
         callback = authToken;
         authToken = undefined;
     }
+    const resultsArr = new Array(hashLinkSSIList.length);
+    let currentPointer = -1;
 
-    const dlDomain = hashLinkSSIList[0].getDLDomain();
-    const bricksHashes = hashLinkSSIList.map((hashLinkSSI) => hashLinkSSI.getHash());
-
-    function executeGetBricks(hashLinkSSIList){
-        // The bricks need to be returned in the same order they were requested
-        let brickPromise = Promise.resolve();
-        for (const hl of hashLinkSSIList) {
-            // TODO: FIX ME
-            // This is a HACK. It should cover 99% of the cases
-            // but it might still fail if the brick data transfer
-            // is delayed due to network issues and the next iteration
-            // resolves faster. The correct solution involves changing
-            // multiple layers
-            brickPromise = brickPromise.then(() => {
-                return new Promise((resolve) => {
-                    getBrick(hl, authToken, (err, brick) => {
-                        callback(err, brick);
-                        resolve();
-                    });
-                })
-            })
-        }
-    }
-
-    if (dlDomain === constants.DOMAINS.VAULT && isValidVaultCache()) {
-        return cachedBricking.getMultipleBricks(bricksHashes, (err, brickData)=>{
-            let newTarget = [hashLinkSSIList.shift()];
-            if(err || !brickData){
-                executeGetBricks(newTarget);
-                return;
+    function getTask(taskNumber) {
+        const hashLink = hashLinkSSIList[taskNumber];
+        getBrick(hashLink, authToken, (err, brickData) => {
+            if (err) {
+                return callback(err);
             }
-            callback(err, brickData);
+
+            resultsArr[taskNumber] = brickData;
+            attemptCallback();
         });
     }
 
-    executeGetBricks(hashLinkSSIList);
+    function attemptCallback() {
+        while (resultsArr[currentPointer + 1]) {
+            currentPointer++;
+            callback(undefined, resultsArr[currentPointer]);
+        }
+    }
+
+    // The bricks need to be returned in the same order they were requested
+    for (let i = 0; i < hashLinkSSIList.length; i++) {
+        getTask(i);
+    }
 };
 
 
@@ -149,11 +132,6 @@ const putBrick = (domain, brick, authToken, callback) => {
     if (typeof authToken === 'function') {
         callback = authToken;
         authToken = undefined;
-    }
-
-
-    if (domain === constants.DOMAINS.VAULT && isValidVaultCache()) {
-        return cachedBricking.putBrick(brick, callback);
     }
 
     const bdns = openDSU.loadApi("bdns");
@@ -178,7 +156,7 @@ const putBrick = (domain, brick, authToken, callback) => {
 
         promiseRunner.runEnoughForMajority(brickStorageArray, setBrickInStorage, null, null, (err, results) => {
             if (err) {
-                return OpenDSUSafeCallback(callback)(createOpenDSUErrorWrapper("Failed to create bricks",err));
+                return OpenDSUSafeCallback(callback)(createOpenDSUErrorWrapper("Failed to create bricks", err));
             }
 
             const foundBrick = results[0];
@@ -188,11 +166,11 @@ const putBrick = (domain, brick, authToken, callback) => {
             }
 
             cache.put(brickHash, brick, (err) => {
-                    if (err) {
-                        return OpenDSUSafeCallback(callback)(createOpenDSUErrorWrapper(`Failed to put brick <${brickHash}> in cache`, err));
-                    }
-                    callback(undefined, brickHash);
-                })
+                if (err) {
+                    return OpenDSUSafeCallback(callback)(createOpenDSUErrorWrapper(`Failed to put brick <${brickHash}> in cache`, err));
+                }
+                callback(undefined, brickHash);
+            })
 
         }, "Storing a brick");
     });
@@ -200,9 +178,9 @@ const putBrick = (domain, brick, authToken, callback) => {
 
 const constructBricksFromData = (keySSI, data, options, callback) => {
     const MAX_BRICK_SIZE = 1024 * 1024; // 1MB
-    const defaultOpts = { encrypt: true, maxBrickSize: MAX_BRICK_SIZE };
+    const defaultOpts = {encrypt: true, maxBrickSize: MAX_BRICK_SIZE};
 
-    if(typeof options === "function") {
+    if (typeof options === "function") {
         callback = options;
         options = {
             maxBrickSize: MAX_BRICK_SIZE
@@ -215,15 +193,15 @@ const constructBricksFromData = (keySSI, data, options, callback) => {
     const archiveConfigurator = bar.createArchiveConfigurator();
     archiveConfigurator.setBufferSize(options.maxBrickSize);
     archiveConfigurator.setKeySSI(keySSI);
-    
+
     const envTypes = require("overwrite-require").constants;
-    if($$.environmentType !== envTypes.BROWSER_ENVIRONMENT_TYPE &&
+    if ($$.environmentType !== envTypes.BROWSER_ENVIRONMENT_TYPE &&
         $$.environmentType !== envTypes.SERVICE_WORKER_ENVIRONMENT_TYPE &&
-        $$.environmentType !== envTypes.WEB_WORKER_ENVIRONMENT_TYPE){
-            const fsAdapter = require('bar-fs-adapter');
-            const ArchiveConfigurator = require("bar").ArchiveConfigurator;
-            ArchiveConfigurator.prototype.registerFsAdapter("FsAdapter", fsAdapter.createFsAdapter);
-            archiveConfigurator.setFsAdapter("FsAdapter");
+        $$.environmentType !== envTypes.WEB_WORKER_ENVIRONMENT_TYPE) {
+        const fsAdapter = require('bar-fs-adapter');
+        const ArchiveConfigurator = require("bar").ArchiveConfigurator;
+        ArchiveConfigurator.prototype.registerFsAdapter("FsAdapter", fsAdapter.createFsAdapter);
+        archiveConfigurator.setFsAdapter("FsAdapter");
     }
 
     const brickStorageService = bar.createBrickStorageService(archiveConfigurator, keySSI);

@@ -16,12 +16,12 @@ function initializeSeedSSIs(callback) {
     const subjectSeedSSI = keySSISpace.createTemplateSeedSSI("default");
     const issuerSeedSSI = keySSISpace.createTemplateSeedSSI("default");
 
-    subjectSeedSSI.initialize("default", undefined, undefined, undefined, "subjectSeedSSIHint", (err) => {
+    subjectSeedSSI.initialize("default", undefined, undefined, undefined, (err) => {
         if (err) {
             return callback(err);
         }
 
-        issuerSeedSSI.initialize("default", undefined, undefined, undefined, "issuerSeedSSIHint", (err) => {
+        issuerSeedSSI.initialize("default", undefined, undefined, undefined, (err) => {
             if (err) {
                 return callback(err);
             }
@@ -69,7 +69,7 @@ assert.callback("[DID] Create JWT, embed public and subject claims and verify JW
                                     throw err;
                                 }
 
-                                credentials.loadJWTVerifiableCredential(encodedJWT, (err, loadedJWTInstance) =>{
+                                credentials.loadJWTVerifiableCredential(encodedJWT, (err, loadedJWTInstance) => {
                                     if (err) {
                                         throw err;
                                     }

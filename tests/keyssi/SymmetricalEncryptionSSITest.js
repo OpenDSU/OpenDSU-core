@@ -5,15 +5,14 @@ const keySSISpace = require('../../keyssi');
 const crypto = require('../../crypto');
 
 assert.callback('Test SymmetricalEncryptionSSI ', (callback) => {
-  const seSSI = keySSISpace.buildSymmetricalEncryptionSSI('default', 'encryptionKey', 'control', 'vn', 'hint');
+    const seSSI = keySSISpace.buildSymmetricalEncryptionSSI('default', 'encryptionKey', 'control', 'vn');
 
-  const hint = seSSI.getHint();
-  const type = seSSI.getTypeName();
-  const DLDomain = seSSI.getDLDomain();
+    const hint = seSSI.getHint();
+    const type = seSSI.getTypeName();
+    const DLDomain = seSSI.getDLDomain();
 
-  assert.true(hint === 'hint', 'Invalid hint property');
-  assert.true(type === 'se', 'Invalid seed property');
-  assert.true(DLDomain === 'default', 'Invalid domain property');
+    assert.true(type === 'se', 'Invalid seed property');
+    assert.true(DLDomain === 'default', 'Invalid domain property');
 
-  callback();
+    callback();
 });

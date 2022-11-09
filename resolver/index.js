@@ -5,6 +5,11 @@ const cache = require("../cache");
 let dsuCache = cache.getMemoryCache("DSUs");
 let {ENVIRONMENT_TYPES, KEY_SSIS} = require("../moduleConstants.js");
 const {getWebWorkerBootScript, getNodeWorkerBootScript} = require("./resolver-utils");
+let recoveryMode = false;
+
+function setRecoveryMode(enabled) {
+    recoveryMode = enabled;
+}
 
 const initializeResolver = (options) => {
     options = options || {};
@@ -144,10 +149,10 @@ const getLatestDSUVersion = (dsu, callback) => {
     });
 }
 
-const loadDSU = (keySSI, options, callback) => {
+const loadDSUVersion = (keySSI, versionHashlink, options, callback) => {
     if (typeof options === "function") {
         callback = options;
-        options = undefined;
+        options = {};
     }
 
     if (typeof keySSI === "string") {
@@ -158,6 +163,135 @@ const loadDSU = (keySSI, options, callback) => {
         }
     }
 
+    const keySSIResolver = initializeResolver(options);
+    options.versionHashlink = versionHashlink;
+    keySSIResolver.loadDSU(keySSI, options, callback);
+}
+
+const getDSUVersionHashlink = (keySSI, versionNumber, callback) => {
+    if (typeof keySSI === "string") {
+        try {
+            keySSI = keySSISpace.parse(keySSI);
+        } catch (e) {
+            return callback(createOpenDSUErrorWrapper(`Failed to parse keySSI ${keySSI}`, e));
+        }
+    }
+    const anchoringAPI = require("opendsu").loadAPI("anchoring");
+    const anchoringX = anchoringAPI.getAnchoringX();
+    keySSI.getAnchorId((err, anchorId) => {
+        if (err) {
+            return callback(err);
+        }
+        anchoringX.getAllVersions(anchorId, (err, versions) => {
+            if (err) {
+                return callback(err);
+            }
+
+            if (!versions || !versions.length) {
+                return callback(createOpenDSUErrorWrapper(`No versions found for anchor ${anchorId}`));
+            }
+            const versionHashLink = versions[versionNumber];
+            if (!versionHashLink) {
+                return callback(createOpenDSUErrorWrapper(`Version number ${versionNumber} for anchor ${anchorId} does not exist.`));
+            }
+
+            callback(undefined, versionHashLink);
+        })
+    })
+}
+
+const getVersionNumberFromKeySSI = (keySSI) => {
+    let versionNumber;
+    try {
+        versionNumber = parseInt(keySSI.getHint());
+    } catch (e) {
+        return undefined;
+    }
+
+    if (versionNumber < 0) {
+        return undefined;
+    }
+
+    return versionNumber;
+}
+
+const loadDSUVersionBasedOnVersionNumber = (keySSI, versionNumber, callback) => {
+    getDSUVersionHashlink(keySSI, versionNumber, (err, versionHashLink) => {
+        if (err) {
+            return callback(err);
+        }
+
+        loadDSUVersion(keySSI, versionHashLink, callback);
+    })
+}
+
+const loadFallbackDSU = (keySSI, options, callback) => {
+    if (typeof keySSI === "string") {
+        try {
+            keySSI = keySSISpace.parse(keySSI);
+        } catch (e) {
+            return callback(createOpenDSUErrorWrapper(`Failed to parse keySSI ${keySSI}`, e));
+        }
+    }
+    const anchoringAPI = require("opendsu").loadAPI("anchoring");
+    const anchoringX = anchoringAPI.getAnchoringX();
+
+    keySSI.getAnchorId((err, anchorId) => {
+        if (err) {
+            return callback(createOpenDSUErrorWrapper(`Failed to get anchorId for keySSI ${keySSI.getIdentifier()}`, err));
+        }
+
+        anchoringX.getAllVersions(anchorId, (err, versions) => {
+            if (err) {
+                return callback(createOpenDSUErrorWrapper(`Failed to get versions for anchorId ${anchorId}`, err));
+            }
+
+            if (!versions || !versions.length) {
+                return callback(createOpenDSUErrorWrapper(`No versions found for anchorId ${anchorId}`));
+            }
+
+            const __loadFallbackDSURecursively = (index) => {
+                const versionHashlink = versions[index];
+                if (typeof versionHashlink === "undefined") {
+                    return callback(createOpenDSUErrorWrapper(`Failed to load fallback DSU for keySSI ${keySSI.getIdentifier()}`));
+                }
+
+                loadDSUVersion(keySSI, versionHashlink, options, (err, dsuInstance) => {
+                    if (err) {
+                        return __loadFallbackDSURecursively(index - 1);
+                    }
+
+                    callback(undefined, dsuInstance);
+                })
+            }
+
+            __loadFallbackDSURecursively(versions.length - 1);
+        })
+    })
+}
+
+const loadDSU = (keySSI, options, callback) => {
+    if (typeof options === "function") {
+        callback = options;
+        options = {};
+    }
+
+    if (typeof keySSI === "string") {
+        try {
+            keySSI = keySSISpace.parse(keySSI);
+        } catch (e) {
+            return callback(createOpenDSUErrorWrapper(`Failed to parse keySSI ${keySSI}`, e));
+        }
+    }
+
+    const versionNumber = keySSI.getDSUVersionHint();
+    if (Number.isInteger(versionNumber)) {
+        return loadDSUVersionBasedOnVersionNumber(keySSI, versionNumber, callback);
+    }
+
+    if (recoveryMode) {
+        return loadFallbackDSU(keySSI, options, callback);
+    }
     const loadDSU = (addInCache) => {
 
         const keySSIResolver = initializeResolver(options);
@@ -172,7 +306,7 @@ const loadDSU = (keySSI, options, callback) => {
 
             callback(undefined, dsuInstance);
         });
-    }
+    };
 
     if (typeof options === 'object' && options !== null && options.skipCache) {
         return loadDSU(false);
@@ -381,4 +515,6 @@ module.exports = {
     getDSUHandler,
     registerDSUFactory,
     invalidateDSUCache,
+    setRecoveryMode,
+    loadDSUVersion
 };
