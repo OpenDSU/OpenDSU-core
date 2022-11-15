@@ -1,8 +1,8 @@
 process.env.NO_LOGS = true;
 
-require("../../../../../../privatesky/psknode/bundles/openDSU");
+require("../../../../../../opendsu-sdk/psknode/bundles/openDSU");
 
-// require("../../privatesky/psknode/bundles/openDSU");
+// require("../../opendsu-sdk/psknode/bundles/openDSU");
 
 const opendsu = require("opendsu");
 const keyssi = opendsu.loadApi('keyssi');
