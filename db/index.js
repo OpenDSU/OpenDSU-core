@@ -39,7 +39,7 @@ let getSimpleWalletDB = (dbName, options) => {
 
     util.initialiseWalletDB(dbName, options.keySSI, (err, _storageDSU, keySSI) => {
         if (err) {
-            return OpenDSUSafeCallback()(createOpenDSUErrorWrapper("Failed to initialise WalletDB_DSU " + dbName, err));
+            return db.dispatchEvent("error", createOpenDSUErrorWrapper("Failed to initialise WalletDB_DSU " + dbName, err));
         }
         storageStrategy.initialise(_storageDSU, dbName);
         console.log("Finishing initialisation");

@@ -47,6 +47,9 @@ function WalletDBEnclave(keySSI, did) {
 
         await $$.promisify(resolver.invalidateDSUCache)(keySSI);
         this.storageDB = db.getSimpleWalletDB(DB_NAME, {keySSI});
+        this.storageDB.on("error", err => {
+            this.dispatchEvent("error", err)
+        });
         this.storageDB.on("initialised", async () => {
             if (typeof keySSI === "string") {
                 keySSI = keySSISpace.parse(keySSI);
@@ -83,7 +86,7 @@ function WalletDBEnclave(keySSI, did) {
     };
 
     const bindAutoPendingFunctions = require("../../utils/BindAutoPendingFunctions").bindAutoPendingFunctions;
-    bindAutoPendingFunctions(this, ["on", "off", "beginBatch", "isInitialised", "getEnclaveType"]);
+    bindAutoPendingFunctions(this, ["on", "off", "dispatchEvent", "beginBatch", "isInitialised", "getEnclaveType"]);
 
     init();
 }

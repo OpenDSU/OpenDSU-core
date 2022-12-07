@@ -237,7 +237,7 @@ function BasicDB(storageStrategy, conflictSolvingStrategy, options) {
     }
 
 
-    bindAutoPendingFunctions(this, ["on", "off"]);
+    bindAutoPendingFunctions(this, ["on", "off", "dispatchEvent"]);
     //============================================================
     // To not add others property on this object below this call =
     //============================================================
