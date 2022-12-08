@@ -124,5 +124,6 @@ module.exports = {
     registerDIDMethod,
     CryptographicSkills: require("./CryptographicSkills/CryptographicSkills"),
     W3CDIDMixin: require('./W3CDID_Mixin'),
-    W3CCVCMixin: require('./W3CVC_Mixin')
+    W3CCVCMixin: require('./W3CVC_Mixin'),
+    getCommunicationHub: require("./CommunicationHub").getCommunicationHub
 }

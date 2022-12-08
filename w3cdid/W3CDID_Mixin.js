@@ -76,7 +76,7 @@ function W3CDID_Mixin(target, enclave) {
             try {
                 message = message.getSerialisation();
             } catch (e) {
-                return callback(e);
+                message = JSON.stringify(message);
             }
         }
 
