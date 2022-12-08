@@ -1,9 +1,11 @@
 function CommunicationHub() {
     const pubSub = require("soundpubsub").soundPubSub;
     const isWaitingForMessages = {};
+
     const getChannelName = (did, messageType) => {
         return `${did.getIdentifier()}/${messageType}`;
     }
+
     this.subscribe = (did, messageType, checkSecurityMethod, callback) => {
         if (!callback) {
             callback = checkSecurityMethod;
@@ -33,7 +35,7 @@ function CommunicationHub() {
                     pubSub.publish(channelName, message);
                 });
             }
-            const channel = `${did.getIdentifier()}/${messageType}`;
+            const channel = getChannelName(did, messageType);
             pubSub.subscribe(channel, callback);
         } else {
             callback(Error("Security check failed"));
