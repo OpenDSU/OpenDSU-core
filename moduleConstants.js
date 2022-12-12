@@ -21,6 +21,7 @@ module.exports = {
 	VAULT_DOMAIN: "vaultDomain",
 	DOMAIN: "domain",
 	DID_DOMAIN: "didDomain",
+	MAIN_APP_DID: "mainAppDID",
 	MAIN_ENCLAVE: {
 		TYPE: "enclaveType",
 		DID: "enclaveDID",

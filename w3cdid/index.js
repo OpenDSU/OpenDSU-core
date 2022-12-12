@@ -125,5 +125,6 @@ module.exports = {
     CryptographicSkills: require("./CryptographicSkills/CryptographicSkills"),
     W3CDIDMixin: require('./W3CDID_Mixin'),
     W3CCVCMixin: require('./W3CVC_Mixin'),
-    getCommunicationHub: require("./CommunicationHub").getCommunicationHub
+    getCommunicationHub: require("./hubs/CommunicationHub").getCommunicationHub,
+    getTypicalBusinessLogicHub: require("./hubs/TypicalBusinessLogicHub").getTypicalBusinessLogicHub
 }
