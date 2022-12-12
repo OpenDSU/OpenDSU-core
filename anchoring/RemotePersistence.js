@@ -1,8 +1,9 @@
+const {SmartUrl} = require("../utils");
+
 function RemotePersistence() {
     const openDSU = require("opendsu");
     const keySSISpace = openDSU.loadAPI("keyssi");
     const resolver = openDSU.loadAPI("resolver");
-    const http = openDSU.loadAPI("http");
     const promiseRunner = require("../utils/promise-runner");
 
     const getAnchoringServices = (dlDomain, callback) => {
@@ -57,7 +58,10 @@ function RemotePersistence() {
     const getAnchorHandler = (anchorId, anchorValue, dlDomain, anchorAction) => {
         return function (service) {
             return new Promise((resolve, reject) => {
-                const putResult = http.doPut(`${service}/anchor/${dlDomain}/${anchorAction}/${anchorId}/${anchorValue}`, "", (err, data) => {
+                let smartUrl = new SmartUrl(service);
+                smartUrl = smartUrl.concatWith(`/anchor/${dlDomain}/${anchorAction}/${anchorId}/${anchorValue}`);
+
+                const putResult = smartUrl.doPut("", (err, data) => {
                     if (err) {
                         return reject({
                             statusCode: err.statusCode,
@@ -90,7 +94,11 @@ function RemotePersistence() {
     const getFetchAnchor = (anchorId, dlDomain, actionName, callback) => {
         return function (service) {
             return new Promise((resolve, reject) => {
-                http.doGet(`${service}/anchor/${dlDomain}/${actionName}/${anchorId}`, (err, data) => {
+
+                let smartUrl = new SmartUrl(service);
+                smartUrl = smartUrl.concatWith(`/anchor/${dlDomain}/${actionName}/${anchorId}`);
+
+                smartUrl.doGet((err, data) => {
                     if (err) {
                         return reject(err);
                     }
@@ -144,7 +152,10 @@ function RemotePersistence() {
     }
 
     this.createOrUpdateMultipleAnchors = (anchors, callback) => {
-        http.doPut(`/anchor/create-or-update-multiple-anchors`, JSON.stringify(anchors), (err, data) => {
+        let smartUrl = new SmartUrl(service);
+        smartUrl = smartUrl.concatWith(`/anchor/create-or-update-multiple-anchors`);
+
+        smartUrl.doPut(JSON.stringify(anchors), (err, data) => {
             if (err) {
                 return callback(err);
             }

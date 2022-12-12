@@ -1,8 +1,8 @@
 const openDSU = require("opendsu");
-const {fetch, doPut} = openDSU.loadApi("http");
 const constants = require("../moduleConstants");
 const cache = require("../cache/").getCacheForVault(constants.CACHE.ENCRYPTED_BRICKS_CACHE);
 const promiseRunner = require("../utils/promise-runner");
+const {SmartUrl} = require("../utils");
 
 const isValidBrickHash = (hashLinkSSI, brickData) => {
     const ensureIsBuffer = require("swarmutils").ensureIsBuffer;
@@ -52,17 +52,19 @@ const getBrick = (hashLinkSSI, authToken, callback) => {
             }
 
             const fetchBrick = (storage) => {
-                return fetch(`${storage}/bricking/${dlDomain}/get-brick/${brickHash}`)
-                    .then(async (response) => {
-                        const brickData = await response.arrayBuffer();
-                        if (isValidBrickHash(hashLinkSSI, brickData)) {
-                            if (typeof cache !== "undefined") {
-                                cache.put(brickHash, brickData);
-                            }
-                            return brickData;
+                let smartUrl = new SmartUrl(storage);
+                smartUrl = smartUrl.concatWith(`/bricking/${dlDomain}/get-brick/${brickHash}`);
+
+                return smartUrl.fetch().then(async (response) => {
+                    const brickData = await response.arrayBuffer();
+                    if (isValidBrickHash(hashLinkSSI, brickData)) {
+                        if (typeof cache !== "undefined") {
+                            cache.put(brickHash, brickData);
                         }
-                        throw Error(`Failed to validate brick <${brickHash}>`);
-                    });
+                        return brickData;
+                    }
+                    throw Error(`Failed to validate brick <${brickHash}>`);
+                });
             };
 
             const runnerCallback = (error, result) => {
@@ -141,7 +143,10 @@ const putBrick = (domain, brick, authToken, callback) => {
         }
         const setBrickInStorage = (storage) => {
             return new Promise((resolve, reject) => {
-                const putResult = doPut(`${storage}/bricking/${domain}/put-brick`, brick, (err, data) => {
+                let smartUrl = new SmartUrl(storage);
+                smartUrl = smartUrl.concatWith(`/bricking/${domain}/put-brick`);
+
+                const putResult = smartUrl.doPut(brick, (err, data) => {
                     if (err) {
                         return reject(err);
                     }
