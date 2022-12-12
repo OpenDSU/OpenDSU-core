@@ -1,5 +1,5 @@
 const keyssi = require("../keyssi");
-const {fetch, doPut} = require("../http");
+const SmartUrl = require("../utils").SmartUrl;
 const constants = require("../moduleConstants");
 const promiseRunner = require("../utils/promise-runner");
 const config = require("../config");
@@ -43,7 +43,9 @@ const buildGetVersionFunction = function(processingFunction){
 
                 //TODO: security issue (which response we trust)
                 const fetchAnchor = (service) => {
-                    return fetch(`${service}/anchor/${dlDomain}/get-all-versions/${anchorId}`).then(processingFunction);
+                    let smartUrl = new SmartUrl(service);
+                    smartUrl = smartUrl.concatWith(`/anchor/${dlDomain}/get-all-versions/${anchorId}`);
+                    return smartUrl.fetch().then(processingFunction);
                 };
 
                 promiseRunner.runOneSuccessful(anchoringServicesArray, fetchAnchor, callback, new Error("get Anchoring Service"));
@@ -174,7 +176,11 @@ const addVersion = (SSICapableOfSigning, newSSI, lastSSI, zkpValue, callback) =>
 
                 const addAnchor = (service) => {
                     return new Promise((resolve, reject) => {
-                        const putResult = doPut(`${service}/anchor/${dlDomain}/${anchorAction}/${anchorId}`, JSON.stringify(body), (err, data) => {
+
+                        let smartUrl = new SmartUrl(service);
+                        smartUrl = smartUrl.concatWith(`/anchor/${dlDomain}/${anchorAction}/${anchorId}`);
+
+                        const putResult = smartUrl.doPut(JSON.stringify(body), (err, data) => {
                             if (err) {
                                 return reject({
                                     statusCode: err.statusCode,

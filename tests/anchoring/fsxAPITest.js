@@ -1,3 +1,4 @@
+process.env.OPENDSU_ENABLE_DEBUG = true;
 require('../../../../psknode/bundles/testsRuntime');
 const assert = require('double-check').assert;
 const dc = require("double-check");
@@ -17,9 +18,15 @@ assert.callback("FSx API test", (callback) => {
                         "type": "FS"
                     }
                 }
-            }],
+            }]
         }
         await tir.launchConfigurableApiHubTestNodeAsync(config);
+
+        const bdns = openDSU.loadAPI("bdns");
+        let defaultBdns = await $$.promisify(bdns.getRawInfo)("default");
+        defaultBdns.anchoringServices[0] = {"url":defaultBdns.anchoringServices[0], "headers":{"token":"tokenValue"}};
+        bdns.setBDNSHosts({default:defaultBdns, vault:defaultBdns});
+
         const anchoring = openDSU.loadAPI("anchoring");
         const anchoringX = anchoring.getAnchoringX();
         const keySSISpace = openDSU.loadAPI("keyssi");
