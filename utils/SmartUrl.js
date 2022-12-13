@@ -1,6 +1,5 @@
-const {fetch, doPut, doPost, doGet} = require("./../index").loadAPI("http");
-
 function SmartUrl(bdnsEntry){
+    const {fetch, doPut, doPost, doGet} = require("opendsu").loadAPI("http");
     let url = typeof bdnsEntry === "string" ? bdnsEntry : bdnsEntry.url;
 
     if(!url){

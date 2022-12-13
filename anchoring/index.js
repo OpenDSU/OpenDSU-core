@@ -1,8 +1,10 @@
-const keyssi = require("../keyssi");
-const SmartUrl = require("../utils").SmartUrl;
-const constants = require("../moduleConstants");
-const promiseRunner = require("../utils/promise-runner");
-const config = require("../config");
+const openDSU = require("opendsu")
+const keyssi = openDSU.loadAPI("keyssi");
+const utils = openDSU.loadAPI("utils");
+const SmartUrl = utils.SmartUrl;
+const constants = openDSU.constants;
+const promiseRunner = utils.promiseRunner;
+const config = openDSU.loadAPI("config");
 const {validateHashLinks, verifySignature} = require("./anchoring-utils");
 
 const getAnchoringBehaviour = (persistenceStrategy) => {
