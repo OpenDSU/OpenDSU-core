@@ -48,3 +48,39 @@ module.exports.bindAutoPendingFunctions = function(obj, exceptionList){
     }
     return obj;
 };
+
+module.exports.bindParallelAutoPendingFunctions = function(obj, exceptionList){
+    let originalFunctions = {};
+
+    for(let m in obj){
+        if(typeof obj[m] == "function"){
+            if(!exceptionList || exceptionList.indexOf(m) === -1){
+                originalFunctions[m] = obj[m];
+            }
+        }
+    }
+    PendingCallMixin(obj);
+    let isInitialised = false;
+
+    obj.finishInitialisation = function(){
+        isInitialised = true;
+        obj.executePendingCalls();
+    };
+
+    function getWrapper(func){
+        return function(...args){
+            if(isInitialised){
+                return func(...args);
+            } else {
+                obj.addPendingCall( function(){
+                    return func(...args);
+                })
+            }
+        }.bind(obj);
+    }
+
+    for(let m in originalFunctions){
+        obj[m] = getWrapper(originalFunctions[m]);
+    }
+    return obj;
+};

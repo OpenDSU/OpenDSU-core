@@ -63,7 +63,7 @@ function CommunicationHub() {
                         console.error("Security check failed");
                     }
 
-                    callback(undefined, message);
+                    callback(message);
                 })
             });
         }
