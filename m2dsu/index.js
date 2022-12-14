@@ -21,6 +21,16 @@ function MappingEngine(storageService, options) {
   //the purpose of the method is to create a "this" instance to be used during a message mapping process
   function buildMappingInstance() {
     let instance = {storageService, options};
+
+    let recoveryMode = false;
+    instance.setRecovery = function(value){
+      recoveryMode = !!value;
+    }
+
+    instance.isRecoveryActive = function(){
+      return recoveryMode;
+    }
+
     const apis = apisRegistry.getApis();
 
     //we inject all the registered apis on the instance that will become the "this" for a mapping
@@ -85,6 +95,7 @@ function MappingEngine(storageService, options) {
       if (mappingFnc) {
         const instance = buildMappingInstance();
         try {
+          instance.setRecovery(message.force);
           await mappingFnc.call(instance, message);
         } catch (err) {
           //we need to return the list of touched DSUs for partial rollback procedure
