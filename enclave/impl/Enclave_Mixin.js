@@ -512,7 +512,10 @@ function Enclave_Mixin(target, did, keySSI) {
                 keySSISpace[fnName](...args);
             }
         } else if (fnName.startsWith("createTemplate")) {
-            target[fnName] = keySSISpace[fnName];
+            target[fnName] = (...args) => {
+                args.shift();
+                keySSISpace[fnName](...args);
+            }
         }
     })
 
@@ -610,6 +613,10 @@ function Enclave_Mixin(target, did, keySSI) {
 
             callback(undefined, dsu);
         })
+    }
+
+    target.loadDSURecoveryMode = (forDID, ssi, contentRecoveryFnc, callback)=>{
+        target.loadDSU(forDID, ssi, {contentRecoveryFnc, recoveryMode: true}, callback);
     }
 }
 

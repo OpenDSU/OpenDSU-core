@@ -213,3 +213,46 @@ registry.defineApi("getResolver", function (domain, ssiType, options) {
 
 });
 
+
+registry.defineApi("testAndRecoverBrickMap", function (ssi, callback) {
+    const opendsu = require("opendsu");
+    const keyssi = opendsu.loadApi("keyssi");
+    const anchoring = opendsu.loadApi("anchoring");
+    const bricking = opendsu.loadApi("bricking");
+    const identifier = keyssi.parse(ssi);
+    let anchorId = identifier.getAnchorId();
+
+    anchoring.getAnchoringX.getLastVersion(anchorId, (err, lastVersion)=>{
+        if(err){
+            return callback(err);
+        }
+
+        bricking.getBrick(lastVersion, (err, brickMap)=>{
+            //if all good let's skip the rest of the code
+            if(brickMap){
+                return callback(undefined, brickMap);
+            }
+
+            if(err){
+                //needs better error handling... some errors need to be handled here and some need to be thrown up
+                // no domain replicas needs to be thrown
+                // no brick available or corrupted is our role to handle it
+                let possibleErrors = ["Failed to validate brick", "Failed to get brick"];
+                let ourResponsibility = false;
+                possibleErrors.forEach((possibleErr)=>{
+                    if(err.message.indexOf(possibleErr) !== -1){
+                        ourResponsibility = true;
+                    }
+                });
+                if(!ourResponsibility){
+                    return callback(err);
+                }
+            }
+
+            //... let's start the patching process
+
+        });
+    });
+
+});
+
