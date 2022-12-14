@@ -242,6 +242,7 @@ function MQHandler(didDocument, domain, pollingTimeout) {
     }
 
     this.waitForMessages = (callback) => {
+        console.trace("Waiting for messages");
         callback.__requestInProgress = true;
 
         ensureAuth((err, token) => {
@@ -265,7 +266,7 @@ function MQHandler(didDocument, domain, pollingTimeout) {
                     let options = { headers: { Authorization: token } };
 
                     async function makeRequest() {
-                        
+                        console.log("Making request", url);
                         let request = http.poll(url, options, connectionTimeout, timeout);
                         callback.__requestInProgress = request;
 

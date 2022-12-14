@@ -22,14 +22,7 @@ function CommunicationHub() {
         fnToExecute(did);
     }
 
-    this.subscribe = (did, messageType, checkSecurityMethod, callback) => {
-        if (!callback) {
-            callback = checkSecurityMethod;
-            checkSecurityMethod = (message, cb) => {
-                return cb(undefined, true);
-            }
-        }
-
+    this.subscribe = (did, messageType, callback) => {
         const __subscribe = (did) => {
             if (!connectedToMQ[did.getIdentifier()]) {
                 connectedToMQ[did.getIdentifier()] = true;
@@ -53,19 +46,7 @@ function CommunicationHub() {
                 });
             }
             const channel = getChannelName(did, messageType);
-            pubSub.subscribe(channel, message => {
-                checkSecurityMethod(message, (err, status) => {
-                    if (err) {
-                        console.error(err);
-                    }
-
-                    if (!status) {
-                        console.error("Security check failed");
-                    }
-
-                    callback(message);
-                })
-            });
+            pubSub.subscribe(channel, callback);
         }
 
         ensureDIDDocumentIsLoadedThenExecute(did, __subscribe);
@@ -84,14 +65,7 @@ function CommunicationHub() {
 
     const subscribers = {};
     // soundpubSub keeps WeakRefs
-    this.strongSubscribe = (did, messageType, checkSecurityMethod, callback) => {
-        if (typeof callback === "undefined") {
-            callback = checkSecurityMethod;
-            checkSecurityMethod = (message, cb) => {
-                return cb(undefined, true);
-            }
-        }
-
+    this.strongSubscribe = (did, messageType, callback) => {
         const __strongSubscribe = (did) => {
             const channelName = getChannelName(did, messageType);
             if (!subscribers[channelName]) {
@@ -109,9 +83,6 @@ function CommunicationHub() {
         ensureDIDDocumentIsLoadedThenExecute(did, __strongSubscribe);
     }
 
-    const generateSubscribeMethod = (channelName, callback, ...args) => {
-
-    }
     this.strongUnsubscribe = (did, messageType, callback) => {
         const channelName = getChannelName(did, messageType);
         const __strongUnsubscribe = (did) => {

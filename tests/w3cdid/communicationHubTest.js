@@ -48,17 +48,21 @@ assert.callback('communicationHub test', async (testFinished) => {
             commHub.subscribe(receiverDID, FIRST_MESSAGE_TYPE, (receivedMessage) => {
                 assert.equal(receivedMessage.messageType, FIRST_MESSAGE_TYPE);
                 noReceivedMessages++;
-                if (noReceivedMessages === NO_SENT_MESSAGES) {
-                    testFinished();
-                }
+                console.log("#########################################################################################")
+                console.log(noReceivedMessages)
+                console.log("#########################################################################################")
+
             })
 
             commHub.subscribe(receiverDID, SECOND_MESSAGE_TYPE, (receivedMessage) => {
                 assert.equal(receivedMessage.messageType, SECOND_MESSAGE_TYPE);
                 noReceivedMessages++;
-                if (noReceivedMessages === NO_SENT_MESSAGES) {
-                    testFinished();
-                }
+                console.log("#########################################################################################")
+                console.log(noReceivedMessages)
+                console.log("#########################################################################################")
+                // if (noReceivedMessages === NO_SENT_MESSAGES) {
+                //     testFinished();
+                // }
             })
 
             let error;
