@@ -265,7 +265,6 @@ function MQHandler(didDocument, domain, pollingTimeout) {
                     let options = { headers: { Authorization: token } };
 
                     async function makeRequest() {
-                        console.log("Making request", url);
                         let request = http.poll(url, options, connectionTimeout, timeout);
                         callback.__requestInProgress = request;
 
