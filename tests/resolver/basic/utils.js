@@ -9,7 +9,7 @@ async function mockEnvironment({ domain, volume, folder } = {}) {
     const dc = require('double-check');
 
     const cache = require('../../../cache');
-    const vault = cache.getCacheForVault('DSUs');
+    const vault = cache.getCacheForVault('mainDSUsCache');
 
     if (!domain) {
         domain = 'default';

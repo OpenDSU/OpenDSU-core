@@ -1,7 +1,7 @@
 
 const constants = require("../moduleConstants");
 
-function MemoryCache() {
+function MemoryCache(useWeakRef) {
     let storage = {};
     const self = this;
 
@@ -9,15 +9,23 @@ function MemoryCache() {
         if(typeof key !== "string"){
             throw new Error("Keys should be strings");
         }
-        if(callback){
-            callback(undefined, storage[key])
+
+        let value = storage[key];
+        if(value && useWeakRef){
+            value = value.deref();
         }
-        return storage[key];
+        if(callback){
+            callback(undefined, value);
+        }
+        return value;
     };
 
     self.put = function (key, value, callback) {
         if(typeof key !== "string"){
             throw new Error("Keys should be strings");
+        }
+        if(useWeakRef){
+            value = value ? new WeakRef(value) : value;
         }
         storage[key] = value;
         if(callback){

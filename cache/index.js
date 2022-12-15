@@ -30,10 +30,20 @@ function getCacheForVault(storeName, lifetime) {
 }
 
 function getMemoryCache(storeName){
-    return stores[storeName] = new MemoryCache(storeName);
+    return stores[storeName] = new MemoryCache();
+}
+
+function getWeakRefMemoryCache(storeName){
+    let cache = stores[storeName];
+    if(!cache){
+        cache = new MemoryCache(true);
+        stores[storeName] = cache;
+    }
+    return cache;
 }
 
 module.exports = {
     getCacheForVault,
-    getMemoryCache
+    getMemoryCache,
+    getWeakRefMemoryCache
 }

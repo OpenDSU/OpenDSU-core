@@ -3,6 +3,8 @@ const keySSISpace = require("opendsu").loadApi("keyssi");
 
 let {ENVIRONMENT_TYPES, KEY_SSIS} = require("../moduleConstants.js");
 const {getWebWorkerBootScript, getNodeWorkerBootScript} = require("./resolver-utils");
+const cache = require("../cache");
+let dsuCache = cache.getWeakRefMemoryCache("mainDSUsCache");
 
 const getResolver = (options) => {
     options = options || {};
@@ -36,7 +38,13 @@ const createDSU = (templateKeySSI, options, callback) => {
     }
 
     const keySSIResolver = getResolver(options);
-    keySSIResolver.createDSU(templateKeySSI, options, callback);
+    keySSIResolver.createDSU(templateKeySSI, options, (err, dsuInstance) => {
+        if (err) {
+            return OpenDSUSafeCallback(callback)(createOpenDSUErrorWrapper(`Failed to create DSU instance`, err));
+        }
+
+        addDSUInstanceInCache(dsuInstance, callback);
+    });
 };
 
 const createDSUx = (domain, ssiType, options, callback) => {
@@ -300,14 +308,36 @@ const loadDSU = (keySSI, options, callback) => {
         return loadFallbackDSU(keySSI, options, callback);
     }
 
-    const keySSIResolver = getResolver(options);
-    keySSIResolver.loadDSU(keySSI, options, (err, dsuInstance) => {
-        if (err) {
-            return OpenDSUSafeCallback(callback)(createOpenDSUErrorWrapper(`Failed to load DSU`, err));
-        }
+    const loadDSU = (addInCache) => {
 
-        callback(undefined, dsuInstance);
-    });
+        const keySSIResolver = getResolver(options);
+        keySSIResolver.loadDSU(keySSI, options, (err, dsuInstance) => {
+            if (err) {
+                return OpenDSUSafeCallback(callback)(createOpenDSUErrorWrapper(`Failed to load DSU`, err));
+            }
+
+            if (addInCache) {
+                return addDSUInstanceInCache(dsuInstance, callback);
+            }
+
+            callback(undefined, dsuInstance);
+        });
+    };
+
+    if (typeof options === 'object' && options !== null && options.skipCache) {
+        return loadDSU(false);
+    }
+
+    keySSI.getAnchorId((err, cacheKey) => {
+        if (err) {
+            return callback(err);
+        }
+        const cachedDSU = dsuCache.get(cacheKey);
+        if (cachedDSU) {
+            return getLatestDSUVersion(cachedDSU, callback);
+        }
+        loadDSU(true);
+    })
 };
 
 /*
@@ -470,9 +500,40 @@ const getRemoteHandler = (dsuKeySSI, remoteURL, presentation) => {
 };
 
 function invalidateDSUCache(dsuKeySSI, callback) {
-    //there is a cache at Bar level...
-    return callback();
+    try {
+        if (typeof dsuKeySSI === "string") {
+            dsuKeySSI = keySSISpace.parse(dsuKeySSI);
+        }
+    } catch (e) {
+        console.error(e);
+    }
+    dsuKeySSI.getAnchorId((err, cacheKey) => {
+        if (err) {
+            return callback(err);
+        }
+        if (cacheKey) {
+            delete dsuCache.set(cacheKey, undefined);
+        }
+
+        callback();
+    });
 }
+
+function addDSUInstanceInCache(dsuInstance, callback) {
+    dsuInstance.getKeySSIAsObject((err, keySSI) => {
+        if (err) {
+            return OpenDSUSafeCallback(callback)(createOpenDSUErrorWrapper(`Failed to retrieve keySSI`, err));
+        }
+        keySSI.getAnchorId((err, cacheKey) => {
+            if (err) {
+                return callback(err);
+            }
+            dsuCache.set(cacheKey, dsuInstance);
+            callback(undefined, dsuInstance);
+        });
+    });
+}
+
 
 module.exports = {
     createDSU,
