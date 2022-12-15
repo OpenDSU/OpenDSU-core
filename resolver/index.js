@@ -190,6 +190,38 @@ const loadDSUVersionBasedOnVersionNumber = (keySSI, versionNumber, callback) => 
     })
 }
 
+let tryToRunRecoveryContentFnc = (keySSI, recoveredInstance, options, anchorFakeHistory, anchorFakeLastVersion,  callback)=>{
+    if(typeof options.contentRecoveryFnc === "function"){
+        let ignoreError = false;
+        try{
+            let cb = (err)=>{
+                ignoreError = true;
+                if(err){
+                    return callback(createOpenDSUErrorWrapper(`Failed to recover fallback DSU for keySSI ${keySSI.getIdentifier()}`, err));
+                }
+
+                return callback(undefined, recoveredInstance);
+            };
+            keySSI.getAnchorId((err, anchorId)=>{
+                if(err){
+                   throw createOpenDSUErrorWrapper(`Surprise error!`, err);
+                }
+                require("opendsu").loadApi("anchoring").getAnchoringX().markAnchorForRecovery(anchorId, anchorFakeHistory, anchorFakeLastVersion);
+                options.contentRecoveryFnc(recoveredInstance, cb);
+            });
+
+        }catch(err){
+            if(!ignoreError){
+                return callback(createOpenDSUErrorWrapper(`Caught an error in contentRecoveryFunction`, err));
+            }
+            throw err;
+        }
+        //callback already called above
+        return;
+    }
+    callback(undefined, recoveredInstance);
+}
+
 const loadFallbackDSU = (keySSI, options, callback) => {
     if (typeof keySSI === "string") {
         try {
@@ -225,29 +257,7 @@ const loadFallbackDSU = (keySSI, options, callback) => {
                             return callback(err);
                         }
 
-                        if(typeof options.contentRecoveryFnc === "function"){
-                            let ignoreError = false;
-                            try{
-                                let cb = (err)=>{
-                                    ignoreError = true;
-                                    if(err){
-                                        return callback(createOpenDSUErrorWrapper(`Failed to recover fallback DSU for keySSI ${keySSI.getIdentifier()}`, err));
-                                    }
-
-                                    return callback(undefined, recoveredInstance);
-                                };
-
-                                options.contentRecoveryFnc(recoveredInstance, cb);
-                            }catch(err){
-                                if(!ignoreError){
-                                    return callback(createOpenDSUErrorWrapper(`Caught an error in contentRecoveryFunction`, err));
-                                }
-                                throw err;
-                            }
-                            return;
-                        }
-
-                        return callback(undefined, recoveredInstance);
+                        return tryToRunRecoveryContentFnc (keySSI, recoveredInstance, options, [], versions[versions.length-1],  callback);
                     });
                 }
 
@@ -255,7 +265,9 @@ const loadFallbackDSU = (keySSI, options, callback) => {
                     if (err) {
                         return __loadFallbackDSURecursively(index - 1);
                     }
-
+                    if(index < versions.length - 1){
+                        return tryToRunRecoveryContentFnc (keySSI, dsuInstance, options, versions.slice(0, index), versions[versions.length-1], callback);
+                    }
                     callback(undefined, dsuInstance);
                 })
             }
@@ -284,7 +296,7 @@ const loadDSU = (keySSI, options, callback) => {
         return loadDSUVersionBasedOnVersionNumber(keySSI, versionNumber, callback);
     }
 
-    if (options.recoveryMode) {
+    if (options && options.recoveryMode) {
         return loadFallbackDSU(keySSI, options, callback);
     }
 

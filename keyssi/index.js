@@ -148,7 +148,7 @@ const we_createConstSSI = (enclave, domain, constString, vn, hint, callback) => 
     constSSI.initialize(domain, constString, vn, hint);
     if (typeof callback === "function") {
         if (enclave) {
-            enclave.storeKeySSI(undefined, constSSI, callback);
+            enclave.storeKeySSI(undefined, constSSI, (err) => callback(err, constSSI));
         } else {
             callback(undefined, constSSI);
         }
@@ -165,7 +165,7 @@ const we_createArraySSI = (enclave, domain, arr, vn, hint, callback) => {
     arraySSI.initialize(domain, arr, vn, hint);
     if (typeof callback === "function") {
         if (enclave) {
-            enclave.storeKeySSI(undefined, arraySSI, callback);
+            enclave.storeKeySSI(undefined, arraySSI, (err) => callback(err, arraySSI));
         } else {
             callback(undefined, arraySSI);
         }
