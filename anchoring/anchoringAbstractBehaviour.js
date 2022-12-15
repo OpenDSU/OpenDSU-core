@@ -1,8 +1,11 @@
 const {createOpenDSUErrorWrapper} = require("../error");
+const fakeHistory = {};
+const fakeLastVersion = {};
 
 function AnchoringAbstractBehaviour(persistenceStrategy) {
     const self = this;
     const keySSISpace = require("opendsu").loadAPI("keyssi");
+
     self.createAnchor = function (anchorId, anchorValueSSI, callback) {
         if (typeof anchorId === 'undefined' || typeof anchorValueSSI === 'undefined' || anchorId === null || anchorValueSSI === null) {
             return callback(Error(`Invalid call for create anchor ${anchorId}:${anchorValueSSI}`));
@@ -17,10 +20,19 @@ function AnchoringAbstractBehaviour(persistenceStrategy) {
             anchorValueSSIKeySSI = keySSISpace.parse(anchorValueSSI);
         }
 
+
+
         anchorIdKeySSI.getAnchorId((err, _anchorId) => {
             if (err) {
                 return callback(err);
             }
+
+            let fakeLastVersionForAnchorId = fakeLastVersion[_anchorId];
+            if(fakeLastVersionForAnchorId){
+                console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                return callback(undefined);
+            }
+
             if (!anchorIdKeySSI.canAppend()) {
                 return persistenceStrategy.createAnchor(_anchorId, anchorValueSSIKeySSI.getIdentifier(), callback);
             }
@@ -31,9 +43,7 @@ function AnchoringAbstractBehaviour(persistenceStrategy) {
             if (!signer.verify(dataToVerify, signature)) {
                 return callback(Error("Failed to verify signature"));
             }
-            persistenceStrategy.createAnchor(_anchorId, anchorValueSSIKeySSI.getIdentifier(), (err) => {
-                return callback(err);
-            });
+            persistenceStrategy.createAnchor(_anchorId, anchorValueSSIKeySSI.getIdentifier(), callback);
         });
     }
 
@@ -55,34 +65,47 @@ function AnchoringAbstractBehaviour(persistenceStrategy) {
             if (!anchorIdKeySSI.canAppend()) {
                 return callback(Error(`Cannot append anchor for ${anchorId} because of the keySSI type`));
             }
-            persistenceStrategy.getAllVersions(anchorId, (err, data) => {
-                // throw Error("Get all versions callback");
+
+            anchorIdKeySSI.getAnchorId((err, _anchorId) => {
                 if (err) {
                     return callback(err);
                 }
-                if (typeof data === 'undefined' || data === null) {
-                    data = [];
-                }
-                const historyOfKeySSI = data.map(el => keySSISpace.parse(el));
-                const signer = determineSigner(anchorIdKeySSI, historyOfKeySSI);
-                const signature = anchorValueSSIKeySSI.getSignature();
-                if (typeof data[data.length - 1] === 'undefined') {
-                    return callback(`Cannot update non existing anchor ${anchorId}`);
-                }
-                const lastSignedHashLinkKeySSI = keySSISpace.parse(data[data.length - 1]);
-                const dataToVerify = anchorValueSSIKeySSI.getDataToSign(anchorIdKeySSI, lastSignedHashLinkKeySSI);
-                if (!signer.verify(dataToVerify, signature)) {
-                    return callback({statusCode: 428, message: "Versions out of sync"});
-                }
 
-                anchorIdKeySSI.getAnchorId((err, _anchorId) => {
+                let verifySignaturesAndAppend = (err, data) => {
+                    // throw Error("Get all versions callback");
                     if (err) {
                         return callback(err);
                     }
+                    if (typeof data === 'undefined' || data === null) {
+                        data = [];
+                    }
+
+                    if(!self.testIfRecoveryActiveFor(_anchorId)){
+                        const historyOfKeySSI = data.map(el => keySSISpace.parse(el));
+                        const signer = determineSigner(anchorIdKeySSI, historyOfKeySSI);
+                        const signature = anchorValueSSIKeySSI.getSignature();
+                        if (typeof data[data.length - 1] === 'undefined') {
+                            return callback(`Cannot update non existing anchor ${anchorId}`);
+                        }
+                        const lastSignedHashLinkKeySSI = keySSISpace.parse(data[data.length - 1]);
+                        const dataToVerify = anchorValueSSIKeySSI.getDataToSign(anchorIdKeySSI, lastSignedHashLinkKeySSI);
+                        if (!signer.verify(dataToVerify, signature)) {
+                            return callback({statusCode: 428, message: "Versions out of sync"});
+                        }
+                    }
+
                     persistenceStrategy.appendAnchor(_anchorId, anchorValueSSIKeySSI.getIdentifier(), callback);
-                });
-            })
+                }
+
+                let fakeHistoryAvailable = fakeHistory[_anchorId];
+                if(fakeHistoryAvailable){
+                    return verifySignaturesAndAppend(undefined, fakeHistoryAvailable);
+                }
+
+                persistenceStrategy.getAllVersions(anchorId, verifySignaturesAndAppend)
+            });
         }
+
         if (typeof persistenceStrategy.prepareAnchoring === "function") {
             persistenceStrategy.prepareAnchoring(anchorId, err => {
                 if (err) {
@@ -100,9 +123,15 @@ function AnchoringAbstractBehaviour(persistenceStrategy) {
         if (typeof anchorId === "string") {
             anchorIdKeySSI = keySSISpace.parse(anchorId);
         }
+
         anchorIdKeySSI.getAnchorId((err, anchorId) => {
             if (err) {
                 return callback(err);
+            }
+
+            let fakeHistoryAvailable = fakeHistory[anchorId];
+            if(fakeHistoryAvailable){
+                return callback(undefined, fakeHistoryAvailable);
             }
 
             persistenceStrategy.getAllVersions(anchorId, (err, data) => {
@@ -148,10 +177,17 @@ function AnchoringAbstractBehaviour(persistenceStrategy) {
         if (typeof anchorId === "string") {
             anchorIdKeySSI = keySSISpace.parse(anchorId);
         }
+
         anchorIdKeySSI.getAnchorId((err, anchorId) => {
             if (err) {
                 return callback(err);
             }
+
+            let fakeLastVersionForAnchorId = fakeLastVersion[anchorId];
+            if(fakeLastVersionForAnchorId){
+                return callback(undefined, fakeLastVersionForAnchorId);
+            }
+
             persistenceStrategy.getLastVersion(anchorId, (err, data) => {
                 if (err) {
                     return callback(err);
@@ -168,6 +204,15 @@ function AnchoringAbstractBehaviour(persistenceStrategy) {
                 callback(undefined, anchorValueSSI);
             });
         });
+    }
+
+    self.markAnchorForRecovery = function(anchorId, anchorFakeHistory, anchorFakeLastVersion){
+        fakeHistory[anchorId] = anchorFakeHistory;
+        fakeLastVersion[anchorId] = anchorFakeLastVersion;
+    }
+
+    self.testIfRecoveryActiveFor = function(anchorId){
+        return !!fakeHistory[anchorId];
     }
 
     function determineSigner(anchorIdKeySSI, historyOfKeySSIValues) {

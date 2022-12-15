@@ -39,10 +39,9 @@ assert.callback('load DSU in recovery mode test', (testFinished) => {
         }
         assert.true(error !== undefined)
 
-        resolver.setRecoveryMode(true);
         error = undefined;
         try {
-            loadedDSU = await $$.promisify(resolver.loadDSU)(keySSI);
+            loadedDSU = await $$.promisify(resolver.loadDSU)(keySSI, {recoveryMode: true});
         } catch (e) {
             error = e;
         }
