@@ -77,7 +77,7 @@ function CommunicationHub() {
                 subscribers[channelName].push(callback);
             }
 
-            this.subscribe(did, messageType, checkSecurityMethod, callback);
+            this.subscribe(did, messageType, callback);
         }
 
         ensureDIDDocumentIsLoadedThenExecute(did, __strongSubscribe);

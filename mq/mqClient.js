@@ -242,7 +242,6 @@ function MQHandler(didDocument, domain, pollingTimeout) {
     }
 
     this.waitForMessages = (callback) => {
-        console.trace("Waiting for messages");
         callback.__requestInProgress = true;
 
         ensureAuth((err, token) => {

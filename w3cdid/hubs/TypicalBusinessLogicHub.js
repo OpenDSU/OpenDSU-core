@@ -66,12 +66,12 @@ function TypicalBusinessLogicHub() {
         commHub.unsubscribe(hubContext.appMainDID, messageType, callback);
     }
 
-    this.strongSubscribe = (messageType, checkSecurityMethod, callback) => {
-        commHub.strongSubscribe(hubContext.appMainDID, messageType, checkSecurityMethod, callback);
+    this.strongSubscribe = (messageType, callback) => {
+        commHub.strongSubscribe(hubContext.appMainDID, messageType, callback);
     }
 
-    this.strongUnsubscribe = (messageType, checkSecurityMethod, callback) => {
-        commHub.strongUnsubscribe(hubContext.appMainDID, messageType, checkSecurityMethod, callback);
+    this.strongUnsubscribe = (messageType, callback) => {
+        commHub.strongUnsubscribe(hubContext.appMainDID, messageType, callback);
     }
 
     utilsAPI.bindParallelAutoPendingFunctions(this, ["mainDIDCreated", "setMainDID", "sharedEnclaveIsSet", "setSharedEnclave"]);
