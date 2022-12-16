@@ -101,4 +101,4 @@ assert.callback('[DID] Create JWT, embed public claim and, another JWTVc and ver
             throw e;
         }
     });
-}, 1000);
+}, 3000);

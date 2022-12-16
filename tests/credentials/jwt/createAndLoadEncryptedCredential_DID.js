@@ -90,4 +90,4 @@ assert.callback('[DID] Create JWT VC and VP with encrypted credential credential
             throw e;
         }
     });
-}, 1000);
+}, 3000);
