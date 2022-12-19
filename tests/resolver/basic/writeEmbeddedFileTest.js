@@ -15,7 +15,7 @@ assert.callback('write embedded file test', (testFinished) => {
     dc.createTestFolder('writeEmbeddedFile', async (err, folder) => {
         await tir.launchConfigurableApiHubTestNodeAsync({rootFolder: folder});
         const seedDSU = await $$.promisify(resolver.createSeedDSU)(DOMAIN);
-        await $$.promisify(seedDSU.embedFile)(FILEPATH, FILE_CONTENT);
+        await $$.promisify(seedDSU.writeFile)(FILEPATH, FILE_CONTENT, {embed: true});
         let dsuContent = await $$.promisify(seedDSU.readFile)(FILEPATH);
         assert.equal(dsuContent.toString(), FILE_CONTENT);
 
@@ -28,4 +28,4 @@ assert.callback('write embedded file test', (testFinished) => {
         assert.equal(dsuContent.toString(), NEW_FILE_CONTENT + APPENDED_FILE_CONTENT);
         testFinished();
     });
-}, 5000);
+}, 500000);
