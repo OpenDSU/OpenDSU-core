@@ -44,25 +44,21 @@ assert.callback('communicationHub test', async (testFinished) => {
             const FIRST_MESSAGE_TYPE = "type 1";
             const SECOND_MESSAGE_TYPE = "type 2";
             let noReceivedMessages = 0;
-            const NO_SENT_MESSAGES = 100;
+            const NO_SENT_MESSAGES = 4;
             commHub.subscribe(receiverDID, FIRST_MESSAGE_TYPE, (receivedMessage) => {
                 assert.equal(receivedMessage.messageType, FIRST_MESSAGE_TYPE);
                 noReceivedMessages++;
-                console.log("#########################################################################################")
-                console.log(noReceivedMessages)
-                console.log("#########################################################################################")
-
+                if (noReceivedMessages === NO_SENT_MESSAGES) {
+                    testFinished();
+                }
             })
 
             commHub.subscribe(receiverDID, SECOND_MESSAGE_TYPE, (receivedMessage) => {
                 assert.equal(receivedMessage.messageType, SECOND_MESSAGE_TYPE);
                 noReceivedMessages++;
-                console.log("#########################################################################################")
-                console.log(noReceivedMessages)
-                console.log("#########################################################################################")
-                // if (noReceivedMessages === NO_SENT_MESSAGES) {
-                //     testFinished();
-                // }
+                if (noReceivedMessages === NO_SENT_MESSAGES) {
+                    testFinished();
+                }
             })
 
             let error;
