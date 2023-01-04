@@ -144,7 +144,7 @@ registry.defineApi("createDSU", async function (domain, ssiType, options) {
     return this.registerDSU(dsu);
 });
 
-registry.defineApi("createPathSSIDSU", async function (domain, path, options) {
+registry.defineApi("createPathSSI", async function (domain, path, options) {
     const scAPI = require("opendsu").loadAPI("sc");
     let enclave;
     try{
@@ -154,6 +154,12 @@ registry.defineApi("createPathSSIDSU", async function (domain, path, options) {
     }
     const pathKeySSI = await $$.promisify(enclave.createPathKeySSI)(domain, path);
     const seedSSI = await $$.promisify(pathKeySSI.derive)();
+
+    return seedSSI;
+});
+
+registry.defineApi("createPathSSIDSU", async function (domain, path, options) {
+    const seedSSI = await this.createPathSSI(domain, path, options);
     let resolver = await this.getResolver();
     let dsu = await resolver.createDSUForExistingSSI(seedSSI, options);
     //take note that this.registerDSU returns a Proxy Object over the DSU and this Proxy we need to return also
@@ -214,45 +220,17 @@ registry.defineApi("getResolver", function (domain, ssiType, options) {
 });
 
 
-registry.defineApi("testAndRecoverBrickMap", function (ssi, callback) {
-    const opendsu = require("opendsu");
-    const keyssi = opendsu.loadApi("keyssi");
-    const anchoring = opendsu.loadApi("anchoring");
-    const bricking = opendsu.loadApi("bricking");
-    const identifier = keyssi.parse(ssi);
-    let anchorId = identifier.getAnchorId();
+registry.defineApi("recoverDSU", function (ssi, recoveryFnc, callback) {
+    if(!this.storageService.loadDSURecoveryMode){
+        return callback(new Error("Not able to run recovery mode due to misconfiguration of mapping engine."));
+    }
 
-    anchoring.getAnchoringX.getLastVersion(anchorId, (err, lastVersion)=>{
+    this.storageService.loadDSURecoveryMode(ssi, recoveryFnc, (err, dsu)=>{
         if(err){
             return callback(err);
         }
 
-        bricking.getBrick(lastVersion, (err, brickMap)=>{
-            //if all good let's skip the rest of the code
-            if(brickMap){
-                return callback(undefined, brickMap);
-            }
-
-            if(err){
-                //needs better error handling... some errors need to be handled here and some need to be thrown up
-                // no domain replicas needs to be thrown
-                // no brick available or corrupted is our role to handle it
-                let possibleErrors = ["Failed to validate brick", "Failed to get brick"];
-                let ourResponsibility = false;
-                possibleErrors.forEach((possibleErr)=>{
-                    if(err.message.indexOf(possibleErr) !== -1){
-                        ourResponsibility = true;
-                    }
-                });
-                if(!ourResponsibility){
-                    return callback(err);
-                }
-            }
-
-            //... let's start the patching process
-
-        });
+        return callback(undefined, this.registerDSU(dsu));
     });
-
 });
 
