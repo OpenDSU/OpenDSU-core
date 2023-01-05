@@ -690,6 +690,10 @@ function Enclave_Mixin(target, did, keySSI) {
             callback(undefined, dsu);
         })
     }
+
+    target.loadDSURecoveryMode = (forDID, ssi, contentRecoveryFnc, callback)=>{
+        target.loadDSU(forDID, ssi, {contentRecoveryFnc, recoveryMode: true}, callback);
+    }
 }
 
 module.exports = Enclave_Mixin;
