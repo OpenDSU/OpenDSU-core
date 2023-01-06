@@ -90,7 +90,7 @@ function AnchoringAbstractBehaviour(persistenceStrategy) {
                         const lastSignedHashLinkKeySSI = keySSISpace.parse(data[data.length - 1]);
                         const dataToVerify = anchorValueSSIKeySSI.getDataToSign(anchorIdKeySSI, lastSignedHashLinkKeySSI);
                         if (!signer.verify(dataToVerify, signature)) {
-                            return callback({statusCode: 428, message: "Versions out of sync"});
+                            return callback({statusCode: 428, code: 428, message: "Versions out of sync"});
                         }
                     }
 
@@ -209,6 +209,11 @@ function AnchoringAbstractBehaviour(persistenceStrategy) {
     self.markAnchorForRecovery = function(anchorId, anchorFakeHistory, anchorFakeLastVersion){
         fakeHistory[anchorId] = anchorFakeHistory;
         fakeLastVersion[anchorId] = anchorFakeLastVersion;
+    }
+
+    self.unmarkAnchorForRecovery = function(anchorId){
+        fakeHistory[anchorId] = undefined;
+        fakeLastVersion[anchorId] = undefined;
     }
 
     self.testIfRecoveryActiveFor = function(anchorId){
