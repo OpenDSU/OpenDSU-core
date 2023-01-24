@@ -15,13 +15,16 @@ const mergeMappings = (dest, source) => {
 
 const getKeySSIsMappingFromPathKeys = (pathKeyMap, callback) => {
     let keySSIMap = {};
-    const props = Object.keys(pathKeyMap);
-    const __deriveAllKeySSIsFromPathKeysRecursively = (index) => {
-        const pth = props[index];
-        if (typeof pth === "undefined") {
-            return callback(undefined, keySSIMap);
-        }
-
+    const paths = Object.keys(pathKeyMap);
+    if (paths.length === 0) {
+        return callback(undefined, keySSIMap);
+    }
+    const TaskCounter = require("swarmutils").TaskCounter;
+    const taskCounter = new TaskCounter(()=>{
+        return callback(undefined, keySSIMap);
+    })
+    taskCounter.increment(paths.length);
+    paths.forEach(pth => {
         const pathSSIIdentifier = pathKeyMap[pth];
         let keySSI;
         try {
@@ -36,12 +39,9 @@ const getKeySSIsMappingFromPathKeys = (pathKeyMap, callback) => {
             }
 
             keySSIMap = mergeMappings(keySSIMap, derivedKeySSIs);
-            __deriveAllKeySSIsFromPathKeysRecursively(index + 1);
+            taskCounter.decrement();
         })
-
-    }
-
-    __deriveAllKeySSIsFromPathKeysRecursively(0);
+    })
 }
 
 const getKeySSIMapping = (keySSI, callback) => {
