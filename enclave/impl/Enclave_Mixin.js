@@ -383,19 +383,57 @@ function Enclave_Mixin(target, did, keySSI) {
     }
 
     target.generateDID = (forDID, didMethod, ...args) => {
-
+        args.unshift(target, didMethod);
+        w3cDID.we_createIdentity(...args);
     }
 
     target.storePrivateKey = (forDID, privateKey, type, alias, callback) => {
+        if (typeof alias == "function") {
+            callback = alias;
+            alias = undefined;
+        }
+
+        if (typeof alias === "undefined") {
+            const generateUid = require("swarmutils").generateUid;
+            alias = generateUid(10).toString("hex");
+        }
+
+        target.storageDB.insertRecord(constants.TABLE_NAMES.PRIVATE_KEYS, alias, {
+            privateKey: privateKey,
+            type: type
+        }, callback)
 
     }
 
     target.storeSecretKey = (forDID, secretKey, alias, callback) => {
+        if (typeof alias == "function") {
+            callback = alias;
+            alias = undefined;
+        }
 
+        if (typeof alias === "undefined") {
+            const generateUid = require("swarmutils").generateUid;
+            alias = generateUid(10).toString("hex");
+        }
+
+        target.storageDB.insertRecord(constants.TABLE_NAMES.SECRET_KEYS, alias, { secretKey: secretKey }, callback)
     };
 
     target.generateSecretKey = (forDID, secretKeyAlias, callback) => {
+        if (typeof secretKeyAlias == "function") {
+            callback = secretKeyAlias;
+            secretKeyAlias = undefined;
+        }
 
+        if (typeof secretKeyAlias === "undefined") {
+            const generateUid = require("swarmutils").generateUid;
+            secretKeyAlias = generateUid(10).toString("hex");
+        }
+
+        const crypto = openDSU.loadAPI("crypto");
+        const key = crypto.generateRandom(32);
+
+        target.storeSecretKey(forDID, key, secretKeyAlias, callback);
     }
 
     target.signForDID = (forDID, didThatIsSigning, hash, callback) => {
@@ -467,6 +505,44 @@ function Enclave_Mixin(target, did, keySSI) {
     }
 
     target.encryptAES = (forDID, secretKeyAlias, message, AESParams, callback) => {
+
+        if (typeof AESParams == "function") {
+            callback = AESParams;
+            AESParams = undefined;
+        }
+
+        target.storageDB.getRecord(constants.TABLE_NAMES.SECRET_KEYS, secretKeyAlias, (err, keyRecord) => {
+            if (err !== undefined) {
+                callback(err, undefined);
+                return;
+            }
+            const crypto = require("pskcrypto"); // opendsu crypto does not receive aes options
+            const pskEncryption = crypto.createPskEncryption('aes-256-gcm');
+
+            const encryptedMessage = pskEncryption.encrypt(message, keyRecord.secretKey, AESParams);
+            callback(undefined, encryptedMessage);
+        })
+
+    }
+
+    target.decryptAES = (forDID, secretKeyAlias, encryptedMessage, AESParams, callback) => {
+       
+        if (typeof AESParams == "function") {
+            callback = AESParams;
+            AESParams = undefined;
+        }
+
+        target.storageDB.getRecord(constants.TABLE_NAMES.SECRET_KEYS, secretKeyAlias, (err, keyRecord) => {
+            if (err !== undefined) {
+                callback(err, undefined);
+                return;
+            }
+            const crypto = require("pskcrypto"); // opendsu crypto does not receive aes options
+            const pskEncryption = crypto.createPskEncryption('aes-256-gcm');
+
+            const decryptedMessage = pskEncryption.decrypt(encryptedMessage, keyRecord.secretKey, 0, AESParams);
+            callback(undefined, decryptedMessage);
+        })
 
     }
 

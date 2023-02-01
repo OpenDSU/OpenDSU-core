@@ -4,7 +4,9 @@ module.exports = {
         SREAD_SSIS: "sreadssis",
         SEED_SSIS: "seedssis",
         DIDS_PRIVATE_KEYS: "dids_private",
-        PATH_KEY_SSI_PRIVATE_KEYS: "path-keyssi-private-keys"
+        PATH_KEY_SSI_PRIVATE_KEYS: "path-keyssi-private-keys",
+        PRIVATE_KEYS: "private-keys",
+        SECRET_KEYS: "secret-keys"
     },
     PATHS: {
         SCATTERED_PATH_KEYS: "/paths/scatteredPathKeys",
