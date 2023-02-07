@@ -95,7 +95,7 @@ const getLatestDSUVersion = (dsu, callback) => {
                 return callback(err);
             }
 
-            if (current.getHash() === latest.getHash()) {
+            if (current && current.getHash() === latest.getHash()) {
                 // No new version detected
                 return callback(undefined, dsu);
             }
