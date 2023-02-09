@@ -11,7 +11,8 @@ function CommunicationHub() {
         if (typeof did === "string") {
             return didAPI.resolveDID(did, (err, resolvedDID) => {
                 if (err) {
-                    console.error(err)
+                    console.error(err);
+                    return;
                 }
 
                 did = resolvedDID;
@@ -29,12 +30,14 @@ function CommunicationHub() {
                 did.waitForMessages((err, message) => {
                     if (err) {
                         console.error(err);
+                        return;
                     }
 
                     try {
                         message = JSON.parse(message);
                     } catch (e) {
                         console.error(e);
+                        return;
                     }
 
                     const channelName = getChannelName(did, message.messageType);
