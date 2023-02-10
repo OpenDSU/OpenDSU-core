@@ -75,6 +75,9 @@ function customFetch(...args){
 			callGlobalHandler(res);
 		}
 		return res;
+	}).catch(err=>{
+		callGlobalHandler({status: 503, err});
+		throw err;
 	});
 }
 
