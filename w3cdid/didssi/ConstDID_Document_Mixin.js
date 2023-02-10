@@ -77,7 +77,7 @@ function ConstDID_Document_Mixin(target, enclave, domain, name, isInitialisation
         target.dispatchEvent("initialised");
     };
 
-    target.init = async () => {
+    let init = async () => {
         if (!domain) {
             try {
                 domain = await $$.promisify(scAPI.getDIDDomain)();
@@ -108,6 +108,11 @@ function ConstDID_Document_Mixin(target, enclave, domain, name, isInitialisation
             target.finishInitialisation();
             target.dispatchEvent("initialised");
         });
+    }
+
+    target.init = () => {
+        //this settimeout is to allow proper event setup before initialization
+        setTimeout(init, 0);
     }
 
     target.getPrivateKeys = () => {

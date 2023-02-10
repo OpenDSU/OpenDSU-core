@@ -276,7 +276,9 @@ function MQHandler(didDocument, domain, pollingTimeout) {
                                 }
                             })
                             .catch((err) => {
-                                callback(err);
+                                if (callback.on) {
+                                    makeRequest();
+                                }
                             });
                     }
 

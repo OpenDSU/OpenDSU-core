@@ -42,11 +42,14 @@ function PollRequestManager(fetchFunction,  connectionTimeout = 10000, pollingTi
 			if(typeof currentState !== "undefined"){
 				currentState = undefined;
 			}
-			promiseHandlers.resolve = () => {};
-			promiseHandlers.reject = () => {};
+			promiseHandlers.resolve = (...args) => {console.log("(not important) Resolve called after cancel execution with the following args", ...args)};
+			promiseHandlers.reject = (...args) => {console.log("(not important) Reject called after cancel execution with the following args", ...args)};
 		}
 
 		this.setExecutor = function(resolve, reject) {
+			if(promiseHandlers.resolve){
+				return reject(new Error("Request already in progress"));
+			}
 			promiseHandlers.resolve = resolve;
 			promiseHandlers.reject = reject;
 		}
@@ -54,11 +57,15 @@ function PollRequestManager(fetchFunction,  connectionTimeout = 10000, pollingTi
 		this.resolve = function(...args) {
 			promiseHandlers.resolve(...args);
 			this.destroy();
+			promiseHandlers = {};
 		}
 
 		this.reject = function(...args) {
-			promiseHandlers.reject(...args);
+			if(promiseHandlers.reject){
+				promiseHandlers.reject(...args);
+			}
 			this.destroy();
+			promiseHandlers = {};
 		}
 
 		this.destroy = function(removeFromPool = true) {
@@ -141,15 +148,16 @@ function PollRequestManager(fetchFunction,  connectionTimeout = 10000, pollingTi
 			reArm();
 		}
 
-		function endSafePeriod() {
-			serverResponded = true;
+		function endSafePeriod(serverHasResponded) {
+			serverResponded = serverHasResponded;
+
 			clearTimeout(safePeriodTimeoutHandler);
 		}
 
 		function reArm() {
 			request.execute().then( (response) => {
 				if (!response.ok) {
-					endSafePeriod();
+					endSafePeriod(true);
 
 					//todo check for http errors like 404
 					if (response.status === 403) {
@@ -160,7 +168,7 @@ function PollRequestManager(fetchFunction,  connectionTimeout = 10000, pollingTi
 				}
 
 				if (response.status === 204) {
-					endSafePeriod();
+					endSafePeriod(true);
 					beginSafePeriod();
 					return;
 				}
@@ -171,15 +179,21 @@ function PollRequestManager(fetchFunction,  connectionTimeout = 10000, pollingTi
 
 				request.resolve(response);
 			}).catch( (err) => {
-				switch(err.code){
+				switch (err.code) {
 					case "ETIMEDOUT":
 					case "ECONNREFUSED":
-						endSafePeriod();
+						endSafePeriod(true);
 						beginSafePeriod();
 						break;
 					case 20:
+					case "ERR_NETWORK_IO_SUSPENDED":
+					//reproduced when user is idle on ios (chrome).
+					case "ERR_INTERNET_DISCONNECTED":
+						//indicates a general network failure.
 						break;
 					default:
+						console.log("abnormal error: ", err);
+						endSafePeriod(true);
 						request.reject(err);
 				}
 			});
