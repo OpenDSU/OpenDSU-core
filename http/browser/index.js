@@ -1,3 +1,9 @@
+function callGlobalHandler(res){
+	if($$.httpUnknownResponseGlobalHandler){
+		$$.httpUnknownResponseGlobalHandler(res);
+	}
+}
+
 function generateMethodForRequestWithData(httpMethod) {
 	return function (url, data, options, callback) {
 		if(typeof options === "function"){
@@ -12,11 +18,15 @@ function generateMethodForRequestWithData(httpMethod) {
 				const data = xhr.response;
 				callback(undefined, data);
 			} else {
-				if(xhr.status>=400){
+				if(xhr.status >= 400){
 					const error = new Error("An error occured. StatusCode: " + xhr.status);
 					callback({error: error, statusCode: xhr.status});
 				} else {
-					console.log(`Status code ${xhr.status} received, response is ignored.`);
+					if(xhr.status >= 300 && xhr.status < 400){
+						callGlobalHandler(xhr);
+					}else{
+						console.log(`Status code ${xhr.status} received, response is ignored.`);
+					}
 				}
 			}
 		};
@@ -59,21 +69,29 @@ function generateMethodForRequestWithData(httpMethod) {
 	};
 }
 
+function customFetch(...args){
+	return fetch(...args).then(res=>{
+		if(res.status >= 300 && res.status < 400){
+			callGlobalHandler(res);
+		}
+		return res;
+	});
+}
+
 function doGet(url, options, callback){
 	if (typeof options === "function") {
 		callback = options;
 		options = undefined;
 	}
 
-	fetch(url, options)
+	customFetch(url, options)
 		.then(response => response.text())
 		.then(data => callback(undefined, data))
 		.catch(err => callback(err));
-
 }
 
 module.exports = {
-	fetch: fetch,
+	fetch: customFetch,
 	doPost: generateMethodForRequestWithData('POST'),
 	doPut: generateMethodForRequestWithData('PUT'),
 	doGet
