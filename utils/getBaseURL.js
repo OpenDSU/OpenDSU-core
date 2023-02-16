@@ -21,7 +21,7 @@ function getBaseURL(){
         case constants.ENVIRONMENT_TYPES.NODEJS_ENVIRONMENT_TYPE:
             let baseUrl = system.getEnvironmentVariable(constants.BDNS_ROOT_HOSTS);
             if (typeof baseUrl === "undefined") {
-                baseUrl = "http://localhost:8080";
+                baseUrl = "http://127.0.0.1:8080";
             } else {
                 const myURL = new URL(baseUrl);
                 baseUrl = myURL.origin;
