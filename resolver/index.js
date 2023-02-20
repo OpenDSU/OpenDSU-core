@@ -1,6 +1,6 @@
 const KeySSIResolver = require("key-ssi-resolver");
 const keySSISpace = require("opendsu").loadApi("keyssi");
-const constants = require("opendsu").constants;
+const constants = require("../moduleConstants");
 
 let {ENVIRONMENT_TYPES, KEY_SSIS} = require("../moduleConstants.js");
 const {getWebWorkerBootScript, getNodeWorkerBootScript} = require("./resolver-utils");
@@ -576,7 +576,7 @@ function dsuExists(keySSI, callback) {
                 return callback(createOpenDSUErrorWrapper(`Failed to get version for anchor id <${anchorId}>`, err));
             }
 
-            if (typeof anchorVersion === "undefined") {
+            if (typeof anchorVersion === "undefined" || anchorVersion === "") {
                 return callback(undefined, false);
             }
 

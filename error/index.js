@@ -1,5 +1,18 @@
 const constants = require("../moduleConstants");
 
+function detectRootCauseType(arr, priorityList){
+    for(let errorType of priorityList){
+        const index = arr.findIndex(e => {
+            return e.rootCause && e.rootCause !== errorType
+        });
+        if (index !== -1) {
+            return arr[index].rootCause;
+        }
+    }
+
+    return constants.ERROR_ROOT_CAUSE.UNKNOWN_ERROR;
+}
+
 function ErrorWrapper(message, err, otherErrors, rootCause) {
     if (typeof rootCause === "undefined" && typeof otherErrors === "string") {
         rootCause = otherErrors;
@@ -12,12 +25,8 @@ function ErrorWrapper(message, err, otherErrors, rootCause) {
     }
 
     if (!rootCause && otherErrors) {
-        const index = otherErrors.findIndex(e => {
-            return e.rootCause && e.rootCause !== constants.ERROR_ROOT_CAUSE.UNKNOWN_ERROR
-        });
-        if (index !== -1) {
-            rootCause = otherErrors[index].rootCause;
-        }
+        const errorTypes = constants.ERROR_ROOT_CAUSE;
+        rootCause = detectRootCauseType(otherErrors, [errorTypes.DATA_INPUT, errorTypes.MISSING_DATA, errorTypes.BUSINESS_ERROR, errorTypes.THROTTLER_ERROR, errorTypes.NETWORK_ERROR]);
     }
 
     if (err.message || otherErrors) {

@@ -192,9 +192,10 @@ function AnchoringAbstractBehaviour(persistenceStrategy) {
                 if (err) {
                     return callback(err);
                 }
-                if (typeof data === 'undefined' || data === null) {
+                if (typeof data === 'undefined' || data === null || data === "") {
                     return callback();
                 }
+
                 let anchorValueSSI;
                 try {
                     anchorValueSSI = keySSISpace.parse(data);
