@@ -1,8 +1,17 @@
-function ErrorWrapper(message, err, otherErrors){
-    let newErr = {};
+const constants = require("opendsu").constants;
+function ErrorWrapper(message, err, otherErrors, rootCause){
+    if (typeof rootCause === "undefined" && typeof otherErrors === "string") {
+        rootCause = otherErrors;
+    }
+    let newErr = {rootCause: constants.ERROR_ROOT_CAUSE.UNKNOWN_ERROR};
 
     err = err || {};
-
+    if (err.rootCause) {
+        newErr.rootCause = err.rootCause;
+    }
+    if (rootCause) {
+        newErr.rootCause = rootCause;
+    }
     if (err.message || otherErrors) {
         if (err.originalMessage) {
             newErr.originalMessage = err.originalMessage;
@@ -47,7 +56,7 @@ function ErrorWrapper(message, err, otherErrors){
     return newErr;
 }
 
-function createOpenDSUErrorWrapper(message, err, otherErrors){
+function createOpenDSUErrorWrapper(message, err, otherErrors, rootCause){
     if(typeof message !== "string"){
         if(typeof err != "undefined"){
             err = message;
@@ -56,7 +65,7 @@ function createOpenDSUErrorWrapper(message, err, otherErrors){
             message = "Wrong usage of createErrorWrapper";
         }
     }
-    return ErrorWrapper(message, err, otherErrors);
+    return ErrorWrapper(message, err, otherErrors, rootCause);
 }
 
 function registerMandatoryCallback(callback, timeout){

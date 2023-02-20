@@ -64,6 +64,12 @@ module.exports = {
 		MOBILE: "mobile",
 	},
     BOOT_CONFIG_FILE: 'boot-cfg.json',
+    ERROR_ROOT_CAUSE: {
+        UNKNOWN_ERROR: "unknown",
+        NETWORK_ERROR: "network",
+        THROTTLER_ERROR: "throttler",
+        BUSINESS_ERROR: "business"
+    },
 	 get KEY_SSIS(){
 		if(cachedKeySSIResolver === undefined){
 			cachedKeySSIResolver = require("key-ssi-resolver");
