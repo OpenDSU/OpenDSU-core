@@ -1,9 +1,11 @@
 const KeySSIResolver = require("key-ssi-resolver");
 const keySSISpace = require("opendsu").loadApi("keyssi");
+const constants = require("opendsu").constants;
 
 let {ENVIRONMENT_TYPES, KEY_SSIS} = require("../moduleConstants.js");
 const {getWebWorkerBootScript, getNodeWorkerBootScript} = require("./resolver-utils");
 const cache = require("../cache");
+const {createOpenDSUErrorWrapper} = require("../error");
 let dsuCache = cache.getWeakRefMemoryCache("mainDSUsCache");
 
 const getResolver = (options) => {
@@ -198,26 +200,29 @@ const loadDSUVersionBasedOnVersionNumber = (keySSI, versionNumber, callback) => 
     })
 }
 
-let tryToRunRecoveryContentFnc = (keySSI, recoveredInstance, options, anchorFakeHistory, anchorFakeLastVersion,  callback)=>{
-    if(typeof options.contentRecoveryFnc === "function"){
+let tryToRunRecoveryContentFnc = (keySSI, recoveredInstance, options, anchorFakeHistory, anchorFakeLastVersion, callback) => {
+    if (typeof options.contentRecoveryFnc === "function") {
         let ignoreError = false;
-        try{
-            let cb = (err)=>{
+        try {
+            let cb = (err) => {
                 ignoreError = true;
-                if(err){
+                if (err) {
                     return callback(createOpenDSUErrorWrapper(`Failed to recover fallback DSU for keySSI ${keySSI.getIdentifier()}`, err));
                 }
 
                 return callback(undefined, recoveredInstance);
             };
-            keySSI.getAnchorId((err, anchorId)=>{
-                if(err){
-                   throw createOpenDSUErrorWrapper(`Surprise error!`, err);
+            keySSI.getAnchorId((err, anchorId) => {
+                if (err) {
+                    throw createOpenDSUErrorWrapper(`Surprise error!`, err);
                 }
-                let {markAnchorForRecovery, unmarkAnchorForRecovery} = require("opendsu").loadApi("anchoring").getAnchoringX();
+                let {
+                    markAnchorForRecovery,
+                    unmarkAnchorForRecovery
+                } = require("opendsu").loadApi("anchoring").getAnchoringX();
                 markAnchorForRecovery(anchorId, anchorFakeHistory, anchorFakeLastVersion);
-                options.contentRecoveryFnc(recoveredInstance, (err, dsu)=>{
-                    if(!err){
+                options.contentRecoveryFnc(recoveredInstance, (err, dsu) => {
+                    if (!err) {
                         //we clean the fake history after the successful recovery in order to let
                         unmarkAnchorForRecovery(anchorId);
                     }
@@ -225,8 +230,8 @@ let tryToRunRecoveryContentFnc = (keySSI, recoveredInstance, options, anchorFake
                 });
             });
 
-        }catch(err){
-            if(!ignoreError){
+        } catch (err) {
+            if (!ignoreError) {
                 return callback(createOpenDSUErrorWrapper(`Caught an error in contentRecoveryFunction`, err));
             }
             throw err;
@@ -268,11 +273,11 @@ const loadFallbackDSU = (keySSI, options, callback) => {
                     //we weren't able to load any version of the dsu (const or not)
                     options.addLog = false;
                     return createDSUForExistingSSI(keySSI, options, (err, recoveredInstance) => {
-                        if(err){
+                        if (err) {
                             return callback(err);
                         }
 
-                        return tryToRunRecoveryContentFnc (keySSI, recoveredInstance, options, [], versions[versions.length-1],  callback);
+                        return tryToRunRecoveryContentFnc(keySSI, recoveredInstance, options, [], versions[versions.length - 1], callback);
                     });
                 }
 
@@ -280,8 +285,8 @@ const loadFallbackDSU = (keySSI, options, callback) => {
                     if (err) {
                         return __loadFallbackDSURecursively(index - 1);
                     }
-                    if(index < versions.length - 1){
-                        return tryToRunRecoveryContentFnc (keySSI, dsuInstance, options, versions.slice(0, index), versions[versions.length-1], callback);
+                    if (index < versions.length - 1) {
+                        return tryToRunRecoveryContentFnc(keySSI, dsuInstance, options, versions.slice(0, index), versions[versions.length - 1], callback);
                     }
                     callback(undefined, dsuInstance);
                 })
@@ -541,6 +546,40 @@ function addDSUInstanceInCache(dsuInstance, callback) {
     });
 }
 
+/**
+ *
+ * @param keySSI
+ * @param callback
+ * @returns: (error -> error.rootCause: network | throttler | business | unknown, result: true | false)
+ */
+function dsuExists(keySSI, callback) {
+    const anchoringAPI = require("opendsu").loadAPI("anchoring");
+    const anchoringX = anchoringAPI.getAnchoringX();
+    if (typeof keySSI === "string") {
+        try {
+            keySSI = keySSISpace.parse(keySSI);
+        } catch (e) {
+            return callback(createOpenDSUErrorWrapper(`Failed to parse KeySSI <${keySSI}>`, e, constants.ERROR_ROOT_CAUSE.DATA_INPUT));
+        }
+    }
+    keySSI.getAnchorId((err, anchorId) => {
+        if (err) {
+            return callback(createOpenDSUErrorWrapper(`Failed get anchor id`, err));
+        }
+
+        anchoringX.getLastVersion(anchorId, (err, anchorVersion) => {
+            if (err) {
+                return callback(createOpenDSUErrorWrapper(`Failed to get version for anchor id <${anchorId}>`, err));
+            }
+
+            if (typeof anchorVersion === "undefined") {
+                return callback(undefined, false);
+            }
+
+            callback(undefined, true);
+        })
+    })
+}
 
 module.exports = {
     createDSU,
@@ -553,5 +592,6 @@ module.exports = {
     getDSUHandler,
     registerDSUFactory,
     invalidateDSUCache,
-    loadDSUVersion
+    loadDSUVersion,
+    dsuExists
 };
