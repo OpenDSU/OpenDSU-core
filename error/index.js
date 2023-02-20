@@ -1,17 +1,25 @@
-const constants = require("opendsu").constants;
-function ErrorWrapper(message, err, otherErrors, rootCause){
+const constants = require("../moduleConstants");
+
+function ErrorWrapper(message, err, otherErrors, rootCause) {
     if (typeof rootCause === "undefined" && typeof otherErrors === "string") {
         rootCause = otherErrors;
+        otherErrors = undefined;
     }
-    let newErr = {rootCause: constants.ERROR_ROOT_CAUSE.UNKNOWN_ERROR};
+    let newErr = {};
+    err = err || {rootCause: constants.ERROR_ROOT_CAUSE.UNKNOWN_ERROR};
+    if (!err.rootCause) {
+        err.rootCause = constants.ERROR_ROOT_CAUSE.UNKNOWN_ERROR;
+    }
 
-    err = err || {};
-    if (err.rootCause) {
-        newErr.rootCause = err.rootCause;
+    if (!rootCause && otherErrors) {
+        const index = otherErrors.findIndex(e => {
+            return e.rootCause && e.rootCause !== constants.ERROR_ROOT_CAUSE.UNKNOWN_ERROR
+        });
+        if (index !== -1) {
+            rootCause = otherErrors[index].rootCause;
+        }
     }
-    if (rootCause) {
-        newErr.rootCause = rootCause;
-    }
+
     if (err.message || otherErrors) {
         if (err.originalMessage) {
             newErr.originalMessage = err.originalMessage;
@@ -47,8 +55,14 @@ function ErrorWrapper(message, err, otherErrors, rootCause){
     }
     newErr.previousError = err;
     newErr.debug_message = message;
+    if (err.rootCause) {
+        newErr.rootCause = err.rootCause;
+    }
+    if (rootCause) {
+        newErr.rootCause = rootCause;
+    }
     if (err.stack) {
-        newErr.debug_stack   = err.stack;
+        newErr.debug_stack = err.stack;
     }
     if (otherErrors) {
         newErr.otherErrors = otherErrors;
@@ -56,9 +70,9 @@ function ErrorWrapper(message, err, otherErrors, rootCause){
     return newErr;
 }
 
-function createOpenDSUErrorWrapper(message, err, otherErrors, rootCause){
-    if(typeof message !== "string"){
-        if(typeof err != "undefined"){
+function createOpenDSUErrorWrapper(message, err, otherErrors, rootCause) {
+    if (typeof message !== "string") {
+        if (typeof err != "undefined") {
             err = message;
             message = "Wrong usage of createErrorWrapper";
         } else {
@@ -68,32 +82,31 @@ function createOpenDSUErrorWrapper(message, err, otherErrors, rootCause){
     return ErrorWrapper(message, err, otherErrors, rootCause);
 }
 
-function registerMandatoryCallback(callback, timeout){
-    if(timeout == undefined){
+function registerMandatoryCallback(callback, timeout) {
+    if (timeout == undefined) {
         timeout = 5000; //5 seconds
     }
     let callStackErr = false;
-    try{
+    try {
         throw new Error("Callback should be called");
-    } catch(err){
+    } catch (err) {
         callStackErr = err;
     }
     const timeoutId = setTimeout(function () {
         reportUserRelevantError("Expected callback not called after " + timeout + " seconds. The calling stack is here: ", callStackErr);
     }, timeout);
 
-    return function(...args){
+    return function (...args) {
         clearTimeout(timeoutId);
         callback(...args);
     };
 }
 
-function OpenDSUSafeCallback(callback){
-    if(callback && typeof callback === 'function') {
+function OpenDSUSafeCallback(callback) {
+    if (callback && typeof callback === 'function') {
         return callback;
-    }
-    else return function(err, res){
-        if(err){
+    } else return function (err, res) {
+        if (err) {
             reportUserRelevantError("Unexpected error happened without proper handling:", err);
         } else {
             reportUserRelevantWarning("Ignored result. Please add a proper callback when using this function! " + res)
@@ -103,79 +116,120 @@ function OpenDSUSafeCallback(callback){
 
 let observable = require("./../utils/observable").createObservable();
 let devObservers = [];
-function reportUserRelevantError(message, err, showIntermediateErrors){
+
+function reportUserRelevantError(message, err, showIntermediateErrors) {
     observable.dispatchEvent("error", {message, err});
     console.log(message);
-    if(err && typeof err.debug_message != "undefined"){
+    if (err && typeof err.debug_message != "undefined") {
         printErrorWrapper(err, showIntermediateErrors);
     }
 }
 
-function reportUserRelevantWarning(message){
+function reportUserRelevantWarning(message) {
     observable.dispatchEvent("warn", message);
-    console.log(">>>",message);
+    console.log(">>>", message);
 }
 
 
-function reportUserRelevantInfo(message){
+function reportUserRelevantInfo(message) {
     observable.dispatchEvent("info", message);
-    console.log(">>>",message);
+    console.log(">>>", message);
 }
 
-function reportDevRelevantInfo(message){
-    devObservers.forEach( c=> {
+function reportDevRelevantInfo(message) {
+    devObservers.forEach(c => {
         c(message);
     })
-    console.log(">>>",message);
+    console.log(">>>", message);
 }
 
-function unobserveUserRelevantMessages(type, callback){
-    switch(type){
-        case "error": observable.off(type, callback);break;
-        case "info": observable.off(type, callback);break;
-        case "warn": observable.off(type, callback);break;
+function unobserveUserRelevantMessages(type, callback) {
+    switch (type) {
+        case "error":
+            observable.off(type, callback);
+            break;
+        case "info":
+            observable.off(type, callback);
+            break;
+        case "warn":
+            observable.off(type, callback);
+            break;
         default:
             let index = devObservers.indexOf(callback);
-            if(index !==-1){
+            if (index !== -1) {
                 devObservers.splice(index, 1);
             }
     }
 }
 
-function observeUserRelevantMessages(type, callback){
-    switch(type){
-        case "error": observable.on(type, callback);break;
-        case "info": observable.on(type, callback);break;
-        case "warn": observable.on(type, callback);break;
-        case "dev": devObservers.push(callback);break;
-        default: devObservers.push(callback);break;
+function observeUserRelevantMessages(type, callback) {
+    switch (type) {
+        case "error":
+            observable.on(type, callback);
+            break;
+        case "info":
+            observable.on(type, callback);
+            break;
+        case "warn":
+            observable.on(type, callback);
+            break;
+        case "dev":
+            devObservers.push(callback);
+            break;
+        default:
+            devObservers.push(callback);
+            break;
     }
 }
 
-function printErrorWrapper(ew, showIntermediateErrors){
+function printErrorWrapper(ew, showIntermediateErrors) {
     let level = 0;
-    console.log("Top level error:",  ew.debug_message, ew.debug_stack);
+    console.log("Top level error:", ew.debug_message, ew.debug_stack);
     let firstError;
     ew = ew.previousError;
-     while(ew){
-         if(showIntermediateErrors && ew.previousError){
-             console.log("Error at layer ",level," :", ew.debug_message, ew.debug_stack);
-         }
-         level++;
-         firstError = ew;
-         ew = ew.previousError;
-     }
-    console.log("\tFirst error in the ErrorWrapper at level ",level," :", firstError);
+    while (ew) {
+        if (showIntermediateErrors && ew.previousError) {
+            console.log("Error at layer ", level, " :", ew.debug_message, ew.debug_stack);
+        }
+        level++;
+        firstError = ew;
+        ew = ew.previousError;
+    }
+    console.log("\tFirst error in the ErrorWrapper at level ", level, " :", firstError);
 }
 
-function printOpenDSUError(...args){
-    for( let elem of args){
-        if( typeof elem.previousError !=  "undefined"){
+function printOpenDSUError(...args) {
+    for (let elem of args) {
+        if (typeof elem.previousError != "undefined") {
             printErrorWrapper(elem);
         } else {
             console.log(elem);
         }
     }
+}
+
+function httpToRootCauseErrorCode(httpRes) {
+    if (!httpRes) {
+        return constants.ERROR_ROOT_CAUSE.UNKNOWN_ERROR;
+    }
+
+    if (!httpRes.statusCode) {
+        return constants.ERROR_ROOT_CAUSE.NETWORK_ERROR;
+    }
+
+    if (httpRes.statusCode === 429) {
+        return constants.ERROR_ROOT_CAUSE.THROTTLER_ERROR;
+    }
+
+    if (httpRes.statusCode === 404) {
+        return constants.ERROR_ROOT_CAUSE.MISSING_DATA;
+    }
+
+    if (httpRes.statusCode < 500) {
+        return constants.ERROR_ROOT_CAUSE.BUSINESS_ERROR;
+    }
+
+    return constants.ERROR_ROOT_CAUSE.UNKNOWN_ERROR;
 }
 
 const DB_INSERT_EXISTING_RECORD_ERROR = "Trying to insert into existing record";
@@ -191,5 +245,6 @@ module.exports = {
     OpenDSUSafeCallback,
     registerMandatoryCallback,
     printOpenDSUError,
-    DB_INSERT_EXISTING_RECORD_ERROR
+    DB_INSERT_EXISTING_RECORD_ERROR,
+    httpToRootCauseErrorCode
 }

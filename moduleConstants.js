@@ -68,7 +68,9 @@ module.exports = {
         UNKNOWN_ERROR: "unknown",
         NETWORK_ERROR: "network",
         THROTTLER_ERROR: "throttler",
-        BUSINESS_ERROR: "business"
+        BUSINESS_ERROR: "business",
+		DATA_INPUT: "dataInput",
+		MISSING_DATA: "missingData"
     },
 	 get KEY_SSIS(){
 		if(cachedKeySSIResolver === undefined){

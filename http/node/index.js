@@ -1,6 +1,7 @@
 
 const {setContentTypeByData,buildOptions,getNetworkForOptions} = require("./common.js");
-
+const {httpToRootCauseErrorCode, createOpenDSUErrorWrapper} = require("../../error");
+const constants = require("opendsu").constants;
 function generateMethodForRequestWithData(httpMethod) {
 	return function (url, data, reqOptions, callback) {
 		if(typeof reqOptions === "function"){
@@ -21,6 +22,8 @@ function generateMethodForRequestWithData(httpMethod) {
 				error = new Error('Request Failed.\n' +
 					`Status Code: ${statusCode}\n` +
 					`URL: ${options.hostname}:${options.port}${options.path}`);
+
+				error = createOpenDSUErrorWrapper("HTTP request failed", error, httpToRootCauseErrorCode(res));
 			}
 
 			let rawData = '';
@@ -28,34 +31,22 @@ function generateMethodForRequestWithData(httpMethod) {
 				rawData += chunk;
 			});
 			res.on('end', () => {
-				try {
-					if (error) {
-						let response = rawData;
-						try {
-							response = response !== '' ? JSON.parse(rawData) : response;
-						} catch (e) {
-							console.log("Caught an error during JSON.parse", rawData);
-							console.log('May or not be important, for safety check it! Failed to parse the error from the response due to', e);
-							// the received response is not a JSON, so we keep it as it is
-						}
+                if (error) {
+					error = createOpenDSUErrorWrapper(rawData, error, httpToRootCauseErrorCode(res));
+					error.statusCode = statusCode;
+					callback(error);
+                    return;
+                }
 
-						const message = response.message ? response.message : response;
-						callback({error: error, statusCode: statusCode, message: message});
-						return;
-					}
-
-					callback(undefined, rawData, res.headers);
-				} catch (err) {
-					console.error(err);
-				}finally {
-					//trying to prevent getting ECONNRESET error after getting our response
-					req.abort();
-				}
+                callback(undefined, rawData, res.headers);
+                //trying to prevent getting ECONNRESET error after getting our response
+                // req.abort();
 			});
 		}).on("error", (error) => {
-			console.log(`[POST] ${url}`, error);
-			callback(error);
-		});
+			const errorWrapper = createOpenDSUErrorWrapper(`Network error`, error, constants.ERROR_ROOT_CAUSE.NETWORK_ERROR);
+			console.log(`[POST] ${url}`, errorWrapper);
+			callback(errorWrapper);
+		})
 
 		if (data && data.pipe && typeof data.pipe === "function") {
 			data.pipe(req);
@@ -77,9 +68,8 @@ function doGet(url, options, callback) {
 	let fnc = generateMethodForRequestWithData('GET');
 	return fnc(url, undefined, options, callback);
 }
-
 module.exports = {
-	fetch: require("./fetch").fetch,
+	fetch: typeof fetch === "function" ? fetch : require("./fetch").fetch,
 	doGet,
 	doPost: generateMethodForRequestWithData('POST'),
 	doPut: generateMethodForRequestWithData('PUT')

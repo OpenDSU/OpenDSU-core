@@ -569,6 +569,10 @@ function dsuExists(keySSI, callback) {
 
         anchoringX.getLastVersion(anchorId, (err, anchorVersion) => {
             if (err) {
+                if (err.rootCause === constants.ERROR_ROOT_CAUSE.MISSING_DATA) {
+                    return callback(undefined, false);
+                }
+
                 return callback(createOpenDSUErrorWrapper(`Failed to get version for anchor id <${anchorId}>`, err));
             }
 
