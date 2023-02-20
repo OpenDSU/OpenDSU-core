@@ -79,6 +79,9 @@ function createOpenDSUErrorWrapper(message, err, otherErrors, rootCause) {
             message = "Wrong usage of createErrorWrapper";
         }
     }
+    if(otherErrors && !Array.isArray(otherErrors)){
+        otherErrors = [otherErrors];
+    }
     return ErrorWrapper(message, err, otherErrors, rootCause);
 }
 
