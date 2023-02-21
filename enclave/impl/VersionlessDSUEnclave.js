@@ -2,7 +2,6 @@ function VersionlessDSUEnclave(keySSI, did) {
     const openDSU = require("opendsu");
     const constants = require("./constants");
     const db = openDSU.loadAPI("db");
-    const scAPI = openDSU.loadAPI("sc");
     const resolver = openDSU.loadAPI("resolver");
     const config = openDSU.loadAPI("config");
     const keySSISpace = openDSU.loadAPI("keyssi");

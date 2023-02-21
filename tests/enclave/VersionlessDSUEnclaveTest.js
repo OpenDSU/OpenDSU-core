@@ -13,7 +13,7 @@ assert.callback(
     "VersionlessDSUEnclave Test",
     async (testFinished) => {
         const testFolder = await $$.promisify(dc.createTestFolder)("VersionlessDSUEnclaveTest");
-        const port = await $$.promisify(launchApiHubTestNode)(10, testFolder);
+        await $$.promisify(launchApiHubTestNode)(10, testFolder);
 
         const sc = scAPI.getSecurityContext();
         sc.on("initialised", async () => {
@@ -25,7 +25,7 @@ assert.callback(
             await $$.promisify(versionlessDSUEnclave.insertRecord)("some_did", TABLE, "pk1", { data: "encrypted" }, addedRecord);
 
             const record = await $$.promisify(versionlessDSUEnclave.getRecord)("some_did", TABLE, "pk1");
-            const enclaveDID = await $$.promisify(versionlessDSUEnclave.getDID)();
+            await $$.promisify(versionlessDSUEnclave.getDID)();
             assert.objectsAreEqual(record, addedRecord, "Records do not match");
             testFinished();
         });

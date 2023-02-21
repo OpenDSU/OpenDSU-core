@@ -145,20 +145,20 @@ class TwoDSUTester {
 
         try {
             standardDSUResult = this.standardDSU[methodName].apply(this.standardDSU, callParams);
-            logger.info(`standardDSU.${methodName} - ${JSON.stringify(callParams || [])}`, JSON.stringify(standardDSUResult));
+            logger.info(`standardDSU.${methodName} - ${JSON.stringify(callParams)}`, JSON.stringify(standardDSUResult));
         } catch (error) {
-            logger.info(`standardDSU.${methodName} - ${JSON.stringify(callParams || [])} FAILED`);
+            logger.info(`standardDSU.${methodName} - ${JSON.stringify(callParams)} FAILED`);
             isStandardRequestFailed = true;
         }
 
         try {
             versionlessDSUResult = this.versionlessDSU[methodName].apply(this.versionlessDSU, callParams);
             logger.info(
-                `versionlessDSUResult.${methodName} - ${JSON.stringify(callParams || [])}`,
+                `versionlessDSUResult.${methodName} - ${JSON.stringify(callParams)}`,
                 JSON.stringify(versionlessDSUResult)
             );
         } catch (error) {
-            logger.info(`versionlessDSUResult.${methodName} - ${JSON.stringify(callParams || [])} FAILED`);
+            logger.info(`versionlessDSUResult.${methodName} - ${JSON.stringify(callParams)} FAILED`);
             isVersionlessRequestFailed = true;
         }
 
@@ -352,5 +352,5 @@ function getNonEncryptedAndEncryptedDSUTester(runTest) {
 module.exports = {
     assertBlockFailure,
     getNonEncryptedAndEncryptedDSUTester,
-    getDSUTesters
-}
+    getDSUTesters,
+};

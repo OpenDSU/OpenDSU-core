@@ -250,7 +250,7 @@ assert.callback(
         const FILE_CONTENT = crypto.randomBytes(FILE_CONTENT_SIZE);
 
         // create and delete simple file
-        for (filePath of ["demo1.txt", "/demo1.txt"]) {
+        for (const filePath of ["demo1.txt", "/demo1.txt"]) {
             await dsuTester.callMethod("writeFile", [filePath, FILE_CONTENT]);
             await dsuTester.callMethodWithResultComparison("listFiles", ["/"]);
 
@@ -260,7 +260,7 @@ assert.callback(
         }
 
         // create and delete simple folder
-        for (folderPath of ["demo1", "/demo1"]) {
+        for (const folderPath of ["demo1", "/demo1"]) {
             await dsuTester.callMethod("createFolder", [folderPath]);
             await dsuTester.callMethodWithResultComparison("listFiles", ["/"]);
             await dsuTester.callMethodWithResultComparison("listFolders", ["/"]);
@@ -271,7 +271,7 @@ assert.callback(
         }
 
         // create and delete simple folder inside another folder
-        for (folderPath of ["demo1", "/demo1"]) {
+        for (const folderPath of ["demo1", "/demo1"]) {
             await dsuTester.callMethod("createFolder", [folderPath]);
             await dsuTester.callMethod("createFolder", [`${folderPath}/demo-inner`]);
             await dsuTester.callMethod("writeFile", [`${folderPath}/demo-inner/demo.txt`, FILE_CONTENT]);
@@ -292,7 +292,7 @@ assert.callback(
         await dsuTester.callMethod("mount", ["/mount-path", dsuKeySSIToMount]);
 
         // create and delete mounted file
-        for (filePath of ["mount-path/demo2.txt", "/mount-path/demo2.txt"]) {
+        for (const filePath of ["mount-path/demo2.txt", "/mount-path/demo2.txt"]) {
             await dsuTester.callMethod("writeFile", [filePath, FILE_CONTENT]);
             await dsuTester.callMethodWithResultComparison("listFiles", ["/"]);
 
@@ -302,7 +302,7 @@ assert.callback(
         }
 
         // create and delete mounted folder
-        for (folderPath of ["mount-path/demo2", "/mount-path/demo2"]) {
+        for (const folderPath of ["mount-path/demo2", "/mount-path/demo2"]) {
             await dsuTester.callMethod("createFolder", [folderPath]);
             await dsuTester.callMethodWithResultComparison("listFiles", ["/"]);
             await dsuTester.callMethodWithResultComparison("listFolders", ["/"]);
@@ -321,7 +321,7 @@ assert.callback(
         await dsuTester.refreshDSU(dsuToMount);
 
         // create and delete file in inner mounted DSU
-        for (folderPath of ["mount-path/inner-mount/demo1.txt", "/mount-path/inner-mount/demo1.txt"]) {
+        for (const folderPath of ["mount-path/inner-mount/demo1.txt", "/mount-path/inner-mount/demo1.txt"]) {
             await dsuTester.callMethod("writeFile", [filePath, FILE_CONTENT]);
             await dsuTester.callMethodWithResultComparison("listFiles", ["/"]);
             await dsuTester.callMethodWithResultComparison("listFolders", ["/"]);
@@ -332,7 +332,7 @@ assert.callback(
         }
 
         // create and delete folder in inner mounted DSU
-        for (folderPath of ["mount-path/inner-mount/demo1", "/mount-path/inner-mount/demo11"]) {
+        for (const folderPath of ["mount-path/inner-mount/demo1", "/mount-path/inner-mount/demo11"]) {
             // standard DSU has issues with creating a folder that was previously deleted
             await dsuTester.callVersionlessDSUMethod("createFolder", [folderPath]);
             await dsuTester.callMethodWithResultComparison("listFiles", ["/"]);
@@ -358,7 +358,7 @@ assert.callback(
         const FILE_CONTENT = crypto.randomBytes(FILE_CONTENT_SIZE);
 
         // create and rename simple file
-        for (filePath of ["demo1.txt", "/demo1.txt"]) {
+        for (const filePath of ["demo1.txt", "/demo1.txt"]) {
             await dsuTester.callMethod("writeFile", [filePath, FILE_CONTENT]);
             await dsuTester.callMethodWithResultComparison("listFiles", ["/"]);
 
@@ -370,7 +370,7 @@ assert.callback(
         }
 
         // create and rename simple folder
-        for (folderPath of ["demo1", "/demo1"]) {
+        for (const folderPath of ["demo1", "/demo1"]) {
             await dsuTester.callMethod("createFolder", [folderPath]);
             await dsuTester.callMethodWithResultComparison("listFiles", ["/"]);
             await dsuTester.callMethodWithResultComparison("listFolders", ["/"]);
@@ -383,7 +383,7 @@ assert.callback(
         }
 
         // create and rename simple folder inside another folder
-        for (folderPath of ["demo1", "/demo1"]) {
+        for (const folderPath of ["demo1", "/demo1"]) {
             await dsuTester.callMethod("createFolder", [folderPath]);
             await dsuTester.callMethod("createFolder", [`${folderPath}/demo-inner`]);
             await dsuTester.callMethod("writeFile", [`${folderPath}/demo-inner/demo.txt`, FILE_CONTENT]);
@@ -406,7 +406,7 @@ assert.callback(
         await dsuTester.callMethod("mount", ["/mount-path", dsuKeySSIToMount]);
 
         // create and rename mounted file
-        for (filePath of ["mount-path/demo2.txt", "/mount-path/demo2.txt"]) {
+        for (const filePath of ["mount-path/demo2.txt", "/mount-path/demo2.txt"]) {
             await dsuTester.callMethod("writeFile", [filePath, FILE_CONTENT]);
             await dsuTester.callMethodWithResultComparison("listFiles", ["/"]);
 
@@ -421,7 +421,7 @@ assert.callback(
         }
 
         // create and rename mounted folder
-        for (folderPath of ["mount-path/demo", "/mount-path/demo"]) {
+        for (const folderPath of ["mount-path/demo", "/mount-path/demo"]) {
             await dsuTester.callMethod("createFolder", [folderPath]);
             await dsuTester.callMethodWithResultComparison("listFiles", ["/"]);
             await dsuTester.callMethodWithResultComparison("listFolders", ["/"]);
@@ -446,7 +446,7 @@ assert.callback(
         await dsuTester.refreshDSU(dsuToMount);
 
         // create and rename file in inner mounted DSU
-        for (filePath of ["mount-path/inner-mount/demo1.txt", "/mount-path/inner-mount/demo1.txt"]) {
+        for (const filePath of ["mount-path/inner-mount/demo1.txt", "/mount-path/inner-mount/demo1.txt"]) {
             await dsuTester.callMethod("writeFile", [filePath, FILE_CONTENT]);
             await dsuTester.callMethodWithResultComparison("listFiles", ["/"]);
             await dsuTester.callMethodWithResultComparison("listFolders", ["/"]);
@@ -466,7 +466,7 @@ assert.callback(
         }
 
         // create and rename folder in inner mounted DSU
-        for (folderPath of ["mount-path/inner-mount/demo1", "/mount-path/inner-mount/demo11"]) {
+        for (const folderPath of ["mount-path/inner-mount/demo1", "/mount-path/inner-mount/demo11"]) {
             // standard DSU has issues with creating a folder that was previously deleted
             await dsuTester.callVersionlessDSUMethod("createFolder", [folderPath]);
             await dsuTester.callMethodWithResultComparison("listFiles", ["/"]);
@@ -515,7 +515,7 @@ assert.callback(
         ];
 
         const executeDirCalls = async () => {
-            for (dirFolderPath of dirFolderPaths) {
+            for (const dirFolderPath of dirFolderPaths) {
                 await dsuTester.callMethodWithResultComparison("readDir", [dirFolderPath]);
             }
         };
@@ -599,7 +599,7 @@ assert.callback(
         ];
 
         const executeComparisionCalls = async () => {
-            for (folderPathToCheck of folderPathsToCheck) {
+            for (const folderPathToCheck of folderPathsToCheck) {
                 const [files] = await dsuTester.callMethodWithResultComparison("listFiles", [folderPathToCheck]);
                 // check that files are actually clone correctly
                 if (files.length) {
@@ -608,7 +608,7 @@ assert.callback(
                     const filesToCheck = files.filter(
                         (file) => file.indexOf("dsu-metadata-log") === -1 && file.indexOf("manifest") === -1
                     );
-                    for (file of filesToCheck) {
+                    for (const file of filesToCheck) {
                         await dsuTester.callMethodWithResultComparison("readFile", [file]);
                     }
                 }
@@ -754,8 +754,6 @@ assert.callback(
 assert.callback(
     "VersionlessDSU addFiles test",
     getNonEncryptedAndEncryptedDSUTester(async (dsuTester) => {
-        const FILE_CONTENT_SIZE = 1024;
-
         const folderPathsToCheck = [
             "/",
             "demo1-added",
@@ -767,7 +765,7 @@ assert.callback(
         ];
 
         const executeComparisionCalls = async () => {
-            for (folderPathToCheck of folderPathsToCheck) {
+            for (const folderPathToCheck of folderPathsToCheck) {
                 const [files] = await dsuTester.callMethodWithResultComparison("listFiles", [folderPathToCheck]);
                 // check that files are actually copied correctly
                 if (files.length) {
@@ -776,7 +774,7 @@ assert.callback(
                     const filesToCheck = files.filter(
                         (file) => file.indexOf("dsu-metadata-log") === -1 && file.indexOf("manifest") === -1
                     );
-                    for (file of filesToCheck) {
+                    for (const file of filesToCheck) {
                         // need to ensure "/" separator since standardDSU has issues with windows separator
                         const fullFilePath = path.join(folderPathToCheck, file).split("\\").join("/");
                         await dsuTester.callMethodWithResultComparison("readFile", [fullFilePath]);
@@ -818,8 +816,6 @@ assert.callback(
 assert.callback(
     "VersionlessDSU addFile test",
     getNonEncryptedAndEncryptedDSUTester(async (dsuTester) => {
-        const FILE_CONTENT_SIZE = 1024;
-
         const folderPathsToCheck = [
             "/",
             "demo1-added",
@@ -831,7 +827,7 @@ assert.callback(
         ];
 
         const executeComparisionCalls = async () => {
-            for (folderPathToCheck of folderPathsToCheck) {
+            for (const folderPathToCheck of folderPathsToCheck) {
                 const [files] = await dsuTester.callMethodWithResultComparison("listFiles", [folderPathToCheck]);
                 // check that files are actually copied correctly
                 if (files.length) {
@@ -840,7 +836,7 @@ assert.callback(
                     const filesToCheck = files.filter(
                         (file) => file.indexOf("dsu-metadata-log") === -1 && file.indexOf("manifest") === -1
                     );
-                    for (file of filesToCheck) {
+                    for (const file of filesToCheck) {
                         // need to ensure "/" separator since standardDSU has issues with windows separator
                         const fullFilePath = path.join(folderPathToCheck, file).split("\\").join("/");
                         await dsuTester.callMethodWithResultComparison("readFile", [fullFilePath]);
@@ -950,7 +946,7 @@ assert.callback(
             assert.notNull(versionlessExtractedFolderExists);
 
             const dsuFiles = await dsuTester.callVersionlessDSUMethod("listFiles", [folderSourcePath]);
-            for (dsuFile of dsuFiles) {
+            for (const dsuFile of dsuFiles) {
                 const filePath = path.join("demo", dsuFile);
                 const versionlessFileContent = await dsuTester.callVersionlessDSUMethod("readFile", [filePath]);
 
@@ -1014,7 +1010,7 @@ assert.callback(
         ];
 
         const executeComparisionCalls = async () => {
-            for (folderPathToCheck of folderPathsToCheck) {
+            for (const folderPathToCheck of folderPathsToCheck) {
                 const [files] = await dsuTester.callMethodWithResultComparison("listFiles", [folderPathToCheck]);
                 // check that files are actually copied correctly
                 if (files.length) {
@@ -1023,7 +1019,7 @@ assert.callback(
                     const filesToCheck = files.filter(
                         (file) => file.indexOf("dsu-metadata-log") === -1 && file.indexOf("manifest") === -1
                     );
-                    for (file of filesToCheck) {
+                    for (const file of filesToCheck) {
                         // need to ensure "/" separator since standardDSU has issues with windows separator
                         const fullFilePath = path.join(folderPathToCheck, file).split("\\").join("/");
                         await dsuTester.callMethodWithResultComparison("readFile", [fullFilePath]);
@@ -1161,14 +1157,14 @@ assert.callback(
     "VersionlessDSU encryption test",
     async (testFinished) => {
         const useStandardDSUForInnerDSUConfig = [true, false];
-        for (useStandardDSUForInnerDSU of useStandardDSUForInnerDSUConfig) {
+        for (const useStandardDSUForInnerDSU of useStandardDSUForInnerDSUConfig) {
             const FILE_CONTENT_SIZE = 1024;
             const FILE_CONTENT = crypto.randomBytes(FILE_CONTENT_SIZE);
 
             const [nonEncryptedDsuTester, encryptedDsuTester] = await getDSUTesters([useStandardDSUForInnerDSU]);
 
             const dsuTesters = [nonEncryptedDsuTester, encryptedDsuTester];
-            for (dsuTester of dsuTesters) {
+            for (const dsuTester of dsuTesters) {
                 await dsuTester.callVersionlessDSUMethod("writeFile", ["demo.txt", FILE_CONTENT]);
                 await dsuTester.callMethod("createFolder", ["/demo"]);
                 await dsuTester.callMethod("writeFile", ["/demo/demo2.txt", FILE_CONTENT]);
