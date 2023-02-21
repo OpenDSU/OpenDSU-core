@@ -45,8 +45,12 @@ function WalletDBEnclave(keySSI, did) {
             }
         }
 
-        await $$.promisify(resolver.invalidateDSUCache)(keySSI);
-        this.storageDB = db.getSimpleWalletDB(DB_NAME, {keySSI});
+        try{
+            await $$.promisify(resolver.invalidateDSUCache)(keySSI);
+            this.storageDB = db.getSimpleWalletDB(DB_NAME, {keySSI});
+        }catch (e) {
+            this.dispatchEvent("error", e)
+        }
         this.storageDB.on("error", err => {
             this.dispatchEvent("error", err)
         });

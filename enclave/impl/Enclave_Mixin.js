@@ -221,35 +221,29 @@ function Enclave_Mixin(target, did, keySSI) {
                         return callback(err);
                     }
 
-                    try {
-                        derivedKeySSI.derive((err, _derivedKeySSI) => {
-                            if (err) {
-                                return callback(err);
-                            }
-
-                            registerDerivedKeySSIs(_derivedKeySSI, sReadSSIIdentifier);
-                        })
-                    } catch (e) {
+                    if (typeof derivedKeySSI.derive !== "function") {
                         return callback();
                     }
+
+                    derivedKeySSI.derive((err, _derivedKeySSI) => {
+                        if (err) {
+                            return callback(err);
+                        }
+
+                        registerDerivedKeySSIs(_derivedKeySSI, sReadSSIIdentifier);
+                    })
+
                 });
             });
         }
 
-        target.storageDB.insertRecord(constants.TABLE_NAMES.SEED_SSIS, alias, {seedSSI: keySSIIdentifier}, (err) => {
-            if (err && !isExistingKeyError(err)) {
-                // ignore if SeedSSI is already present
+        seedSSI.derive((err, sReadSSI) => {
+            if (err) {
                 return callback(err);
             }
 
-            seedSSI.derive((err, sReadSSI) => {
-                if (err) {
-                    return callback(err);
-                }
-
-                const sReadSSIIdentifier = sReadSSI.getIdentifier();
-                return registerDerivedKeySSIs(seedSSI, sReadSSIIdentifier);
-            })
+            const sReadSSIIdentifier = sReadSSI.getIdentifier();
+            return registerDerivedKeySSIs(seedSSI, sReadSSIIdentifier);
         })
     }
 
@@ -269,13 +263,13 @@ function Enclave_Mixin(target, did, keySSI) {
         }
 
         if (keySSI.getTypeName() === openDSU.constants.KEY_SSIS.PATH_SSI) {
-           return getPathKeyMapping((err, pathKeyMapping)=>{
+            return getPathKeyMapping((err, pathKeyMapping) => {
                 if (err) {
                     return callback(err);
                 }
 
-               pathKeyMapping.storePathKeySSI(keySSI, callback);
-           })
+                pathKeyMapping.storePathKeySSI(keySSI, callback);
+            })
         }
 
         if (keySSI.getTypeName() === openDSU.constants.KEY_SSIS.SEED_SSI) {
@@ -321,7 +315,7 @@ function Enclave_Mixin(target, did, keySSI) {
             }
         }
 
-        getPathKeyMapping((err, pathKeyMapping)=>{
+        getPathKeyMapping((err, pathKeyMapping) => {
             if (err) {
                 return target.storageDB.getRecord(constants.TABLE_NAMES.SREAD_SSIS, keySSI.getIdentifier(), (err, record) => {
                     if (err) {
@@ -416,7 +410,7 @@ function Enclave_Mixin(target, did, keySSI) {
             alias = generateUid(10).toString("hex");
         }
 
-        target.storageDB.insertRecord(constants.TABLE_NAMES.SECRET_KEYS, alias, { secretKey: secretKey }, callback)
+        target.storageDB.insertRecord(constants.TABLE_NAMES.SECRET_KEYS, alias, {secretKey: secretKey}, callback)
     };
 
     target.generateSecretKey = (forDID, secretKeyAlias, callback) => {
@@ -489,12 +483,12 @@ function Enclave_Mixin(target, did, keySSI) {
                 capableOfSigningKeySSI.sign(hash, callback);
             });
         }
-        getPathKeyMapping((err, pathKeyMapping)=>{
+        getPathKeyMapping((err, pathKeyMapping) => {
             if (err) {
                 return __signHashForKeySSI(keySSI, hash);
             }
 
-            pathKeyMapping.getCapableOfSigningKeySSI(keySSI,(err, capableOfSigningKeySSI)=>{
+            pathKeyMapping.getCapableOfSigningKeySSI(keySSI, (err, capableOfSigningKeySSI) => {
                 if (err) {
                     return __signHashForKeySSI(keySSI, hash);
                 }
@@ -526,7 +520,7 @@ function Enclave_Mixin(target, did, keySSI) {
     }
 
     target.decryptAES = (forDID, secretKeyAlias, encryptedMessage, AESParams, callback) => {
-       
+
         if (typeof AESParams == "function") {
             callback = AESParams;
             AESParams = undefined;
@@ -691,7 +685,7 @@ function Enclave_Mixin(target, did, keySSI) {
         })
     }
 
-    target.loadDSURecoveryMode = (forDID, ssi, contentRecoveryFnc, callback)=>{
+    target.loadDSURecoveryMode = (forDID, ssi, contentRecoveryFnc, callback) => {
         target.loadDSU(forDID, ssi, {contentRecoveryFnc, recoveryMode: true}, callback);
     }
 }
