@@ -101,12 +101,7 @@ function RemotePersistence() {
                 smartUrl.doGet((err, data) => {
                     if (err) {
                         if(err.rootCause === require("./../moduleConstants").ERROR_ROOT_CAUSE.MISSING_DATA){
-                            if (actionName === "get-last-version"){
-                                return resolve();
-                            }else{
-                                //in previous impls apihub/anchoring was returning 200 with null result in this case...
-                                return resolve();
-                            }
+                            return resolve();
                         }
                         return reject(err);
                     }
