@@ -102,9 +102,10 @@ function RemotePersistence() {
                     if (err) {
                         if(err.rootCause === require("./../moduleConstants").ERROR_ROOT_CAUSE.MISSING_DATA){
                             if (actionName === "get-last-version"){
-                                return resolve("");
+                                return resolve();
                             }else{
-                                return resolve([]);
+                                //in previous impls apihub/anchoring was returning 200 with null result in this case...
+                                return resolve();
                             }
                         }
                         return reject(err);
