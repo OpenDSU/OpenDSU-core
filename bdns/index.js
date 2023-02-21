@@ -105,6 +105,15 @@ function BDNS() {
         isInitialized = true;
         bdnsCache = bdnsHosts;
     }
+
+    this.getOrigin = () => {
+        return getBaseURL();
+    };
+
+    // returns the origin placeholder (value that will be used to define the generic origin)
+    this.getOriginPlaceholder = () => {
+        return "ORIGIN";
+    };
 }
 
 

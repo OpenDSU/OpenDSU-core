@@ -23,6 +23,11 @@ function initialiseRemoteEnclave(clientDID, remoteDID) {
     const RemoteEnclave = require("./impl/RemoteEnclave");
     return new RemoteEnclave(clientDID, remoteDID);}
 
+function initialiseVersionlessDSUEnclave(keySSI, did) {
+    const VersionlessDSUEnclave = require("./impl/VersionlessDSUEnclave");
+    return new VersionlessDSUEnclave(keySSI);
+}
+
 function connectEnclave(forDID, enclaveDID, ...args) {
     throw Error("Not implemented");
 }
@@ -48,6 +53,7 @@ registerEnclave(constants.ENCLAVE_TYPES.WALLET_DB_ENCLAVE, initialiseWalletDBEnc
 registerEnclave(constants.ENCLAVE_TYPES.APIHUB_ENCLAVE, initialiseAPIHUBProxy);
 registerEnclave(constants.ENCLAVE_TYPES.HIGH_SECURITY_ENCLAVE, initialiseHighSecurityProxy);
 registerEnclave(constants.ENCLAVE_TYPES.MQ_PROXY_ENCLAVE, initialiseRemoteEnclave)
+registerEnclave(constants.ENCLAVE_TYPES.VERSIONLESS_DSU_ENCLAVE, initialiseVersionlessDSUEnclave);
 
 module.exports = {
     initialiseWalletDBEnclave,
@@ -55,6 +61,7 @@ module.exports = {
     initialiseAPIHUBProxy,
     initialiseHighSecurityProxy,
     initialiseRemoteEnclave,
+    initialiseVersionlessDSUEnclave,
     connectEnclave,
     createEnclave,
     registerEnclave,
