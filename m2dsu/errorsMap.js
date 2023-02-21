@@ -127,10 +127,22 @@ function getErrorKeyByMessage(errMessage) {
 }
 
 function newCustomError(errorObj, detailsObj) {
-  return createOpenDSUErrorWrapper(errorObj.message, null, {
-    code: errorObj.errorCode,
-    details: errorObj.getDetails(detailsObj)
-  });
+  let details = errorObj.getDetails(detailsObj);
+  let reason = "Check error logs";
+  try{
+    reason = JSON.stringify(details);
+  }catch(err){
+
+  }
+  return {
+    originalMessage: errorObj.message,
+    message: errorObj.message,
+    reason: reason,
+    otherErrors: {
+      code: errorObj.errorCode,
+      details
+    }
+  };
 }
 
 function addNewErrorType(key, code, message, detailsFn) {
