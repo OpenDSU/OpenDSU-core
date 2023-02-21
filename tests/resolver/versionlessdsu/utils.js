@@ -14,10 +14,6 @@ const opendsu = require("opendsu");
 const keySSIApi = opendsu.loadAPI("keyssi");
 const resolver = opendsu.loadApi("resolver");
 
-function ensureLinuxPath(pathToConvert) {
-    return pathToConvert.split("\\").join("/");
-}
-
 async function assertBlockFailure(fn) {
     let isFailed = true;
     try {
@@ -302,8 +298,8 @@ async function getDSUTesters(useStandardDSUForInnerDSUConfig) {
     const port = await $$.promisify(launchApiHubTestNode)(10, testFolder);
 
     const dsuTesters = [];
-    for (encrypted of [false, true]) {
-        for (useStandardDSUForInnerDSU of useStandardDSUForInnerDSUConfig) {
+    for (const encrypted of [false, true]) {
+        for (const useStandardDSUForInnerDSU of useStandardDSUForInnerDSUConfig) {
             const templateSeedSSI = keySSIApi.createTemplateSeedSSI(DOMAIN);
             const standardDSU = await $$.promisify(resolver.createDSU)(templateSeedSSI);
             logger.info("Created standardDSU");
@@ -330,7 +326,7 @@ function getNonEncryptedAndEncryptedDSUTester(runTest) {
     return (testFinished) => {
         (async () => {
             const dsuTesters = await getDSUTesters();
-            for (dsuTester of dsuTesters) {
+            for (const dsuTester of dsuTesters) {
                 try {
                     logger.info(
                         `Using DSU Tester encrypted = ${dsuTester.encrypted} and inner mounted DSU ${
