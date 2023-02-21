@@ -637,7 +637,7 @@ function Enclave_Mixin(target, did, keySSI) {
             return
         }
 
-        if (keySSI.isTemplate()) {
+        if (keySSI.withoutCryptoData()) {
             target.createSeedSSI(undefined, keySSI.getDLDomain(), (err, seedSSI) => {
                 if (err) {
                     return callback(err);
