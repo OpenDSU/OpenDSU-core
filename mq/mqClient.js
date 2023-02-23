@@ -227,7 +227,11 @@ function MQHandler(didDocument, domain, pollingTimeout) {
                                 }
                             })
                             .catch((err) => {
-                                callback(err);
+                                if(err.rootCause != "network"){
+                                    callback(err);
+                                }else{
+                                    makeRequest();
+                                }
                             });
                     }
 
