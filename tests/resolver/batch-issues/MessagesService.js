@@ -3,6 +3,25 @@ const constants = require("./constants");
 //loading EPI necessary mappings
 require("gtin-resolver").loadApi("mappings");
 
+// function verifyIfProductMessage(message) {
+//     return message.messageType === "Product";
+// }
+
+// async function processProductMessage(message) {
+//     await dbUtils.createOrUpdateRecord(this.storageService, message, message);
+// }
+
+// function verifyIfBatchMessage(message) {
+//     return message.messageType === "Batch";
+// }
+
+// async function processBatchMessage(message) {
+//     await dbUtils.createOrUpdateRecord(this.storageService, message, message);
+// }
+
+// require("opendsu").loadApi("m2dsu").defineMapping(verifyIfProductMessage, processProductMessage);
+// require("opendsu").loadApi("m2dsu").defineMapping(verifyIfBatchMessage, processBatchMessage);
+
 const LogService = require("./LogService");
 let logService = new LogService();
 

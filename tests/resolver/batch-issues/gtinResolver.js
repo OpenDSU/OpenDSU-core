@@ -4443,6 +4443,7 @@ function MappingLogService(storageService, logService) {
   }
 
   let logAction = async (logData, message) => {
+    return;
     if (typeof this.logService !== "undefined") {
       await $$.promisify(this.logService.log, this.logService)(logData.auditLogData);
     }
