@@ -76,6 +76,28 @@ function ErrorWrapper(message, err, otherErrors, rootCause) {
     if (otherErrors) {
         newErr.otherErrors = otherErrors;
     }
+
+    function dumpErrorWrapper(ew, showIntermediateErrors) {
+        let level = 0;
+        let str = `Top level error: ${ew.debug_message} ${ew.debug_stack}`
+        let firstError;
+        ew = ew.previousError;
+        while (ew) {
+            if (showIntermediateErrors && ew.previousError) {
+                str += `\nError at layer ${level}: ${ew.debug_message} ${ew.debug_stack}`;
+            }
+            level++;
+            firstError = ew;
+            ew = ew.previousError;
+        }
+        str += `\n\tFirst error in the ErrorWrapper at level ${level} :${firstError}\n`;
+        return str
+    }
+
+    newErr.toString = function () {
+        return dumpErrorWrapper(newErr, true);
+    };
+
     return newErr;
 }
 

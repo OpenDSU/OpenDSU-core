@@ -52,6 +52,10 @@ function BasicDB(storageStrategy, conflictSolvingStrategy, options) {
     }
 
     this.addIndex = function (tableName, fieldName, forceReindex, callback) {
+        if (typeof tableName === "undefined" || tableName === "undefined") {
+            return callback(Error(`Table name "undefined" is not allowed`));
+        }
+
         if (typeof forceReindex === "function") {
             callback = forceReindex;
             forceReindex = false;
@@ -87,6 +91,12 @@ function BasicDB(storageStrategy, conflictSolvingStrategy, options) {
     */
     this.insertRecord = function (tableName, key, record, callback) {
         callback = callback ? callback : getDefaultCallback("Inserting a record", tableName, key);
+        if (typeof key === "undefined" || key === "undefined") {
+            return callback(Error(`Primary key "undefined" is not allowed`));
+        }
+        if (typeof tableName === "undefined" || tableName === "undefined") {
+            return callback(Error(`Table name "undefined" is not allowed`));
+        }
 
         self.getRecord(tableName, key, function (err, res) {
             if (!err || res) {
@@ -117,6 +127,13 @@ function BasicDB(storageStrategy, conflictSolvingStrategy, options) {
      */
     this.updateRecord = function (tableName, key, newRecord, callback) {
         callback = callback ? callback : getDefaultCallback("Updating a record", tableName, key);
+        if (typeof key === "undefined" || key === "undefined") {
+            return callback(Error(`Primary key "undefined" is not allowed`));
+        }
+        if (typeof tableName === "undefined" || tableName === "undefined") {
+            return callback(Error(`Table name "undefined" is not allowed`));
+        }
+
         let currentRecord;
 
         function doVersionIncAndUpdate(currentRecord, callback) {
