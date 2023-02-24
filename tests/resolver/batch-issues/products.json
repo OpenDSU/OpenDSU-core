@@ -1,0 +1,46 @@
+[
+    {
+        "messageType": "Product",
+        "messageTypeVersion": 1,
+        "senderId": "devuser",
+        "receiverId": "",
+        "messageId": "0000827477193",
+        "messageDateTime": "2023-01-19T10:57:25.455Z",
+        "token": "",
+        "product": {
+            "inventedName": "New",
+            "productCode": "11111000011111",
+            "nameMedicinalProduct": "New",
+            "manufName": "",
+            "flagEnableAdverseEventReporting": false,
+            "flagEnableACFProductCheck": false,
+            "healthcarePractitionerInfo": "SmPC",
+            "patientSpecificLeaflet": "Patient Information",
+            "markets": [],
+            "internalMaterialCode": "",
+            "strength": ""
+        }
+    },
+    {
+        "messageType": "Product",
+        "messageTypeVersion": 1,
+        "senderId": "devuserAndi",
+        "receiverId": "",
+        "messageId": "7402656269794",
+        "messageDateTime": "2023-02-21T17:12:14.606Z",
+        "token": "",
+        "product": {
+            "inventedName": "prod1",
+            "productCode": "11111000011128",
+            "nameMedicinalProduct": "prod1",
+            "manufName": "",
+            "flagEnableAdverseEventReporting": false,
+            "flagEnableACFProductCheck": false,
+            "healthcarePractitionerInfo": "SmPC",
+            "patientSpecificLeaflet": "Patient Information",
+            "markets": [],
+            "internalMaterialCode": "111",
+            "strength": ""
+        }
+    }
+]
