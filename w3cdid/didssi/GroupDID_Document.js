@@ -196,7 +196,11 @@ function GroupDID_Document(enclave, domain, groupName, isInitialisation) {
 
     bindAutoPendingFunctions(this, ["init", "getIdentifier", "getGroupName", "addPublicKey", "on", "off", "dispatchEvent", "removeAllObservers"]);
 
-    this.init();
+    try {
+        this.init();
+    }catch (e) {
+        this.dispatchEvent("error", e);
+    }
     return this;
 }
 

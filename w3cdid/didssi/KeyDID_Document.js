@@ -1,10 +1,10 @@
 const methodsNames = require("../didMethodsNames");
-const {bindAutoPendingFunctions} = require("../../utils/BindAutoPendingFunctions");
 
 function KeyDID_Document(enclave, isInitialisation, seedSSI) {
     let DID_mixin = require("../W3CDID_Mixin");
     DID_mixin(this, enclave);
-
+    const ObservableMixin = require("../../utils/ObservableMixin");
+    ObservableMixin(this);
     const openDSU = require("opendsu");
     const dbAPI = openDSU.loadAPI("db");
     const keySSISpace = openDSU.loadAPI("keyssi");
@@ -21,9 +21,13 @@ function KeyDID_Document(enclave, isInitialisation, seedSSI) {
             try {
                 seedSSI = keySSISpace.parse(seedSSI);
             } catch (e) {
-                throw createOpenDSUErrorWrapper(`Failed to parse ssi ${seedSSI}`);
+                return this.dispatchEvent("error", createOpenDSUErrorWrapper(`Failed to parse ssi ${seedSSI}`));
             }
         }
+
+        setTimeout(()=>{
+            this.dispatchEvent("initialised");
+        },1)
     }
 
     this.getMethodName = () => {

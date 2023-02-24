@@ -26,7 +26,7 @@ function KeyDID_Document(enclave, isInitialisation, publicKey, privateKey) {
 
     const load = () => {
         if (!publicKey) {
-            throw Error("Public key is missing from argument list.")
+            return this.dispatchEvent("error", Error("Public key is missing from argument list."));
         }
         publicKey = publicKey.slice(4);
     }

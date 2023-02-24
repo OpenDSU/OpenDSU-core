@@ -18,14 +18,14 @@ function SReadDID_Document(enclave, isInitialisation, seedSSI) {
         try {
             this.dsu = await $$.promisify(resolver.createDSUForExistingSSI)(seedSSI);
         } catch (e) {
-            throw createOpenDSUErrorWrapper(`Failed to create seed dsu`, e);
+            return this.dispatchEvent("error", createOpenDSUErrorWrapper(`Failed to create seed dsu`, e));
         }
 
         let ssi;
         try {
             ssi = await $$.promisify(keySSISpace.createSeedSSI)(seedSSI.getDLDomain());
         } catch (e) {
-            throw createOpenDSUErrorWrapper(`Failed to create seed ssi`, e);
+            return this.dispatchEvent("error", createOpenDSUErrorWrapper(`Failed to create seed ssi`, e));
         }
 
         this.privateKey = ssi.getPrivateKey();
@@ -34,7 +34,7 @@ function SReadDID_Document(enclave, isInitialisation, seedSSI) {
         try {
             await $$.promisify(this.dsu.writeFile)(`${PUB_KEYS_PATH}/${publicKey.toString("hex")}`);
         } catch (e) {
-            throw createOpenDSUErrorWrapper(`Failed to write public key in dsu`, e);
+            return this.dispatchEvent("error", createOpenDSUErrorWrapper(`Failed to write public key in dsu`, e));
         }
     };
 
@@ -43,7 +43,7 @@ function SReadDID_Document(enclave, isInitialisation, seedSSI) {
             try {
                 seedSSI = keySSISpace.parse(seedSSI);
             } catch (e) {
-                throw createOpenDSUErrorWrapper(`Failed to parse ssi ${seedSSI}`, e);
+                return this.dispatchEvent("error", createOpenDSUErrorWrapper(`Failed to parse ssi ${seedSSI}`, e));
             }
         }
 
@@ -51,7 +51,7 @@ function SReadDID_Document(enclave, isInitialisation, seedSSI) {
             try {
                 sReadSSI = await $$.promisify(seedSSI.derive)();
             } catch (e) {
-                throw createOpenDSUErrorWrapper(`Failed to derive seedSSI ${seedSSI.getIdentifier()}`, e);
+                return this.dispatchEvent("error", createOpenDSUErrorWrapper(`Failed to derive seedSSI ${seedSSI.getIdentifier()}`, e));
             }
             await createSeedDSU();
             this.finishInitialisation();
@@ -65,7 +65,7 @@ function SReadDID_Document(enclave, isInitialisation, seedSSI) {
             try {
                 this.dsu = await $$.promisify(resolver.loadDSU)(sReadSSI);
             } catch (e) {
-                throw createOpenDSUErrorWrapper(`Failed to load dsu`, e);
+                return this.dispatchEvent("error", createOpenDSUErrorWrapper(`Failed to load dsu`, e));
             }
 
             this.finishInitialisation();

@@ -1,6 +1,4 @@
 const ObservableMixin = require("../../utils/ObservableMixin");
-const Query = require("./Query");
-const operators = require("./operators");
 
 function SingleDSUStorageStrategy() {
     let volatileMemory = {}
@@ -22,7 +20,9 @@ function SingleDSUStorageStrategy() {
     }
 
     this.beginBatch = () => {
-        storageDSU.beginBatch();
+        if (!storageDSU.batchInProgress()) {
+            storageDSU.beginBatch();
+        }
     }
 
     this.cancelBatch = (callback) => {

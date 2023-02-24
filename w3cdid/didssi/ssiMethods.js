@@ -19,6 +19,7 @@ function storeDIDInSC(didDocument, callback) {
 }
 
 const openDSU = require("opendsu");
+const KeyDIDDocument = require("./KeyDID_Document");
 const dbAPI = openDSU.loadAPI("db")
 const __ensureEnclaveExistsThenExecute = (fn, enclave, ...args) => {
     if (typeof enclave === "undefined") {
@@ -59,11 +60,20 @@ function KeyDID_Method() {
     let KeyDIDDocument = require("./KeyDID_Document");
     this.create = function (enclave, seedSSI, callback) {
         const keyDIDDocument = KeyDIDDocument.initiateDIDDocument(enclave, seedSSI);
-        callback(undefined, keyDIDDocument);
+        keyDIDDocument.on("error", callback);
+
+        keyDIDDocument.on("initialised", () => {
+            callback(undefined, keyDIDDocument);
+        })
     }
 
     this.resolve = function (enclave, tokens, callback) {
-        callback(null, KeyDIDDocument.createDIDDocument(enclave, tokens))
+        const keyDIDDocument = KeyDIDDocument.createDIDDocument(enclave, tokens)
+        keyDIDDocument.on("error", callback);
+
+        keyDIDDocument.on("initialised", () => {
+            callback(undefined, keyDIDDocument);
+        })
     }
 }
 
