@@ -14,6 +14,7 @@ const PRODUCT_MESSAGES = require("./products.json");
 const BATCH_MESSAGES = require("./batches.json");
 
 const openDSU = require("opendsu");
+const {createOpenDSUErrorWrapper} = require("../../../error");
 const enclaveAPI = openDSU.loadAPI("enclave");
 const scAPI = openDSU.loadAPI("sc");
 
@@ -64,7 +65,7 @@ assert.callback(
                 option: {},
             },
         };
-        await tir.launchConfigurableApiHubTestNodeAsync({ domains: [{ name: "vault", config: vaultDomainConfig }] });
+        await tir.launchConfigurableApiHubTestNodeAsync({ domains: [{ name: "vault", config: vaultDomainConfig }]});
 
         const mainEnclave = enclaveAPI.initialiseWalletDBEnclave();
         let sharedEnclave;
@@ -99,10 +100,10 @@ assert.callback(
                     "dsc"
                 );
                 console.log("results", results);
+                testFinished();
             });
         });
 
-        testFinished();
     },
-    100000
+    10000000
 );

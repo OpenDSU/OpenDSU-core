@@ -68,6 +68,9 @@ function MappingEngine(storageService, options) {
       }
       //if all good until this point, we need to commit any registeredDSU during the message mapping
       const commitPromises = [];
+      // const conflictResolutionFn = function (...args) {
+      //   console.log("merge conflicts", ...args);
+      // }
       for (let i = 0; i < touchedDSUs.length; i++) {
         const commitBatch = $$.promisify(touchedDSUs[i].commitBatch);
         commitPromises.push(commitBatch());
@@ -86,7 +89,7 @@ function MappingEngine(storageService, options) {
             resolve(true);
           }
         ).catch(err => {
-        return reject(errorHandler.createOpenDSUErrorWrapper(`Caught error during commit batch on registered DSUs`, err));
+         return reject(errorHandler.createOpenDSUErrorWrapper(`Caught error during commit batch on registered DSUs`, err));
       });
     });
   }
@@ -131,25 +134,33 @@ function MappingEngine(storageService, options) {
       } catch (e) {
         console.log("Not able to cancel batch", e)
       }
-      inProgress = false;
-
     }
 
     async function finish() {
       const commitBatch = $$.promisify(storageService.commitBatch);
-      try {
-        await commitBatch();
-      } catch (e) {
-        console.log("Not able to commit batch", e)
-      }
-
-      inProgress = false;
+      // const conflictResolutionFn = function (...args) {
+      //   console.log("merge conflicts", ...args);
+      // }
+      await commitBatch();
     }
 
     return new Promise(async (resolve, reject) => {
         if (inProgress) {
           throw errMap.newCustomError(errMap.errorTypes.DIGESTING_MESSAGES);
         }
+      const initialResolve = resolve;
+      const initialReject = reject;
+
+      resolve = function (...args) {
+        inProgress = false;
+        initialResolve(...args);
+      }
+
+      reject = function (...args) {
+        inProgress = false;
+        initialReject(...args);
+      }
+
         inProgress = true;
         storageService.beginBatch();
 

@@ -210,12 +210,23 @@ function observeUserRelevantMessages(type, callback) {
         case "dev":
             devObservers.push(callback);
             break;
+        case "unhandled":
+            observable.on(type, callback);
+            break;
         default:
             devObservers.push(callback);
             break;
     }
 }
 
+if (typeof window !== "undefined") {
+    window.onerror = (msg, url, line, call, err)=>{
+        observable.dispatchEvent("unhandled", err);
+        console.log(msg, url, line, call);
+    }
+
+    window.addEventListener("error", window.onerror)
+}
 function printErrorWrapper(ew, showIntermediateErrors) {
     let level = 0;
     console.log("Top level error:", ew.debug_message, ew.debug_stack);
