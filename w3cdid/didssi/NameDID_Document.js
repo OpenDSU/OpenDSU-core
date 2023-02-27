@@ -27,11 +27,7 @@ function NameDID_Document(enclave, domain, name, isInitialisation) {
     };
 
     bindAutoPendingFunctions(this, ["init", "getIdentifier", "getName", "on", "off", "dispatchEvent", "removeAllObservers", "addPublicKey", "readMessage", "getDomain", "getHash"]);
-    try {
-        this.init();
-    }catch (e) {
-        this.dispatchEvent("error", e);
-    }
+    this.init();
     return this;
 }
 

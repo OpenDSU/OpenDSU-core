@@ -32,14 +32,14 @@ function KeyDID_Document(enclave, isInitialisation, publicKey, privateKey) {
     }
 
     const init = () => {
-        if (isInitialisation) {
-            create();
-        } else {
-            load();
-        }
         setTimeout(() => {
+            if (isInitialisation) {
+                create();
+            } else {
+                load();
+            }
             this.dispatchEvent("initialised");
-        })
+        }, 1)
     };
 
     const getRawPublicKey = () => {

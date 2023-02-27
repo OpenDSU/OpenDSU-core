@@ -84,6 +84,8 @@ function Enclave_Mixin(target, did, keySSI) {
     target.getDID = (callback) => {
         if (!did) {
             did = CryptoSkills.applySkill("key", CryptoSkills.NAMES.CREATE_DID_DOCUMENT);
+            did.on("error", callback);
+
             did.on("initialised", () => {
                 did = did.getIdentifier();
                 callback(undefined, did);
