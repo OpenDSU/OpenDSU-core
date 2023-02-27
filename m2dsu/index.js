@@ -61,8 +61,11 @@ function MappingEngine(storageService, options) {
   }
 
   function commitMapping(mappingInstance) {
-    let touchedDSUs = mappingInstance.registeredDSUs || [];
+    let touchedDSUs = mappingInstance.registeredDSUs;
     return new Promise((resolve, reject) => {
+      if (!touchedDSUs || touchedDSUs.length === 0) {
+        return resolve(true);
+      }
       //if all good until this point, we need to commit any registeredDSU during the message mapping
       const commitPromises = [];
       for (let i = 0; i < touchedDSUs.length; i++) {
