@@ -97,15 +97,38 @@ registry.defineApi("registerDSU", function (dsu) {
     return promisifyDSUAPIs(dsu);
 });
 
+registry.defineApi("testIfDSUExists", async function(keySSI, callback){
+    const keySSISpace = require("opendsu").loadApi("keyssi");
+    const anchoringX = require("opendsu").loadApi("anchoring").getAnchoringX();
+    if(typeof keySSI !== "object"){
+        keySSI = keySSISpace.parse(keySSI);
+    }
+    let anchorId = await $$.promisify(keySSI.getAnchorId)();
+    let alreadyExists = false;
+    let error;
+    try{
+        let versions = await $$.promisify(anchoringX.getAllVersions)(anchorId);
+        if(versions && versions.length > 0){
+            alreadyExists = true;
+        }
+    }catch(err){
+        error = err;
+    }
+    return callback(error, alreadyExists);
+});
+
 registry.defineApi("loadConstSSIDSU", async function (constSSI, options) {
     const resolver = await this.getResolver();
+
+    let exists = await $$.promisify(this.testIfDSUExists)(constSSI);
 
     let dsu;
     try {
         dsu = await resolver.loadDSU(constSSI);
     } catch (e) {
-        //TODO check error type
-        //on purpose if DSU does not exists an error gets throw
+        if(exists){
+            throw createOpenDSUErrorWrapper("Failed to load Const DSU that exists", e);
+        }
     }
 
     if (dsu) {
@@ -125,7 +148,16 @@ registry.defineApi("loadArraySSIDSU", async function (domain, arr) {
     const keySSISpace = opendsu.loadApi("keyssi");
 
     const keySSI = keySSISpace.createArraySSI(domain, arr);
-    let dsu = await resolver.loadDSU(keySSI);
+    let exists = await $$.promisify(this.testIfDSUExists)(keySSI);
+    let dsu ;
+    try {
+        dsu = await resolver.loadDSU(keySSI);
+    }catch(er){
+        if(exists){
+            throw createOpenDSUErrorWrapper("Failed to load ConstDSU that exists", e);
+        }
+    }
+
     if (dsu) {
         //take note that this.registerDSU returns a Proxy Object over the DSU and this Proxy we need to return also
         return {dsu: this.registerDSU(dsu), alreadyExists: true};
@@ -165,6 +197,9 @@ registry.defineApi("createPathSSI", async function (domain, path, options) {
 registry.defineApi("createPathSSIDSU", async function (domain, path, options) {
     const seedSSI = await this.createPathSSI(domain, path, options);
     let resolver = await this.getResolver();
+    if(await $$.promisify(this.testIfDSUExists)(seedSSI)){
+        throw createOpenDSUErrorWrapper("PathSSIDSU already exists");
+    }
     let dsu = await resolver.createDSUForExistingSSI(seedSSI, options);
     //take note that this.registerDSU returns a Proxy Object over the DSU and this Proxy we need to return also
     return this.registerDSU(dsu);
