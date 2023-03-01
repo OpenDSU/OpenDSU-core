@@ -23,9 +23,9 @@ function initialiseRemoteEnclave(clientDID, remoteDID) {
     const RemoteEnclave = require("./impl/RemoteEnclave");
     return new RemoteEnclave(clientDID, remoteDID);}
 
-function initialiseVersionlessDSUEnclave(keySSI, did) {
+function initialiseVersionlessDSUEnclave(versionlessSSI) {
     const VersionlessDSUEnclave = require("./impl/VersionlessDSUEnclave");
-    return new VersionlessDSUEnclave(keySSI);
+    return new VersionlessDSUEnclave(versionlessSSI);
 }
 
 function connectEnclave(forDID, enclaveDID, ...args) {
