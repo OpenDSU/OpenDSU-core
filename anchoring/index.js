@@ -273,14 +273,39 @@ function getAnchoringX(){
     const RemotePersistence = require("./RemotePersistence");
     return getAnchoringBehaviour(new RemotePersistence());
 }
+
+async function getNextVersionNumberAsync(keySSI){
+    const keySSISpace = require("opendsu").loadApi("keyssi");
+    if(typeof keySSI === "string"){
+        keySSI = keySSISpace.parse(keySSI);
+    }
+    const anchoringX = getAnchoringX();
+    let nextVersion = 0;
+    let anchorId = await $$.promisify(keySSI.getAnchorId)();
+    try{
+        let versions = await $$.promisify(anchoringX.getAllVersions)(anchorId, {realHistory: true});
+        if(versions){
+            nextVersion = versions.length;
+        }else{
+            //if !versions we know that is our first version
+        }
+    }catch(err){
+        throw err;
+    }
+
+    return nextVersion;
+}
+
 module.exports = {
-    createAnchor,
+/*    createAnchor,*/
     createNFT,
-    appendToAnchor,
+/*    appendToAnchor,*/
     transferTokenOwnership,
-    getAllVersions,
+    /*getAllVersions,
     getLastVersion,
-    getLatestVersion,
+    getLatestVersion,*/
     getAnchoringBehaviour,
-    getAnchoringX
+    getAnchoringX,
+    getAnchoringImplementation:getAnchoringX,
+    getNextVersionNumberAsync
 }
