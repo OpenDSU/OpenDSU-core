@@ -78,6 +78,12 @@ module.exports = {
 		}
 		 return cachedKeySSIResolver.SSITypes;
 	 },
+	 get KEY_SSI_FAMILIES(){
+		if(cachedKeySSIResolver === undefined){
+			cachedKeySSIResolver = require("key-ssi-resolver");
+		}
+		 return cachedKeySSIResolver.SSIFamilies;
+	 },
 	get CRYPTO_FUNCTION_TYPES(){
 		if(cachedKeySSIResolver === undefined){
 			cachedKeySSIResolver = require("key-ssi-resolver");

@@ -277,9 +277,13 @@ function Enclave_Mixin(target, did, keySSI) {
         if (keySSI.getTypeName() === openDSU.constants.KEY_SSIS.SEED_SSI) {
             return target.storeSeedSSI(forDID, keySSI, undefined, callback);
         }
-        const keySSIIdentifier = keySSI.getIdentifier();
 
-        target.storageDB.insertRecord(constants.TABLE_NAMES.KEY_SSIS, keySSIIdentifier, {keySSI: keySSIIdentifier}, callback)
+        if (keySSI.getFamilyName() === openDSU.constants.KEY_SSI_FAMILIES.SEED_SSI_FAMILY) {
+            const keySSIIdentifier = keySSI.getIdentifier();
+            target.storageDB.insertRecord(constants.TABLE_NAMES.KEY_SSIS, keySSIIdentifier, {keySSI: keySSIIdentifier}, callback)
+        } else {
+            callback();
+        }
     }
 
     target.storeReadForAliasSSI = (forDID, sReadSSI, aliasSSI, callback) => {
