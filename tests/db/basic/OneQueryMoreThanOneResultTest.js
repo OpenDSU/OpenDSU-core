@@ -1,4 +1,4 @@
-require("../../../../../psknode/bundles/testsRuntime");
+-require("../../../../../psknode/bundles/testsRuntime");
 const assert = require("double-check").assert;
 const dc = require("double-check");
 const db = require("../../../db");
@@ -49,7 +49,7 @@ assert.callback("DB query test that returns more than one result", (testFinishCa
                         throw err;
                     }
                     confirmedInsertedRecords.push(res);
-                    mydb.insertRecord(tableName, "thirdRecord", {content:"abc"}, async function (err, res){
+                    mydb.insertRecord(tableName, "thirdRecord", {content:"abcd"}, async function (err, res){
                         if(err){
                             throw err;
                         }
