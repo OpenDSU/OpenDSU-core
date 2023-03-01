@@ -104,7 +104,9 @@ const getMultipleBricks = (hashLinkSSIList, authToken, callback) => {
             }
 
             resultsArr[taskNumber] = brickData;
-            attemptCallback();
+            setTimeout(()=>{
+                attemptCallback();
+            })
         });
     }
 
