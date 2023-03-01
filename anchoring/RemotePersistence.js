@@ -106,6 +106,12 @@ function RemotePersistence() {
                         return reject(err);
                     }
 
+                    if(actionName === "get-all-versions"){
+                        if(data === ""){
+                            return resolve();
+                        }
+                    }
+
                     try {
                         data = JSON.parse(data);
                     } catch (e) {
