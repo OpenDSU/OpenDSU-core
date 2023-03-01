@@ -1,17 +1,17 @@
 require("../../../../../psknode/bundles/testsRuntime");
-require("./gtinResolver");
+require("../../../../../../gtin-resolver/build/bundles/gtinResolver");
 console.log("gtinResolver", require("gtin-resolver"));
 const tir = require("../../../../../psknode/tests/util/tir");
 
 const dc = require("double-check");
 const assert = dc.assert;
 
-const constants = require("./constants");
+const constants = require("./utils/constants");
 
-const MessagesService = require("./MessagesService");
+const MessagesService = require("./utils/MessagesService");
 
-const PRODUCT_MESSAGES = require("./products.json");
-const BATCH_MESSAGES = require("./batches.json");
+const PRODUCT_MESSAGES = require("./utils/products.json");
+const BATCH_MESSAGES = require("./utils/batches.json");
 
 const openDSU = require("opendsu");
 const {createOpenDSUErrorWrapper} = require("../../../error");
