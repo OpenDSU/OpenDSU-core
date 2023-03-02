@@ -19,6 +19,8 @@ assert.callback('WalletDBEnclave test', (testFinished) => {
         const sc = scAPI.getSecurityContext();
         sc.on("initialised", async () => {
             const walletDBEnclave = enclaveAPI.initialiseWalletDBEnclave();
+            let id = await walletDBEnclave.getUniqueIdAsync();
+            assert.true(id, "id should not be undefined");
             const TABLE = "test_table";
             const addedRecord = {data: 1};
             try {

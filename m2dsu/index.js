@@ -12,7 +12,8 @@ function MappingEngine(storageService, options) {
   if (typeof storageService === "undefined"
     || typeof storageService.beginBatch !== "function"
     || typeof storageService.commitBatch !== "function"
-    || typeof storageService.cancelBatch !== "function") {
+    || typeof storageService.cancelBatch !== "function"
+    || typeof storageService.getUniqueIdAsync !== "function") {
     throw Error("The MappingEngine requires a storage service that exposes beginBatch, commitBatch, cancelBatch apis!");
   }
 
@@ -121,6 +122,44 @@ function MappingEngine(storageService, options) {
     });
   }
 
+  async function aquireLock(period, attempts, timeout){
+    let identifier = await storageService.getUniqueIdAsync();
+
+    const opendsu = require("opendsu");
+    const utils = opendsu.loadApi("utils");
+    const lockApi = opendsu.loadApi("lock");
+    const crypto = opendsu.loadApi("crypto");
+    const secret = crypto.encodeBase58(crypto.generateRandom(32));
+
+    while(attempts>0){
+        attempts--;
+        console.log("Preparing to acquire lock on", identifier, "attempt number", attempts);
+        let lockAquired = await lockApi.lockAsync(identifier, secret, period);
+        console.log("Lock acquiring status", lockAquired);
+        if(!lockAquired){
+          console.log("sleep for", timeout);
+          await utils.sleepAsync(timeout);
+        }else{
+          console.log("Lock acquired... continue");
+          break;
+        }
+    }
+
+    return secret;
+  }
+
+  async function releaseLock(secret){
+    let identifier = await storageService.getUniqueIdAsync();
+
+    const opendsu = require("opendsu");
+    const lockApi = opendsu.loadApi("lock");
+    try{
+      await lockApi.unlockAsync(identifier, secret);
+    }catch(err){
+      console.error("Failed to release lock", err);
+    }
+  }
+
   let inProgress = false;
   this.digestMessages = (messages) => {
     if (!Array.isArray(messages)) {
@@ -145,128 +184,136 @@ function MappingEngine(storageService, options) {
     }
 
     return new Promise(async (resolve, reject) => {
-        if (inProgress) {
-          throw errMap.newCustomError(errMap.errorTypes.DIGESTING_MESSAGES);
-        }
-      const initialResolve = resolve;
-      const initialReject = reject;
+          if (inProgress) {
+            throw errMap.newCustomError(errMap.errorTypes.DIGESTING_MESSAGES);
+          }
+          const initialResolve = resolve;
+          const initialReject = reject;
 
-      resolve = function (...args) {
-        inProgress = false;
-        initialResolve(...args);
-      }
 
-      reject = function (...args) {
-        inProgress = false;
-        initialReject(...args);
-      }
+          inProgress = true;
 
-        inProgress = true;
-        storageService.beginBatch();
+          let lockSecret = await aquireLock(messages.length * 10000, 50, 500);
 
-        //commitPromisses will contain promises for each of message
-        let commitPromisses = [];
-        let mappingsInstances = [];
-        //we will use this array to keep all the failed mapping instance in order to cancel batch operations on touched DSUs
-        let failedMappingInstances = [];
-
-        let failedMessages = [];
-
-        function handleErrorsDuringPromiseResolving(err) {
-          reject(err);
-        }
-
-        for (let i = 0; i < messages.length; i++) {
-          let message = messages[i];
-          if (typeof message !== "object") {
-            let err = errMap.newCustomError(errMap.errorTypes.MESSAGE_IS_NOT_AN_OBJECT, [{errorDetails: `Found type: ${typeof message} expected type object`}]);
-            failedMessages.push({
-              message: message,
-              reason: err.message,
-              error: err
-            });
-
-            //wrong message type... so we log, and then we continue the execution with the rest of the messages
-            continue;
+          resolve = async function (...args) {
+            inProgress = false;
+            await releaseLock(lockSecret);
+            initialResolve(...args);
           }
 
-          try {
-            let mappingInstance = await executeMappingFor(message);
-            mappingsInstances.push(mappingInstance);
-          } catch (err) {
-            //this .mappingInstance prop is artificial injected from the executeMappingFor function in case of an error during mapping execution
-            //isn't too nice, but it does the job
-            if (err.mappingInstance) {
-              failedMappingInstances.push(err.mappingInstance);
+          reject = async function (...args) {
+            inProgress = false;
+            if (lockSecret) {
+              await releaseLock(lockSecret);
+            }
+            initialReject(...args);
+          }
+
+          storageService.beginBatch();
+
+          //commitPromisses will contain promises for each of message
+          let commitPromisses = [];
+          let mappingsInstances = [];
+          //we will use this array to keep all the failed mapping instance in order to cancel batch operations on touched DSUs
+          let failedMappingInstances = [];
+
+          let failedMessages = [];
+
+          function handleErrorsDuringPromiseResolving(err) {
+            reject(err);
+          }
+
+          for (let i = 0; i < messages.length; i++) {
+            let message = messages[i];
+            if (typeof message !== "object") {
+              let err = errMap.newCustomError(errMap.errorTypes.MESSAGE_IS_NOT_AN_OBJECT, [{errorDetails: `Found type: ${typeof message} expected type object`}]);
+              failedMessages.push({
+                message: message,
+                reason: err.message,
+                error: err
+              });
+
+              //wrong message type... so we log, and then we continue the execution with the rest of the messages
+              continue;
             }
 
-            errorHandler.reportUserRelevantError("Caught error during message digest", err);
-            failedMessages.push({
-              message: message,
-              reason: err.message,
-              error: err
-            });
+            try {
+              let mappingInstance = await executeMappingFor(message);
+              mappingsInstances.push(mappingInstance);
+            } catch (err) {
+              //this .mappingInstance prop is artificial injected from the executeMappingFor function in case of an error during mapping execution
+              //isn't too nice, but it does the job
+              if (err.mappingInstance) {
+                failedMappingInstances.push(err.mappingInstance);
+              }
+
+              errorHandler.reportUserRelevantError("Caught error during message digest", err);
+              failedMessages.push({
+                message: message,
+                reason: err.message,
+                error: err
+              });
+            }
           }
-        }
 
-        function digestConfirmation(results) {
+          function digestConfirmation(results) {
 
-          for (let index = 0; index < results.length; index++) {
-            let result = results[index];
-            switch (result.status) {
-              case "fulfilled" :
-                if (result.value === false) {
-                  // message digest failed
+            for (let index = 0; index < results.length; index++) {
+              let result = results[index];
+              switch (result.status) {
+                case "fulfilled" :
+                  if (result.value === false) {
+                    // message digest failed
+                    failedMessages.push({
+                      message: messages[index],
+                      reason: `Not able to digest message due to missing suitable mapping`,
+                      error: errMap.errorTypes.MISSING_MAPPING
+                    });
+                  }
+                  break;
+                case "rejected" :
                   failedMessages.push({
                     message: messages[index],
-                    reason: `Not able to digest message due to missing suitable mapping`,
-                    error: errMap.errorTypes.MISSING_MAPPING
+                    reason: result.reason,
+                    error: result.reason
                   });
-                }
-                break;
-              case "rejected" :
-                failedMessages.push({
-                  message: messages[index],
-                  reason: result.reason,
-                  error: result.reason
-                });
-                break;
-            }
-          }
-
-          finish().then(async () => {
-            //in case that we have failed messages we need to reset touched DSUs of that mapping;
-            //the reason being that a DSU can be kept in a local cache and later on this fact that the DSU is in a "batch" state creates a strange situation
-            for (let j = 0; j < failedMappingInstances.length; j++) {
-              let mapInstance = failedMappingInstances[j];
-              if (mapInstance.registeredDSUs) {
-                for (let i = 0; i < mapInstance.registeredDSUs.length; i++) {
-                  let touchedDSU = mapInstance.registeredDSUs[i];
-                  try {
-                    await $$.promisify(touchedDSU.cancelBatch, touchedDSU)();
-                  } catch (err) {
-                    //we ignore any cancel errors for the moment
-                  }
-                }
+                  break;
               }
             }
 
-            //now that we finished with the partial rollback we can return the failed messages
-            resolve(failedMessages);
-          }).catch(async (err) => {
-            await rollback();
-            reject(err);
-          });
-        }
+            finish().then(async () => {
+              //in case that we have failed messages we need to reset touched DSUs of that mapping;
+              //the reason being that a DSU can be kept in a local cache and later on this fact that the DSU is in a "batch" state creates a strange situation
+              for (let j = 0; j < failedMappingInstances.length; j++) {
+                let mapInstance = failedMappingInstances[j];
+                if (mapInstance.registeredDSUs) {
+                  for (let i = 0; i < mapInstance.registeredDSUs.length; i++) {
+                    let touchedDSU = mapInstance.registeredDSUs[i];
+                    try {
+                      await $$.promisify(touchedDSU.cancelBatch, touchedDSU)();
+                    } catch (err) {
+                      //we ignore any cancel errors for the moment
+                    }
+                  }
+                }
+              }
 
-        for (let i = 0; i < mappingsInstances.length; i++) {
-          commitPromisses.push(commitMapping(mappingsInstances[i]));
-        }
+              //now that we finished with the partial rollback we can return the failed messages
+              resolve(failedMessages);
+            }).catch(async (err) => {
+              await rollback();
+              reject(err);
+            });
+          }
 
-        Promise.allSettled(commitPromisses)
-          .then(digestConfirmation)
-          .catch(handleErrorsDuringPromiseResolving);
-      }
+          for (let i = 0; i < mappingsInstances.length; i++) {
+            commitPromisses.push(commitMapping(mappingsInstances[i]));
+          }
+
+          Promise.allSettled(commitPromisses)
+              .then(digestConfirmation)
+              .catch(handleErrorsDuringPromiseResolving);
+        }
     );
   }
 

@@ -16,6 +16,7 @@ function WalletDBEnclave(keySSI, did) {
             try {
                 keySSI = await $$.promisify(config.getEnv)(openDSU.constants.MAIN_ENCLAVE.KEY_SSI);
             } catch (e) {
+                console.log("Not able to retrieve the keyssi of the enclave. A new one will be created.");
             }
 
             if (!keySSI) {
@@ -81,6 +82,13 @@ function WalletDBEnclave(keySSI, did) {
         callback(undefined, keySSI);
     }
 
+    this.getUniqueIdAsync = async () => {
+        let keySSI = await $$.promisify(this.getKeySSI)();
+        let id= await keySSI.getAnchorIdAsync();
+        console.log(id);
+        return id;
+    }
+
     this.getEnclaveType = () => {
         return openDSU.constants.ENCLAVE_TYPES.WALLET_DB_ENCLAVE;
     };
@@ -90,7 +98,7 @@ function WalletDBEnclave(keySSI, did) {
     };
 
     const bindAutoPendingFunctions = require("../../utils/BindAutoPendingFunctions").bindAutoPendingFunctions;
-    bindAutoPendingFunctions(this, ["on", "off", "dispatchEvent", "beginBatch", "isInitialised", "getEnclaveType", "getDID"]);
+    bindAutoPendingFunctions(this, ["on", "off", "dispatchEvent", "beginBatch", "isInitialised", "getEnclaveType", "getDID", "getUniqueIdAsync"]);
 
     init();
 }
