@@ -4,8 +4,8 @@ const tir = require("../../../../psknode/tests/util/tir");
 const dc = require("double-check");
 const assert = dc.assert;
 
-assert.callback('basicMappingTest', (testFinished) => {
-    dc.createTestFolder('AddFilesBatch', async (err, folder) => {
+assert.callback('SimpleLockTest', (testFinished) => {
+    dc.createTestFolder('SimpleLockTest', async (err, folder) => {
         tir.launchApiHubTestNode(100, folder, async err => {
             if (err) {
                 throw err;
