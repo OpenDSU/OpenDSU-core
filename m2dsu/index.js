@@ -13,8 +13,9 @@ function MappingEngine(storageService, options) {
     || typeof storageService.beginBatch !== "function"
     || typeof storageService.commitBatch !== "function"
     || typeof storageService.cancelBatch !== "function"
-    || typeof storageService.getUniqueIdAsync !== "function") {
-    throw Error("The MappingEngine requires a storage service that exposes beginBatch, commitBatch, cancelBatch apis!");
+    || typeof storageService.getUniqueIdAsync !== "function"
+    || typeof storageService.refresh !== "function") {
+    throw Error("The MappingEngine requires a storage service that exposes beginBatch, commitBatch, cancelBatch, getUniqueIdAsync, refresh apis!");
   }
 
   const errorHandler = require("opendsu").loadApi("error");
@@ -122,7 +123,7 @@ function MappingEngine(storageService, options) {
     });
   }
 
-  async function aquireLock(period, attempts, timeout){
+  async function acquireLock(period, attempts, timeout){
     let identifier = await storageService.getUniqueIdAsync();
 
     const opendsu = require("opendsu");
@@ -193,7 +194,7 @@ function MappingEngine(storageService, options) {
 
           inProgress = true;
 
-          let lockSecret = await aquireLock(messages.length * 10000, 50, 500);
+          let lockSecret = await acquireLock(messages.length * 10000, 50, 500);
 
           resolve = async function (...args) {
             inProgress = false;
@@ -209,6 +210,7 @@ function MappingEngine(storageService, options) {
             initialReject(...args);
           }
 
+          await $$.promisify(storageService.refresh)();
           storageService.beginBatch();
 
           //commitPromisses will contain promises for each of message

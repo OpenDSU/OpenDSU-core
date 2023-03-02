@@ -84,9 +84,7 @@ function WalletDBEnclave(keySSI, did) {
 
     this.getUniqueIdAsync = async () => {
         let keySSI = await $$.promisify(this.getKeySSI)();
-        let id= await keySSI.getAnchorIdAsync();
-        console.log(id);
-        return id;
+        return await keySSI.getAnchorIdAsync();
     }
 
     this.getEnclaveType = () => {

@@ -188,7 +188,6 @@ function MemoryStorageStrategy() {
     };
 
     this.beginBatch = () => {
-
     }
 
     this.commitBatch = (callback) => {
@@ -197,6 +196,10 @@ function MemoryStorageStrategy() {
 
     this.cancelBatch = (callback) => {
         callback(undefined);
+    }
+
+    this.getUniqueIdAsync = async () => {
+
     }
 
     const READ_WRITE_KEY_TABLE = "KeyValueTable";

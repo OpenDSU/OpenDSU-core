@@ -47,6 +47,10 @@ function BasicDB(storageStrategy, conflictSolvingStrategy, options) {
         storageStrategy.refresh(callback);
     }
 
+    this.getUniqueIdAsync = async () => {
+        return await storageStrategy.getUniqueIdAsync();
+    }
+
     this.getAllRecords = (tableName, callback) => {
         storageStrategy.getAllRecords(tableName, callback);
     }
