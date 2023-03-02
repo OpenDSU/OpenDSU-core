@@ -130,20 +130,24 @@ function MappingEngine(storageService, options) {
     const utils = opendsu.loadApi("utils");
     const lockApi = opendsu.loadApi("lock");
     const crypto = opendsu.loadApi("crypto");
-    const secret = crypto.encodeBase58(crypto.generateRandom(32));
+    let secret = crypto.encodeBase58(crypto.generateRandom(32));
 
+    let lockAcquired;
     while(attempts>0){
         attempts--;
         console.log("Preparing to acquire lock on", identifier, "attempt number", attempts);
-        let lockAquired = await lockApi.lockAsync(identifier, secret, period);
-        console.log("Lock acquiring status", lockAquired);
-        if(!lockAquired){
+        lockAcquired = await lockApi.lockAsync(identifier, secret, period);
+        console.log("Lock acquiring status", lockAcquired);
+        if(!lockAcquired){
           console.log("sleep for", timeout);
           await utils.sleepAsync(timeout);
         }else{
           console.log("Lock acquired... continue");
           break;
         }
+    }
+    if (!lockAcquired) {
+      secret = undefined;
     }
 
     return secret;
@@ -194,7 +198,7 @@ function MappingEngine(storageService, options) {
 
           inProgress = true;
 
-          let lockSecret = await acquireLock(messages.length * 10000, 50, 500);
+          let lockSecret = await acquireLock(messages.length * 50000, 100, 500);
 
           resolve = async function (...args) {
             inProgress = false;
@@ -208,6 +212,10 @@ function MappingEngine(storageService, options) {
               await releaseLock(lockSecret);
             }
             initialReject(...args);
+          }
+
+          if (!lockSecret) {
+            return reject(Error(`Failed to acquire lock`));
           }
 
           await $$.promisify(storageService.refresh)();
@@ -294,7 +302,7 @@ function MappingEngine(storageService, options) {
                     try {
                       await $$.promisify(touchedDSU.cancelBatch, touchedDSU)();
                     } catch (err) {
-                      //we ignore any cancel errors for the moment
+                      console.log("Failed to cancel batch on registered DSU");
                     }
                   }
                 }

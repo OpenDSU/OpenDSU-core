@@ -80,7 +80,7 @@ function promisifyDSUAPIs(dsu) {
 
 //all DSUs that are created with different exposed APIs need to be registered
 // in order to control the batch operations and promisify the API on them
-registry.defineApi("registerDSU", function (dsu) {
+registry.defineApi("registerDSU", async function (dsu) {
     if (typeof dsu === "undefined" || typeof dsu.beginBatch !== "function") {
         throw Error("registerDSU needs a DSU instance");
     }
@@ -91,6 +91,7 @@ registry.defineApi("registerDSU", function (dsu) {
     //TODO: temporary fix, this apiRegistry is now instantiated for each mapping message
     if (!dsu.batchInProgress()) {
         this.registeredDSUs.push(dsu);
+        await $$.promisify(dsu.refresh)();
         dsu.beginBatch();
     }
 
@@ -133,13 +134,13 @@ registry.defineApi("loadConstSSIDSU", async function (constSSI, options) {
 
     if (dsu) {
         //take note that this.registerDSU returns a Proxy Object over the DSU and this Proxy we need to return also
-        return {dsu: this.registerDSU(dsu), alreadyExists: true};
+        return {dsu: await this.registerDSU(dsu), alreadyExists: true};
     }
 
     dsu = await resolver.createDSUForExistingSSI(constSSI, options);
 
     //take note that this.registerDSU returns a Proxy Object over the DSU and this Proxy we need to return also
-    return {dsu: this.registerDSU(dsu), alreadyExists: false};
+    return {dsu: await this.registerDSU(dsu), alreadyExists: false};
 });
 
 registry.defineApi("loadArraySSIDSU", async function (domain, arr) {
@@ -160,12 +161,12 @@ registry.defineApi("loadArraySSIDSU", async function (domain, arr) {
 
     if (dsu) {
         //take note that this.registerDSU returns a Proxy Object over the DSU and this Proxy we need to return also
-        return {dsu: this.registerDSU(dsu), alreadyExists: true};
+        return {dsu: await this.registerDSU(dsu), alreadyExists: true};
     }
 
     dsu = await resolver.createArrayDSU(domain, arr);
     //take note that this.registerDSU returns a Proxy Object over the DSU and this Proxy we need to return also
-    return {dsu: this.registerDSU(dsu), alreadyExists: false};
+    return {dsu: await this.registerDSU(dsu), alreadyExists: false};
 });
 
 registry.defineApi("createDSU", async function (domain, ssiType, options) {
@@ -177,7 +178,7 @@ registry.defineApi("createDSU", async function (domain, ssiType, options) {
     options.addLog = false;
     let dsu = await resolver.createDSU(template, options);
     //take note that this.registerDSU returns a Proxy Object over the DSU and this Proxy we need to return also
-    return this.registerDSU(dsu);
+    return await this.registerDSU(dsu);
 });
 
 registry.defineApi("createPathSSI", async function (domain, path, options) {
@@ -202,7 +203,7 @@ registry.defineApi("createPathSSIDSU", async function (domain, path, options) {
     }
     let dsu = await resolver.createDSUForExistingSSI(seedSSI, options);
     //take note that this.registerDSU returns a Proxy Object over the DSU and this Proxy we need to return also
-    return this.registerDSU(dsu);
+    return await this.registerDSU(dsu);
 });
 
 registry.defineApi("loadDSU", async function (keySSI, options) {
@@ -212,7 +213,7 @@ registry.defineApi("loadDSU", async function (keySSI, options) {
         throw new Error("No DSU found for " + keySSI);
     }
     //take note that this.registerDSU returns a Proxy Object over the DSU and this Proxy we need to return also
-    return this.registerDSU(dsu);
+    return await this.registerDSU(dsu);
 });
 
 
@@ -264,12 +265,12 @@ registry.defineApi("recoverDSU", function (ssi, recoveryFnc, callback) {
         return callback(new Error("Not able to run recovery mode due to misconfiguration of mapping engine."));
     }
 
-    this.storageService.loadDSURecoveryMode(ssi, recoveryFnc, (err, dsu)=>{
+    this.storageService.loadDSURecoveryMode(ssi, recoveryFnc, async (err, dsu)=>{
         if(err){
             return callback(err);
         }
 
-        return callback(undefined, this.registerDSU(dsu));
+        return callback(undefined, await this.registerDSU(dsu));
     });
 });
 
