@@ -105,6 +105,8 @@ function BDNS() {
         isInitialized = true;
         bdnsCache = bdnsHosts;
     }
+
+    this.getOriginUrl = getBaseURL;
 }
 
 

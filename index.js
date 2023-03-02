@@ -60,6 +60,7 @@ if(!PREVENT_DOUBLE_LOADING_OF_OPENDSU.INITIALISED){
             case "workers":return require("./workers"); break;
             case "storage": return require("./storage"); break;
             case "credentials": return require("./credentials"); break;
+            case "lock": return require("./lock"); break;
             default: throw new Error("Unknown API space " + apiSpaceName);
         }
     }
