@@ -160,6 +160,7 @@ function MappingEngine(storageService, options) {
     const lockApi = opendsu.loadApi("lock");
     try{
       await lockApi.unlockAsync(identifier, secret);
+      console.log("Lock released");
     }catch(err){
       console.error("Failed to release lock", err);
     }
