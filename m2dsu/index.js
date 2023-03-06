@@ -133,9 +133,10 @@ function MappingEngine(storageService, options) {
     let secret = crypto.encodeBase58(crypto.generateRandom(32));
 
     let lockAcquired;
-    while(attempts>0){
-        attempts--;
-        console.log("Preparing to acquire lock on", identifier, "attempt number", attempts);
+    let noAttempts = attempts;
+    while(noAttempts>0){
+        noAttempts--;
+        console.log("Preparing to acquire lock on", identifier, "attempt number", noAttempts);
         lockAcquired = await lockApi.lockAsync(identifier, secret, period);
         console.log("Lock acquiring status", lockAcquired);
         if(!lockAcquired){
@@ -145,6 +146,11 @@ function MappingEngine(storageService, options) {
           console.log("Lock acquired... continue");
           break;
         }
+      if(noAttempts === 0){
+        if (window && window.confirm("Other user is editing right now. Do you want to wait for him to finish?")) {
+          noAttempts = attempts;
+        }
+      }
     }
     if (!lockAcquired) {
       secret = undefined;
@@ -199,7 +205,7 @@ function MappingEngine(storageService, options) {
 
           inProgress = true;
 
-          let lockSecret = await acquireLock(messages.length * 50000, 100, 500);
+          let lockSecret = await acquireLock(messages.length * 60000, 100, 500);
 
           resolve = async function (...args) {
             inProgress = false;
