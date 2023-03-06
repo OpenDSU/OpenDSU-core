@@ -148,7 +148,7 @@ function BasicDB(storageStrategy, conflictSolvingStrategy, options) {
             if (newRecord.__version == 0) {
                 storageStrategy.insertRecord(tableName, key, newRecord, callback);
             } else {
-                storageStrategy.updateRecord(tableName, key, newRecord, currentRecord, callback);
+                storageStrategy.updateRecord(tableName, key, currentRecord, newRecord, callback);
             }
         }
 
@@ -203,16 +203,16 @@ function BasicDB(storageStrategy, conflictSolvingStrategy, options) {
       Delete a record
      */
     this.deleteRecord = function (tableName, key, callback) {
-        self.getRecord(tableName, key, function (err, record) {
+        self.getRecord(tableName, key, function (err, oldRecord) {
             if (err) {
                 return callback(createOpenDSUErrorWrapper(`Could not retrieve record with key ${key} does not exist ${tableName} `, err));
             }
 
-            const currentRecord = JSON.parse(JSON.stringify(record));
-            record.__version++;
-            record.__timestamp = Date.now();
-            record.__deleted = true;
-            storageStrategy.updateRecord(tableName, key, record, currentRecord, (err) => {
+            const newRecord = JSON.parse(JSON.stringify(oldRecord));
+            newRecord.__version++;
+            newRecord.__timestamp = Date.now();
+            newRecord.__deleted = true;
+            storageStrategy.updateRecord(tableName, key, oldRecord, newRecord, (err) => {
                 if (err) {
                     return callback(createOpenDSUErrorWrapper(`Failed to update with key ${key} in table ${tableName} `, err));
                 }

@@ -133,7 +133,7 @@ function MemoryStorageStrategy() {
     /*
         Update a record, return error if does not exists
      */
-    this.updateRecord = function (tableName, key, record, currentRecord, callback) {
+    this.updateRecord = function (tableName, key, oldRecord, newRecord, callback) {
         function _updateRecord(record, previousRecord, callback) {
             if (!previousRecord) {
                 return callback(new Error("Can't update a record for key " + key))
@@ -143,17 +143,10 @@ function MemoryStorageStrategy() {
             self.insertRecord(tableName, key, record, callback, true);
         }
 
-        if (typeof currentRecord === 'function') {
-            callback = currentRecord
-
-            this.getRecord(tableName, key, (err, previousRecord) => {
-                if (err) {
-                    return callback(err)
-                }
-                _updateRecord(record, previousRecord, callback)
-            })
+        if (typeof callback !== 'function') {
+            throw Error(`Incorrect function call. Callback must be provided!`)
         } else {
-            _updateRecord(record, currentRecord, callback)
+            _updateRecord(newRecord, oldRecord, callback)
         }
     };
 
