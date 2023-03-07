@@ -68,13 +68,7 @@ function RemotePersistence() {
                             message: err.statusCode === 428 ? 'Unable to add alias: versions out of sync' : err.message || 'Error'
                         });
                     }
-
-                    resolver.invalidateDSUCache(anchorId, err => {
-                        if (err) {
-                            return reject(err);
-                        }
-                        resolve(data);
-                    });
+                    resolve(data);
                 });
                 if (putResult) {
                     putResult.then(resolve).catch(reject);
