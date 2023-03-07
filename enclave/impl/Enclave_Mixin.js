@@ -96,7 +96,7 @@ function Enclave_Mixin(target, did, keySSI) {
     }
 
     target.refresh = (forDID, callback) => {
-        console.trace("Refresh was called");
+        console.debug("Refresh was called");
         if (typeof forDID === "function") {
             callback = forDID;
             forDID = undefined;
