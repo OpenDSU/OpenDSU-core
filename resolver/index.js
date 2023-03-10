@@ -291,7 +291,12 @@ const loadFallbackDSU = (keySSI, options, callback) => {
                     if (index < versions.length - 1) {
                         return tryToRunRecoveryContentFnc(keySSI, dsuInstance, options, versions.slice(0, index), versions[versions.length - 1], callback);
                     }
-                    callback(undefined, dsuInstance);
+                    let error;
+                    //in this case we are able to load the latest version ... basically we believe that no recovery need is it
+                    if(window && !window.confirm('It looks that we were able to load the latest version. Are you sure that recovery mechanism is necessary?')){
+                        error = new Error("User decided to abort recovery because invalid state detected.");
+                    }
+                    callback(error, dsuInstance);
                 })
             }
 
