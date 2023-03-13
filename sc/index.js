@@ -138,12 +138,15 @@
     const setEnclaveKeySSI = (type, keySSI, config) => {
         const sc = getSecurityContext();
         const pin = sc.getPaddedPIN();
-    
+        if (typeof keySSI !== "string") {
+            keySSI = keySSI.getIdentifier();
+        }
+
         if (type != "SHARED_ENCLAVE" || pin == undefined) {
             config[openDSU.constants[type].KEY_SSI] = keySSI;
             return;
         }
-    
+
         const decodedBase58 = crypto.decodeBase58(keySSI);
         const encryptedKey = crypto.encrypt(decodedBase58, pin)
         const base58EncryptedKey = crypto.encodeBase58(encryptedKey);

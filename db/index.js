@@ -41,12 +41,17 @@ let getSimpleWalletDB = (dbName, options) => {
         if (err) {
             return db.dispatchEvent("error", createOpenDSUErrorWrapper("Failed to initialise WalletDB_DSU " + dbName, err));
         }
-        storageStrategy.initialise(_storageDSU, dbName);
-        console.log("Finishing initialisation");
 
         db.getShareableSSI = function () {
             return keySSI;
         };
+
+        db.getStorageDSU = function () {
+            return _storageDSU;
+        }
+
+        storageStrategy.initialise(_storageDSU, dbName);
+        console.log("Finishing initialisation");
     })
 
     return db;
@@ -72,7 +77,7 @@ const getMainEnclaveDB = (callback) => {
 }
 
 const getSharedEnclaveDB = (callback) => {
-     require("opendsu").loadAPI("sc").getSharedEnclave(callback);
+    require("opendsu").loadAPI("sc").getSharedEnclave(callback);
 }
 module.exports = {
     getBasicDB,

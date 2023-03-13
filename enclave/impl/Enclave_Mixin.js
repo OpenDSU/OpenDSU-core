@@ -67,14 +67,16 @@ function Enclave_Mixin(target, did, keySSI) {
         const PathKeyMapping = require("../impl/PathKeyMapping");
 
         try {
-            target.getKeySSI((err, keySSI) => {
+            target.getDSU((err, dsuInstance) => {
                 if (err) {
                     return callback(err);
                 }
 
-                const enclaveHandler = new EnclaveHandler(keySSI);
+                const enclaveHandler = new EnclaveHandler(dsuInstance);
                 pathKeyMapping = new PathKeyMapping(enclaveHandler);
-                callback(undefined, pathKeyMapping);
+                pathKeyMapping.on("initialised", () => {
+                    callback(undefined, pathKeyMapping);
+                })
             })
         } catch (e) {
             return callback(e);
