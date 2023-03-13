@@ -1,3 +1,5 @@
+let didDocuments = {};
+
 function CommunicationHub() {
     const pubSub = require("soundpubsub").soundPubSub;
     const didAPI = require("opendsu").loadAPI("w3cdid");
@@ -9,22 +11,31 @@ function CommunicationHub() {
 
     const ensureDIDDocumentIsLoadedThenExecute = (did, fnToExecute) => {
         if (typeof did === "string") {
+            if(didDocuments[did]){
+                return fnToExecute(undefined, didDocuments[did]);
+            }
             return didAPI.resolveDID(did, (err, resolvedDID) => {
                 if (err) {
-                    console.error(err);
+                    fnToExecute(err);
                     return;
                 }
 
+                didDocuments[did] = resolvedDID;
                 did = resolvedDID;
-                fnToExecute(did);
-            })
+                fnToExecute(undefined, did);
+            });
         }
-
-        fnToExecute(did);
+        let identifier = did.getIdentifier();
+        if(!didDocuments[identifier]){
+            didDocuments[identifier] = did;
+        }
+        console.log(did === didDocuments[identifier], identifier, did, didDocuments[identifier]);
+        console.log(didDocuments);
+        fnToExecute(undefined, didDocuments[identifier]);
     }
 
     this.subscribe = (did, messageType, callback) => {
-        const __subscribe = (did) => {
+        const __subscribe = (err, did) => {
             if (!connectedToMQ[did.getIdentifier()]) {
                 connectedToMQ[did.getIdentifier()] = true;
                 did.waitForMessages((err, message) => {
@@ -56,7 +67,7 @@ function CommunicationHub() {
     };
 
     this.unsubscribe = (did, messageType, callback) => {
-        const stopWaitingForMessages = (did) => {
+        const stopWaitingForMessages = (err, did) => {
             did.stopWaitingForMessages();
             const channel = getChannelName(did, messageType);
             delete connectedToMQ[did.getIdentifier()];
@@ -69,7 +80,7 @@ function CommunicationHub() {
     const subscribers = {};
     // soundpubSub keeps WeakRefs
     this.strongSubscribe = (did, messageType, callback) => {
-        const __strongSubscribe = (did) => {
+        const __strongSubscribe = (err, did) => {
             const channelName = getChannelName(did, messageType);
             if (!subscribers[channelName]) {
                 subscribers[channelName] = [];
@@ -88,7 +99,7 @@ function CommunicationHub() {
 
     this.strongUnsubscribe = (did, messageType, callback) => {
         const channelName = getChannelName(did, messageType);
-        const __strongUnsubscribe = (did) => {
+        const __strongUnsubscribe = (err, did) => {
             if (!subscribers[channelName]) {
                 return callback();
             }
@@ -161,6 +172,12 @@ function CommunicationHub() {
         }
 
         return strongPubSub;
+    }
+
+    this.stop = (did)=>{
+        ensureDIDDocumentIsLoadedThenExecute(did, (err, didDocument)=>{
+                didDocument.stopWaitingForMessages();
+        });
     }
 }
 

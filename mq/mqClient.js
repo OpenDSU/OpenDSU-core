@@ -81,6 +81,7 @@ function MQHandler(didDocument, domain, pollingTimeout) {
     let token;
     let expiryTime;
     let queueName = didDocument.getHash();
+    let self = this;
 
     function getURL(queueName, action, signature, messageID, callback) {
         let url
@@ -219,6 +220,10 @@ function MQHandler(didDocument, domain, pollingTimeout) {
 
                         request.then(response => response.json())
                             .then((response) => {
+                                if(self.stopReceivingMessages){
+
+                                    return callback(new Error("Message rejected by client"));
+                                }
                                 //the return value of the listing callback helps to stop the polling mechanism in case that
                                 //we need to stop to listen for more messages
                                 let stop = callback(undefined, response);
@@ -247,7 +252,7 @@ function MQHandler(didDocument, domain, pollingTimeout) {
 
     this.waitForMessages = (callback) => {
         this.readAndWaitForMore(()=>{
-            return !!callback.on;
+            return typeof this.stopReceivingMessages === "undefined" || this.stopReceivingMessages === false;
         }, callback);
     }
 
@@ -255,7 +260,7 @@ function MQHandler(didDocument, domain, pollingTimeout) {
         consumeMessage("get", callback);
     };
 
-    let self = this;
+
     function getSafeMessageRead(callback){
         return function(err, message){
             if(err){
@@ -264,11 +269,11 @@ function MQHandler(didDocument, domain, pollingTimeout) {
             if(message){
                 callback(undefined, message, ()=>{
                     console.log("notification callback called");
-                });
-                self.deleteMessage(message.messageId, (err)=>{
-                    if(err){
-                        console.log("Unable to delete message from mq");
-                    }
+                    self.deleteMessage(message.messageId, (err)=>{
+                        if(err){
+                            console.log("Unable to delete message from mq");
+                        }
+                    });
                 });
             }
         }
@@ -332,8 +337,13 @@ function MQHandler(didDocument, domain, pollingTimeout) {
     };
 }
 
+let handlers = {};
 function getMQHandlerForDID(didDocument, domain, timeout) {
-    return new MQHandler(didDocument, domain, timeout);
+    let identifier = typeof didDocument === "object" ? didDocument.getIdentifier() : didDocument;
+    if(!handlers[identifier]){
+        handlers[identifier] = new MQHandler(didDocument, domain, timeout);
+    }
+    return handlers[identifier];
 }
 
 module.exports = {

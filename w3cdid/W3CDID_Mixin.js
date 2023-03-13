@@ -158,10 +158,20 @@ function W3CDID_Mixin(target, enclave) {
             .loadAPI("mq")
             .getMQHandlerForDID(target);
 
-        target.onCallback = (err, encryptedMessage) => {
+        target.onCallback = (err, encryptedMessage, notificationHandler) => {
+            if(target.stopReceivingMessages){
+                console.log(`Received message for unsubscribed DID`);
+                return;
+            }
+
             if (err) {
                 return callback(createOpenDSUErrorWrapper(`Failed to read message`, err));
             }
+
+            if(notificationHandler){
+                notificationHandler();
+            }
+
             let message;
             try {
                 message = JSON.parse(encryptedMessage.message);
@@ -170,13 +180,17 @@ function W3CDID_Mixin(target, enclave) {
             }
 
             target.decryptMessage(message, callback);
+            return target.stopWaitingForMessages;
         }
-        target.onCallback.on = true;
         mqHandler.waitForMessages(target.onCallback);
     };
 
     target.stopWaitingForMessages = function () {
-        target.onCallback.on = false;
+        const mqHandler = require("opendsu")
+            .loadAPI("mq")
+            .getMQHandlerForDID(target);
+        mqHandler.stopReceivingMessages = true;
+        target.stopReceivingMessages = true;
     }
 
     target.getEnclave = () => {

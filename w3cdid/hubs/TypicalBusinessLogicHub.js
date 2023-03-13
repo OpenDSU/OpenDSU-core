@@ -74,6 +74,10 @@ function TypicalBusinessLogicHub() {
         commHub.strongUnsubscribe(hubContext.appMainDID, messageType, callback);
     }
 
+    this.stop = () => {
+        commHub.stop(hubContext.appMainDID);
+    }
+
     utilsAPI.bindParallelAutoPendingFunctions(this, ["mainDIDCreated", "setMainDID", "sharedEnclaveIsSet", "setSharedEnclave"]);
 }
 
