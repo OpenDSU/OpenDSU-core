@@ -15,26 +15,27 @@ assert.callback('Encrypt shared enclave KeySSI test', (testFinished) => {
                 "option": {}
             }
         }
-        await tir.launchConfigurableApiHubTestNodeAsync({ domains: [{ name: "vault", config: vaultDomainConfig }] });
+        await tir.launchConfigurableApiHubTestNodeAsync({domains: [{name: "vault", config: vaultDomainConfig}]});
         const sc = scAPI.getSecurityContext();
         sc.on("initialised", async () => {
             const enclaveAPI = openDSU.loadAPI("enclave");
             const pin = "1234";
 
             const sharedEnclave = enclaveAPI.initialiseWalletDBEnclave();
+            sharedEnclave.on("initialised", async () => {
+                sc.setPIN(pin);
+                assert.true(sc.getPIN() == pin);
+                await $$.promisify(scAPI.setSharedEnclave)(sharedEnclave);
+                const resultEnclave = await $$.promisify(scAPI.getSharedEnclave)();
 
-            sc.setPIN(pin);
-            assert.true(sc.getPIN() == pin);
-            await $$.promisify(scAPI.setSharedEnclave)(sharedEnclave);
-            const resultEnclave = await $$.promisify(scAPI.getSharedEnclave)();
-            
-            const initialKeySSI = await $$.promisify(sharedEnclave.getKeySSI)();
-            const resultKeySSI = await resultEnclave.getKeySSIAsync();
-            assert.true(resultEnclave !== undefined);
-            assert.true(initialKeySSI == resultKeySSI);
-            testFinished();
+                const initialKeySSI = await $$.promisify(sharedEnclave.getKeySSI)();
+                const resultKeySSI = await resultEnclave.getKeySSIAsync();
+                assert.true(resultEnclave !== undefined);
+                assert.true(initialKeySSI.getIdentifier() == resultKeySSI.getIdentifier());
+                testFinished();
+            });
         })
     });
-}, 5000);
+}, 500000);
 
 

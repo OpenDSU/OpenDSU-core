@@ -32,6 +32,7 @@ assert.callback('PathKeySSI stress test', (testFinished) => {
                 }
 
                 await $$.promisify(mainEnclave.commitBatch)(undefined);
+                await $$.promisify(mainEnclave.refresh)()
                 const sReadSSI = await $$.promisify(mainEnclave.getReadForKeySSI)(undefined, initialPathKeySSI);
                 console.log(sReadSSI.getIdentifier(true));
                 testFinished();

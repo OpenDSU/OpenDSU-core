@@ -59,6 +59,7 @@ function WalletDBEnclave(keySSI, did) {
             if (typeof keySSI === "string") {
                 keySSI = keySSISpace.parse(keySSI);
             }
+            enclaveDSU = this.storageDB.getStorageDSU();
             let privateKey;
             try{
                 privateKey = await $$.promisify(this.storageDB.getRecord)(constants.TABLE_NAMES.PATH_KEY_SSI_PRIVATE_KEYS, 0);
@@ -80,6 +81,14 @@ function WalletDBEnclave(keySSI, did) {
             forDID = undefined;
         }
         callback(undefined, keySSI);
+    }
+
+    this.getDSU = (forDID, callback)=>{
+        if (typeof forDID === "function") {
+            callback = forDID;
+            forDID = undefined;
+        }
+        callback(undefined, enclaveDSU);
     }
 
     this.getUniqueIdAsync = async () => {

@@ -33,7 +33,7 @@ assert.callback('Set shared enclave KeySSI test', (testFinished) => {
                 const initialKeySSI = await $$.promisify(sharedEnclave.getKeySSI)();
                 const resultKeySSI = await resultEnclave.getKeySSIAsync();
                 assert.true(resultEnclave != undefined);
-                assert.true(initialKeySSI == resultKeySSI);
+                assert.true(initialKeySSI.getIdentifier() == resultKeySSI.getIdentifier());
                 testFinished();
             });
 
