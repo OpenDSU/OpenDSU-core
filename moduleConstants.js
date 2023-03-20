@@ -22,6 +22,12 @@ module.exports = {
 	DOMAIN: "domain",
 	DID_DOMAIN: "didDomain",
 	MAIN_APP_DID: "mainAppDID",
+	NOTIFICATION_TYPES: {
+		ERROR: "error",
+		WARN: "warn",
+		INFO: "info",
+		DEV: "dev"
+	},
 	MAIN_ENCLAVE: {
 		TYPE: "enclaveType",
 		DID: "enclaveDID",

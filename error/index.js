@@ -151,70 +151,70 @@ function OpenDSUSafeCallback(callback) {
 let observable = require("./../utils/observable").createObservable();
 let devObservers = [];
 
-function reportUserRelevantError(message, err, showIntermediateErrors) {
-    observable.dispatchEvent("error", {message, err});
-    console.log(message);
+function reportUserRelevantError(message, err) {
+  genericDispatchEvent(constants.NOTIFICATION_TYPES.ERROR, message, err);
+}
+
+function reportUserRelevantWarning(message, err) {
+  genericDispatchEvent(constants.NOTIFICATION_TYPES.WARN, message, err);
+}
+
+
+function reportUserRelevantInfo(message, err) {
+  genericDispatchEvent(constants.NOTIFICATION_TYPES.INFO, message, err);
+}
+
+function reportDevRelevantInfo(message, err) {
+    genericDispatchEvent(constants.NOTIFICATION_TYPES.DEV, message, err);
+}
+
+function genericDispatchEvent(type, message, err) {
+    observable.dispatchEvent(type, {message, err});
+    console.log(message, err ? err : "");
     if (err && typeof err.debug_message != "undefined") {
-        printErrorWrapper(err, showIntermediateErrors);
+      printErrorWrapper(err, false);
     }
 }
 
-function reportUserRelevantWarning(message) {
-    observable.dispatchEvent("warn", message);
-    console.log(">>>", message);
-}
-
-
-function reportUserRelevantInfo(message) {
-    observable.dispatchEvent("info", message);
-    console.log(">>>", message);
-}
-
-function reportDevRelevantInfo(message) {
-    devObservers.forEach(c => {
-        c(message);
-    })
-    console.log(">>>", message);
-}
 
 function unobserveUserRelevantMessages(type, callback) {
     switch (type) {
-        case "error":
+        case constants.NOTIFICATION_TYPES.ERROR:
             observable.off(type, callback);
             break;
-        case "info":
+        case constants.NOTIFICATION_TYPES.INFO:
             observable.off(type, callback);
             break;
-        case "warn":
+        case constants.NOTIFICATION_TYPES.WARN:
+            observable.off(type, callback);
+            break;
+        case constants.NOTIFICATION_TYPES.DEV:
             observable.off(type, callback);
             break;
         default:
-            let index = devObservers.indexOf(callback);
-            if (index !== -1) {
-                devObservers.splice(index, 1);
-            }
+            observable.off(constants.NOTIFICATION_TYPES.DEV, callback);
     }
 }
 
 function observeUserRelevantMessages(type, callback) {
     switch (type) {
-        case "error":
+        case constants.NOTIFICATION_TYPES.ERROR:
             observable.on(type, callback);
             break;
-        case "info":
+        case constants.NOTIFICATION_TYPES.INFO:
             observable.on(type, callback);
             break;
-        case "warn":
+        case constants.NOTIFICATION_TYPES.WARN:
             observable.on(type, callback);
             break;
-        case "dev":
-            devObservers.push(callback);
+        case constants.NOTIFICATION_TYPES.DEV:
+            observable.on(type, callback);
             break;
         case "unhandled":
             observable.on(type, callback);
             break;
         default:
-            devObservers.push(callback);
+            observable.on(constants.NOTIFICATION_TYPES.DEV, callback);
             break;
     }
 }
