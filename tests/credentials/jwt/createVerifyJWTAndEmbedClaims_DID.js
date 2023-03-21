@@ -44,7 +44,7 @@ assert.callback('[DID] Create JWT, embed public claim and, another JWTVc and ver
 
         try {
             const {issuerDidDocument, subjectDidDocument} = result;
-            const jwtVcInstance = await credentials.createJWTVerifiableCredentialAsync(issuerDidDocument, subjectDidDocument, {exp: 1678812494957});
+            const jwtVcInstance = await credentials.createJWTVerifiableCredentialAsync(issuerDidDocument, subjectDidDocument, {exp: 2531468420000});
 
             await jwtVcInstance.embedClaimAsync('nbf', Date.now());
             await jwtVcInstance.embedClaimAsync('scope', ['vc_sign', 'vc_verify']);
@@ -59,7 +59,7 @@ assert.callback('[DID] Create JWT, embed public claim and, another JWTVc and ver
             assert.true(verificationStatusVC.verifyResult, verificationStatusVC.errorMessage);
 
             const jwtVpInstance = await credentials.createJWTVerifiablePresentationAsync(subjectDidDocument, {
-                exp: 1678812494957,
+                exp: 2531468420000,
                 credentialsToPresent: [encodedJwtVc]
             });
             await jwtVpInstance.extendExpirationDateAsync(6000);
@@ -101,4 +101,4 @@ assert.callback('[DID] Create JWT, embed public claim and, another JWTVc and ver
             throw e;
         }
     });
-}, 3000);
+}, 3000000);

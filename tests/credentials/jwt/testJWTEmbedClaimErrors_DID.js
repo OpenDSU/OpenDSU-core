@@ -41,7 +41,7 @@ assert.callback("[DID] Test JWT Embed public and subject claims errors", (callba
             throw err;
         }
 
-        const jwtOptions = {exp: 1678812494957};
+        const jwtOptions = {exp: 2531468420000};
         const {issuerDidDocument, subjectDidDocument} = result;
         credentials.createJWTVerifiableCredential(issuerDidDocument, subjectDidDocument, jwtOptions, (createJWTError, jwtInstance) => {
             if (createJWTError) {
