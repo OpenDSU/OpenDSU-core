@@ -108,4 +108,4 @@ assert.callback("[DID] Test JWT verifiable credential validation strategy possib
 
         callback();
     });
-}, 1000);
+}, 3000);

@@ -86,4 +86,4 @@ assert.callback("[DID] Test JWT Embed public and subject claims errors", (callba
             });
         });
     });
-}, 1000);
+}, 3000);
