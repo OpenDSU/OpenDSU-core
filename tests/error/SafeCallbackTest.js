@@ -6,8 +6,8 @@ const errorSpace = require('../../error');
 assert.callback(
   'Verify callback test',
   (callback) => {
-    errorSpace.observeUserRelevantMessages('warn', (message) => {
-      assert.true(message === 'Ignored result. Please add a proper callback when using this function! ' + undefined);
+    errorSpace.observeUserRelevantMessages('warn', (err) => {
+      assert.true(err.message === 'Ignored result. Please add a proper callback when using this function! ' + undefined);
       callback();
     });
 
