@@ -8,9 +8,11 @@ const cache = require("../cache");
 const {createOpenDSUErrorWrapper} = require("../error");
 let dsuCache = cache.getWeakRefMemoryCache("mainDSUsCache");
 
-const getResolver = (options) => {
-    options = options || {};
-    return KeySSIResolver.initialize(options);
+const getResolver = () => {
+    if (typeof $$.keySSIResolver === "undefined") {
+        $$.keySSIResolver = KeySSIResolver.initialize();
+    }
+    return $$.keySSIResolver;
 };
 
 const registerDSUFactory = (type, factory) => {
