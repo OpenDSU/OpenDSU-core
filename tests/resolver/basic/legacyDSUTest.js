@@ -32,7 +32,7 @@ assert.callback('LegacyDSU test', (testFinished) => {
         await $$.promisify(firstSeedDSUInstance.commitBatch)()
         const content = await $$.promisify(secondDSUInstance.readFile)(FILEPATH);
         assert.equal(content.toString(), NEW_FILE_CONTENT);
-        const content2 = await $$.promisify(secondDSUInstance.readFile)(FILEPATH2);
+        const content2 = await $$.promisify(firstSeedDSUInstance.readFile)(FILEPATH2);
         assert.equal(content2.toString(), NEW_FILE_CONTENT2);
         testFinished();
     });
