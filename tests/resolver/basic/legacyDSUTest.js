@@ -22,18 +22,27 @@ assert.callback('LegacyDSU test', (testFinished) => {
         const keySSI = await $$.promisify(firstSeedDSUInstance.getKeySSIAsObject)();
         await $$.promisify(resolver.invalidateDSUCache)(keySSI);
         const secondDSUInstance = await $$.promisify(resolver.loadDSU)(keySSI);
-        firstSeedDSUInstance.beginBatch();
-        await $$.promisify(firstSeedDSUInstance.writeFile)(FILEPATH, INITIAL_FILE_CONTENT, {});
-        await $$.promisify(firstSeedDSUInstance.writeFile)(FILEPATH, NEW_FILE_CONTENT, {});
-        secondDSUInstance.beginBatch();
-        await $$.promisify(secondDSUInstance.writeFile)(FILEPATH2, NEW_FILE_CONTENT2, {});
-        await $$.promisify(secondDSUInstance.writeFile)(FILEPATH3, NEW_FILE_CONTENT2, {});
-        $$.promisify(secondDSUInstance.commitBatch)()
-        await $$.promisify(firstSeedDSUInstance.commitBatch)()
-        const content = await $$.promisify(secondDSUInstance.readFile)(FILEPATH);
+        await firstSeedDSUInstance.safeBeginBatchAsync();
+        await firstSeedDSUInstance.writeFileAsync(FILEPATH, INITIAL_FILE_CONTENT, {});
+        let content = await firstSeedDSUInstance.readFileAsync(FILEPATH);
+        assert.equal(content.toString(), INITIAL_FILE_CONTENT);
+        await firstSeedDSUInstance.writeFileAsync(FILEPATH, NEW_FILE_CONTENT, {});
+        let error;
+        try{
+            await secondDSUInstance.safeBeginBatchAsync();
+        }catch (e) {
+            error = e;
+        }
+        assert.true(error !== undefined, "Should have thrown an error");
+        await firstSeedDSUInstance.commitBatchAsync();
+        await secondDSUInstance.safeBeginBatchAsync();
+        await secondDSUInstance.writeFileAsync(FILEPATH2, NEW_FILE_CONTENT2, {});
+        await secondDSUInstance.writeFileAsync(FILEPATH3, NEW_FILE_CONTENT2, {});
+        await secondDSUInstance.commitBatchAsync();
+        content = await secondDSUInstance.readFileAsync(FILEPATH);
         assert.equal(content.toString(), NEW_FILE_CONTENT);
-        const content2 = await $$.promisify(firstSeedDSUInstance.readFile)(FILEPATH2);
+        const content2 = await firstSeedDSUInstance.readFileAsync(FILEPATH2);
         assert.equal(content2.toString(), NEW_FILE_CONTENT2);
         testFinished();
     });
-}, 5000000);
+}, 500000);
