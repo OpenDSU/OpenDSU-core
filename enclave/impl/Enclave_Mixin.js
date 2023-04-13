@@ -695,7 +695,14 @@ function Enclave_Mixin(target, did, keySSI) {
     }
 
     target.loadDSURecoveryMode = (forDID, ssi, contentRecoveryFnc, callback) => {
-        target.loadDSU(forDID, ssi, {contentRecoveryFnc, recoveryMode: true}, callback);
+        const defaultOptions = {recoveryMode: true};
+        let options = {contentRecoveryFnc, recoveryMode: true};
+        if (typeof contentRecoveryFnc === "object") {
+            options = contentRecoveryFnc;
+        }
+
+        options = Object.assign(defaultOptions, options);
+        target.loadDSU(forDID, ssi, options, callback);
     }
 }
 

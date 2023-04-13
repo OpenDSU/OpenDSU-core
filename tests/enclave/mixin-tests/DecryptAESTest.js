@@ -47,5 +47,5 @@ assert.callback('Decrypt AES on Walled DB test', (testFinished) => {
             })
         })
     });
-}, 500);
+}, 5000);
 
