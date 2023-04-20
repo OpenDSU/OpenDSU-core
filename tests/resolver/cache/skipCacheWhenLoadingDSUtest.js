@@ -115,8 +115,6 @@ function promisifyDSU(...args) {
         'listFolders',
         'createFolder',
         'cloneFolder',
-        'enableAnchoringNotifications',
-        'enableAutoSync',
         'readDir',
         'mount',
         'unmount',
