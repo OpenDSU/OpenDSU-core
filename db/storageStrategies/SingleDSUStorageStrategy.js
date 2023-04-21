@@ -25,12 +25,28 @@ function SingleDSUStorageStrategy() {
         }
     }
 
+    this.safeBeginBatch = (callback) => {
+        storageDSU.safeBeginBatch(callback);
+    }
+
+    this.safeBeginBatchAsync = async () => {
+        return await storageDSU.safeBeginBatchAsync();
+    }
+
     this.cancelBatch = (callback) => {
         storageDSU.cancelBatch(callback);
     }
 
+    this.cancelBatchAsync = async () => {
+        return await storageDSU.cancelBatchAsync();
+    }
+
     this.commitBatch = (callback) => {
         storageDSU.commitBatch(callback);
+    }
+
+    this.commitBatchAsync = async () => {
+        return await storageDSU.commitBatchAsync();
     }
 
     this.getAllRecords = (tableName, callback) => {
@@ -415,6 +431,7 @@ function SingleDSUStorageStrategy() {
         }
         storageDSU.delete(getIndexPath(tableName, fieldName, oldValue, pk), callback);
     }
+
     function deleteIndexesForRecord(tableName, pk, oldRecord, newRecord, callback) {
         const fields = Object.keys(oldRecord);
         getIndexedFieldsList(tableName, (err, indexedFields) => {
@@ -434,7 +451,7 @@ function SingleDSUStorageStrategy() {
             taskCounter.increment(fields.length);
             fields.forEach(field => {
                 if (indexedFields.findIndex(indexedField => indexedField === field) !== -1) {
-                    deleteValueForIndex(tableName, field, pk, oldRecord[field], newRecord[field],  (err) => {
+                    deleteValueForIndex(tableName, field, pk, oldRecord[field], newRecord[field], (err) => {
                         if (err) {
                             return callback(createOpenDSUErrorWrapper(`Failed to delete index for field ${field} in table ${tableName}`, err));
                         }
@@ -464,7 +481,7 @@ function SingleDSUStorageStrategy() {
       Insert a record
     */
     this.insertRecord = function (tableName, key, record, callback) {
-        this.updateRecord(tableName, key, undefined, record,  callback);
+        this.updateRecord(tableName, key, undefined, record, callback);
     };
 
     function getPrimaryKeys(tableName, callback) {
@@ -511,7 +528,7 @@ function SingleDSUStorageStrategy() {
             }
 
             if (typeof oldRecord !== "undefined") {
-                return deleteIndexesForRecord(tableName, key,  oldRecord, newRecord, (err) => {
+                return deleteIndexesForRecord(tableName, key, oldRecord, newRecord, (err) => {
                     if (err) {
                         return callback(createOpenDSUErrorWrapper(`Failed to delete index files for record ${JSON.stringify(newRecord)}`, err));
                     }

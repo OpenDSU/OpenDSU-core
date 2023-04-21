@@ -172,12 +172,28 @@ function Enclave_Mixin(target, did, keySSI) {
         target.storageDB.beginBatch();
     }
 
+    target.safeBeginBatch = (forDID, callback) => {
+        target.storageDB.safeBeginBatch(callback);
+    }
+
+    target.safeBeginBatchAsync = async (forDID) => {
+        return await target.storageDB.safeBeginBatchAsync();
+    }
+
     target.commitBatch = (forDID, callback) => {
         target.storageDB.commitBatch(callback);
     }
 
+    target.commitBatchAsync = async (forDID) => {
+        return await target.storageDB.commitBatchAsync();
+    }
+
     target.cancelBatch = (forDID, callback) => {
         target.storageDB.cancelBatch(callback);
+    }
+
+    target.cancelBatchAsync = async (forDID) => {
+        return await target.storageDB.cancelBatchAsync();
     }
 
     target.readKey = (forDID, key, callback) => {
