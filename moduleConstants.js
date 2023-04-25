@@ -42,7 +42,8 @@ module.exports = {
 		WALLET_DB_ENCLAVE: "WalletDBEnclave",
 		MEMORY_ENCLAVE: "MemoryEnclave",
 		APIHUB_ENCLAVE: "ApihubEnclave",
-		HIGH_SECURITY_ENCLAVE: "HighSecurityEnclave"
+		HIGH_SECURITY_ENCLAVE: "HighSecurityEnclave",
+        VERSIONLESS_DSU_ENCLAVE: "VersionlessDSUEnclave",
 	},
 	CACHE: {
 		FS: "fs",

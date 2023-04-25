@@ -284,6 +284,12 @@ const createEmbedSSI = (domain, data) => {
     return embedSSI;
 }
 
+const createVersionlessSSI = (domain, path, encryptionKey, vn, hint) => {    
+    const versionlessSSI = keySSIFactory.createType(SSITypes.VERSIONLESS_SSI);
+    versionlessSSI.initialize(domain, path, encryptionKey, vn, hint);
+    return versionlessSSI;
+};
+
 module.exports = {
     parse,
     createSeedSSI,
@@ -311,5 +317,6 @@ module.exports = {
     createSizeSSI,
     createPathKeySSI,
     we_createPathKeySSI,
-    createEmbedSSI
+    createEmbedSSI,
+    createVersionlessSSI
 };

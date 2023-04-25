@@ -81,6 +81,30 @@ const createDSUForExistingSSI = (ssi, options, callback) => {
     createDSU(ssi, options, callback);
 };
 
+const createVersionlessDSU = (filePath, encryptionKey, domain, callback) => {
+    const bdnsSpace = require("opendsu").loadApi("bdns");
+
+    if (typeof domain === "function") {
+        callback = domain;
+        domain = bdnsSpace.getOriginPlaceholder();
+    }
+    if (typeof encryptionKey === "function") {
+        callback = encryptionKey;
+        domain = bdnsSpace.getOriginPlaceholder();
+        encryptionKey = undefined;
+    }
+
+    if(typeof encryptionKey === "string" && encryptionKey) {
+        // specific string must have 32 characters required for versionlessDSU encrypt
+        if(encryptionKey.length !== 32) {
+            throw new Error(`encryptionKey must have exactly 32 characters (${encryptionKey.length} provided)`)
+        }
+    }
+
+    const versionlessSSI = keySSISpace.createVersionlessSSI(domain, filePath, encryptionKey);
+    createDSU(versionlessSSI, callback);
+}
+
 /**
  * Check if the DSU is up to date by comparing its
  * current anchored HashLink with the latest anchored version.
@@ -324,7 +348,7 @@ const loadDSU = (keySSI, options, callback) => {
     }
 
     const loadDSU = (addInCache) => {
-
+        
         const keySSIResolver = getResolver(options);
         keySSIResolver.loadDSU(keySSI, options, (err, dsuInstance) => {
             if (err) {
@@ -595,6 +619,7 @@ module.exports = {
     createConstDSU,
     createArrayDSU,
     createDSUForExistingSSI,
+    createVersionlessDSU,
     loadDSU,
     getDSUHandler,
     registerDSUFactory,
