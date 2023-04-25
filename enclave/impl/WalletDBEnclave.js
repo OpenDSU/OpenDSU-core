@@ -16,6 +16,7 @@ function WalletDBEnclave(keySSI, did) {
             try {
                 keySSI = await $$.promisify(config.getEnv)(openDSU.constants.MAIN_ENCLAVE.KEY_SSI);
             } catch (e) {
+                console.log("Not able to retrieve the keyssi of the enclave. A new one will be created.");
             }
 
             if (!keySSI) {
@@ -58,6 +59,7 @@ function WalletDBEnclave(keySSI, did) {
             if (typeof keySSI === "string") {
                 keySSI = keySSISpace.parse(keySSI);
             }
+            enclaveDSU = this.storageDB.getStorageDSU();
             let privateKey;
             try{
                 privateKey = await $$.promisify(this.storageDB.getRecord)(constants.TABLE_NAMES.PATH_KEY_SSI_PRIVATE_KEYS, 0);
@@ -81,6 +83,19 @@ function WalletDBEnclave(keySSI, did) {
         callback(undefined, keySSI);
     }
 
+    this.getDSU = (forDID, callback)=>{
+        if (typeof forDID === "function") {
+            callback = forDID;
+            forDID = undefined;
+        }
+        callback(undefined, enclaveDSU);
+    }
+
+    this.getUniqueIdAsync = async () => {
+        let keySSI = await $$.promisify(this.getKeySSI)();
+        return await keySSI.getAnchorIdAsync();
+    }
+
     this.getEnclaveType = () => {
         return openDSU.constants.ENCLAVE_TYPES.WALLET_DB_ENCLAVE;
     };
@@ -90,7 +105,7 @@ function WalletDBEnclave(keySSI, did) {
     };
 
     const bindAutoPendingFunctions = require("../../utils/BindAutoPendingFunctions").bindAutoPendingFunctions;
-    bindAutoPendingFunctions(this, ["on", "off", "dispatchEvent", "beginBatch", "isInitialised", "getEnclaveType"]);
+    bindAutoPendingFunctions(this, ["on", "off", "dispatchEvent", "beginBatch", "isInitialised", "getEnclaveType", "getDID", "getUniqueIdAsync"]);
 
     init();
 }

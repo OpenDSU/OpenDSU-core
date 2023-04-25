@@ -7,11 +7,8 @@ const assert = dc.assert;
 require("../../index");
 const opendsu = require('../../index');
 const keyssispace = opendsu.loadApi("keyssi");
-const bdns = opendsu.loadApi("bdns");
-
 
 assert.callback('Setting and testing a custom bdns', (testfinished) => {
-
     dc.createTestFolder('setcustombdns', (err, folder) => {
         testIntegration.launchApiHubTestNode(10, folder, (err) => {
             if (err) {
@@ -39,6 +36,7 @@ assert.callback('Setting and testing a custom bdns', (testfinished) => {
                     }
                 };
 
+                const bdns = opendsu.loadApi("bdns");
                 bdns.setBDNSHosts(custom_bdns);
 
                 bdns.getRawInfo(dlDomain, (err, rawInfo) => {

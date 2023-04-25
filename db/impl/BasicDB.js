@@ -47,11 +47,19 @@ function BasicDB(storageStrategy, conflictSolvingStrategy, options) {
         storageStrategy.refresh(callback);
     }
 
+    this.getUniqueIdAsync = async () => {
+        return await storageStrategy.getUniqueIdAsync();
+    }
+
     this.getAllRecords = (tableName, callback) => {
         storageStrategy.getAllRecords(tableName, callback);
     }
 
     this.addIndex = function (tableName, fieldName, forceReindex, callback) {
+        if (typeof tableName === "undefined" || tableName === "undefined") {
+            return callback(Error(`Table name "undefined" is not allowed`));
+        }
+
         if (typeof forceReindex === "function") {
             callback = forceReindex;
             forceReindex = false;
@@ -87,6 +95,12 @@ function BasicDB(storageStrategy, conflictSolvingStrategy, options) {
     */
     this.insertRecord = function (tableName, key, record, callback) {
         callback = callback ? callback : getDefaultCallback("Inserting a record", tableName, key);
+        if (typeof key === "undefined" || key === "undefined") {
+            return callback(Error(`Primary key "undefined" is not allowed`));
+        }
+        if (typeof tableName === "undefined" || tableName === "undefined") {
+            return callback(Error(`Table name "undefined" is not allowed`));
+        }
 
         self.getRecord(tableName, key, function (err, res) {
             if (!err || res) {
@@ -117,6 +131,13 @@ function BasicDB(storageStrategy, conflictSolvingStrategy, options) {
      */
     this.updateRecord = function (tableName, key, newRecord, callback) {
         callback = callback ? callback : getDefaultCallback("Updating a record", tableName, key);
+        if (typeof key === "undefined" || key === "undefined") {
+            return callback(Error(`Primary key "undefined" is not allowed`));
+        }
+        if (typeof tableName === "undefined" || tableName === "undefined") {
+            return callback(Error(`Table name "undefined" is not allowed`));
+        }
+
         let currentRecord;
 
         function doVersionIncAndUpdate(currentRecord, callback) {
@@ -127,7 +148,7 @@ function BasicDB(storageStrategy, conflictSolvingStrategy, options) {
             if (newRecord.__version == 0) {
                 storageStrategy.insertRecord(tableName, key, newRecord, callback);
             } else {
-                storageStrategy.updateRecord(tableName, key, newRecord, currentRecord, callback);
+                storageStrategy.updateRecord(tableName, key, currentRecord, newRecord, callback);
             }
         }
 
@@ -182,16 +203,16 @@ function BasicDB(storageStrategy, conflictSolvingStrategy, options) {
       Delete a record
      */
     this.deleteRecord = function (tableName, key, callback) {
-        self.getRecord(tableName, key, function (err, record) {
+        self.getRecord(tableName, key, function (err, oldRecord) {
             if (err) {
                 return callback(createOpenDSUErrorWrapper(`Could not retrieve record with key ${key} does not exist ${tableName} `, err));
             }
 
-            const currentRecord = JSON.parse(JSON.stringify(record));
-            record.__version++;
-            record.__timestamp = Date.now();
-            record.__deleted = true;
-            storageStrategy.updateRecord(tableName, key, record, currentRecord, (err) => {
+            const newRecord = JSON.parse(JSON.stringify(oldRecord));
+            newRecord.__version++;
+            newRecord.__timestamp = Date.now();
+            newRecord.__deleted = true;
+            storageStrategy.updateRecord(tableName, key, oldRecord, newRecord, (err) => {
                 if (err) {
                     return callback(createOpenDSUErrorWrapper(`Failed to update with key ${key} in table ${tableName} `, err));
                 }

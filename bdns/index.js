@@ -19,7 +19,10 @@ function BDNS() {
             bdnsCache = JSON.parse(bdnsHosts);
             isInitialized = true;
             this.executePendingCalls();
-        }).catch((err) => console.log("Failed to retrieve BDNS hosts", err));
+        }).catch((err) => {
+            console.error("Failed to retrieve BDNS hosts", err);
+            throw err;
+        })
     };
 
     retrieveHosts();
@@ -106,6 +109,7 @@ function BDNS() {
         bdnsCache = bdnsHosts;
     }
 
+
     this.getOrigin = () => {
         return getBaseURL();
     };
@@ -114,6 +118,7 @@ function BDNS() {
     this.getOriginPlaceholder = () => {
         return "ORIGIN";
     };
+    this.getOriginUrl = getBaseURL;
 }
 
 

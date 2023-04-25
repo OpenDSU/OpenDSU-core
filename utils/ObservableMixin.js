@@ -1,3 +1,4 @@
+const constants = require("../moduleConstants");
 function ObservableMixin(target) {
     let observers = {};
 
@@ -27,9 +28,14 @@ function ObservableMixin(target) {
 
     target.dispatchEvent = function(eventType, message){
         let arr = observers[eventType];
-        if(!arr){
+        if (!arr) {
             //no handlers registered
-            reportDevRelevantInfo(`No observers found for event type ${eventType}`);
+            if (eventType !== constants.NOTIFICATION_TYPES.DEV) {
+                reportDevRelevantInfo(`No observers found for event type ${eventType}`);
+            } else {
+                console.debug(`No observers found for event type ${eventType}`);
+            }
+
             return;
         }
 

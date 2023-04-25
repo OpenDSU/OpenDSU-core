@@ -111,6 +111,9 @@ const createVersionlessDSU = (filePath, encryptionKey, domain, callback) => {
  * If a new anchor is detected refresh the DSU
  */
 const getLatestDSUVersion = (dsu, callback) => {
+    if(dsu.batchInProgress()){
+        return callback(undefined, dsu);
+    }
     dsu.getCurrentAnchoredHashLink((err, current) => {
         if (err) {
             return callback(err);

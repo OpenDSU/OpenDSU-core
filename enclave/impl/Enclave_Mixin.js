@@ -67,14 +67,16 @@ function Enclave_Mixin(target, did, keySSI) {
         const PathKeyMapping = require("../impl/PathKeyMapping");
 
         try {
-            target.getKeySSI((err, keySSI) => {
+            target.getDSU((err, dsuInstance) => {
                 if (err) {
                     return callback(err);
                 }
 
-                const enclaveHandler = new EnclaveHandler(keySSI);
+                const enclaveHandler = new EnclaveHandler(dsuInstance);
                 pathKeyMapping = new PathKeyMapping(enclaveHandler);
-                callback(undefined, pathKeyMapping);
+                pathKeyMapping.on("initialised", () => {
+                    callback(undefined, pathKeyMapping);
+                })
             })
         } catch (e) {
             return callback(e);
@@ -84,6 +86,8 @@ function Enclave_Mixin(target, did, keySSI) {
     target.getDID = (callback) => {
         if (!did) {
             did = CryptoSkills.applySkill("key", CryptoSkills.NAMES.CREATE_DID_DOCUMENT);
+            did.on("error", callback);
+
             did.on("initialised", () => {
                 did = did.getIdentifier();
                 callback(undefined, did);
@@ -94,6 +98,7 @@ function Enclave_Mixin(target, did, keySSI) {
     }
 
     target.refresh = (forDID, callback) => {
+        console.debug("Refresh was called");
         if (typeof forDID === "function") {
             callback = forDID;
             forDID = undefined;
@@ -275,9 +280,13 @@ function Enclave_Mixin(target, did, keySSI) {
         if (keySSI.getTypeName() === openDSU.constants.KEY_SSIS.SEED_SSI) {
             return target.storeSeedSSI(forDID, keySSI, undefined, callback);
         }
-        const keySSIIdentifier = keySSI.getIdentifier();
 
-        target.storageDB.insertRecord(constants.TABLE_NAMES.KEY_SSIS, keySSIIdentifier, {keySSI: keySSIIdentifier}, callback)
+        if (keySSI.getFamilyName() === openDSU.constants.KEY_SSI_FAMILIES.SEED_SSI_FAMILY) {
+            const keySSIIdentifier = keySSI.getIdentifier();
+            target.storageDB.insertRecord(constants.TABLE_NAMES.KEY_SSIS, keySSIIdentifier, {keySSI: keySSIIdentifier}, callback)
+        } else {
+            callback();
+        }
     }
 
     target.storeReadForAliasSSI = (forDID, sReadSSI, aliasSSI, callback) => {

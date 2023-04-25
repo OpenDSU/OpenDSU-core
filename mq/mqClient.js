@@ -81,6 +81,7 @@ function MQHandler(didDocument, domain, pollingTimeout) {
     let token;
     let expiryTime;
     let queueName = didDocument.getHash();
+    let self = this;
 
     function getURL(queueName, action, signature, messageID, callback) {
         let url
@@ -219,6 +220,10 @@ function MQHandler(didDocument, domain, pollingTimeout) {
 
                         request.then(response => response.json())
                             .then((response) => {
+                                if(self.stopReceivingMessages){
+
+                                    return callback(new Error("Message rejected by client"));
+                                }
                                 //the return value of the listing callback helps to stop the polling mechanism in case that
                                 //we need to stop to listen for more messages
                                 let stop = callback(undefined, response);
@@ -227,7 +232,11 @@ function MQHandler(didDocument, domain, pollingTimeout) {
                                 }
                             })
                             .catch((err) => {
-                                callback(err);
+                                if(err.rootCause != "network"){
+                                    callback(err);
+                                }else{
+                                    makeRequest();
+                                }
                             });
                     }
 
@@ -242,67 +251,44 @@ function MQHandler(didDocument, domain, pollingTimeout) {
     }
 
     this.waitForMessages = (callback) => {
-        callback.__requestInProgress = true;
-
-        ensureAuth((err, token) => {
-            if (err) {
-                return callback(err);
-            }
-            //somebody called abort before the ensureAuth resolved
-            if (!callback.__requestInProgress) {
-                return;
-            }
-            didDocument.sign(token, (err, signature) => {
-                if (err) {
-                    return callback(createOpenDSUErrorWrapper(`Failed to sign token`, err));
-                }
-
-                getURL(queueName, "take", signature.toString("hex"), (err, url) => {
-                    if (err) {
-                        return callback(err);
-                    }
-
-                    let options = { headers: { Authorization: token } };
-
-                    async function makeRequest() {
-                        let request = http.poll(url, options, connectionTimeout, timeout);
-                        callback.__requestInProgress = request;
-
-                        request.then(response => response.json())
-                            .then((response) => {
-                                callback(undefined, response);
-                                if (callback.on) {
-                                    makeRequest();
-                                }
-                            })
-                            .catch((err) => {
-                                if (callback.on) {
-                                    makeRequest();
-                                }
-                            });
-                    }
-
-                    //somebody called abort before we arrived here
-                    if (!callback.__requestInProgress) {
-                        return;
-                    }
-                    makeRequest();
-                })
-            })
-        })
-
+        this.readAndWaitForMore(()=>{
+            return typeof this.stopReceivingMessages === "undefined" || this.stopReceivingMessages === false;
+        }, callback);
     }
 
     this.previewMessage = (callback) => {
         consumeMessage("get", callback);
     };
 
+
+    function getSafeMessageRead(callback){
+        return function(err, message){
+            if(err){
+                return callback(err);
+            }
+            if(message){
+                callback(undefined, message, ()=>{
+                    console.log("notification callback called");
+                    self.deleteMessage(message.messageId, (err)=>{
+                        if(err){
+                            console.log("Unable to delete message from mq");
+                        }
+                    });
+                });
+            }
+        }
+    }
+
     this.readMessage = (callback) => {
-        consumeMessage("take", callback);
+        consumeMessage("get", getSafeMessageRead(callback));
     };
 
     this.readAndWaitForMessages = (callback) => {
-        consumeMessage("take", true, callback);
+        consumeMessage("get", true, getSafeMessageRead(callback));
+    };
+
+    this.readAndWaitForMore = (waitForMore, callback) => {
+        consumeMessage("get", waitForMore ? waitForMore() : true, getSafeMessageRead(callback));
     };
 
     this.subscribe = this.readAndWaitForMessages;
@@ -351,8 +337,13 @@ function MQHandler(didDocument, domain, pollingTimeout) {
     };
 }
 
+let handlers = {};
 function getMQHandlerForDID(didDocument, domain, timeout) {
-    return new MQHandler(didDocument, domain, timeout);
+    let identifier = typeof didDocument === "object" ? didDocument.getIdentifier() : didDocument;
+    if(!handlers[identifier]){
+        handlers[identifier] = new MQHandler(didDocument, domain, timeout);
+    }
+    return handlers[identifier];
 }
 
 module.exports = {

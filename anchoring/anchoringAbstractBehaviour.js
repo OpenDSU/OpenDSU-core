@@ -118,7 +118,16 @@ function AnchoringAbstractBehaviour(persistenceStrategy) {
         }
     }
 
-    self.getAllVersions = function (anchorId, callback) {
+    self.getAllVersions = function (anchorId, options, callback) {
+        if(typeof options === "function"){
+            callback = options;
+            options = undefined;
+        }
+
+        if(!options){
+            options = {};
+        }
+
         let anchorIdKeySSI = anchorId;
         if (typeof anchorId === "string") {
             anchorIdKeySSI = keySSISpace.parse(anchorId);
@@ -129,9 +138,12 @@ function AnchoringAbstractBehaviour(persistenceStrategy) {
                 return callback(err);
             }
 
-            let fakeHistoryAvailable = fakeHistory[anchorId];
-            if(fakeHistoryAvailable){
-                return callback(undefined, fakeHistoryAvailable);
+
+            if(!options.realHistory){
+                let fakeHistoryAvailable = fakeHistory[anchorId];
+                if(fakeHistoryAvailable){
+                    return callback(undefined, fakeHistoryAvailable);
+                }
             }
 
             persistenceStrategy.getAllVersions(anchorId, (err, data) => {

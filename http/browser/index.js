@@ -76,8 +76,10 @@ function customFetch(...args){
 		}
 		return res;
 	}).catch(err=>{
-		callGlobalHandler({status: 503, err});
-		throw err;
+		const constants = require("../../moduleConstants");
+		let error = createOpenDSUErrorWrapper(err.message, err, constants.ERROR_ROOT_CAUSE.NETWORK_ERROR);
+		callGlobalHandler({err:error});
+		throw error;
 	});
 }
 

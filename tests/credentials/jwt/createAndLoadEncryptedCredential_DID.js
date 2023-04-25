@@ -44,11 +44,11 @@ assert.callback('[DID] Create JWT VC and VP with encrypted credential credential
 
         try {
             const {issuerDidDocument, subjectDidDocument, audienceDidDocument} = result;
-            const jwtVcInstance = await credentials.createJWTVerifiableCredentialAsync(issuerDidDocument, subjectDidDocument, {exp: 1678812494957});
+            const jwtVcInstance = await credentials.createJWTVerifiableCredentialAsync(issuerDidDocument, subjectDidDocument, {exp: 2531468420000});
 
             const encodedJwtVc1 = await jwtVcInstance.getEncodedJWTAsync();
             const jwtVpInstance = await credentials.createJWTVerifiablePresentationAsync(subjectDidDocument, {
-                exp: 1678812494957,
+                exp: 2531468420000,
                 aud: audienceDidDocument.getIdentifier()
             });
             await jwtVpInstance.addEncryptedCredentialAsync(encodedJwtVc1);

@@ -147,11 +147,7 @@ const we_createConstSSI = (enclave, domain, constString, vn, hint, callback) => 
     const constSSI = keySSIFactory.createType(SSITypes.CONST_SSI);
     constSSI.initialize(domain, constString, vn, hint);
     if (typeof callback === "function") {
-        if (enclave) {
-            enclave.storeKeySSI(undefined, constSSI, (err) => callback(err, constSSI));
-        } else {
-            callback(undefined, constSSI);
-        }
+        callback(undefined, constSSI);
     }
     return constSSI;
 };
@@ -164,11 +160,7 @@ const we_createArraySSI = (enclave, domain, arr, vn, hint, callback) => {
     const arraySSI = keySSIFactory.createType(SSITypes.ARRAY_SSI);
     arraySSI.initialize(domain, arr, vn, hint);
     if (typeof callback === "function") {
-        if (enclave) {
-            enclave.storeKeySSI(undefined, arraySSI, (err) => callback(err, arraySSI));
-        } else {
-            callback(undefined, arraySSI);
-        }
+        callback(undefined, arraySSI);
     }
     return arraySSI;
 };

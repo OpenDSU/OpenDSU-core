@@ -26,7 +26,7 @@ function ConstDID_Document_Mixin(target, enclave, domain, name, isInitialisation
         try {
             seedSSI = await $$.promisify(keySSISpace.createSeedSSI)(domain);
         } catch (e) {
-            throw createOpenDSUErrorWrapper(`Failed to create SeedSSI`, e);
+            return target.dispatchEvent("error", createOpenDSUErrorWrapper(`Failed to create SeedSSI`, e));
         }
 
         target.privateKey = seedSSI.getPrivateKey();
@@ -38,39 +38,39 @@ function ConstDID_Document_Mixin(target, enclave, domain, name, isInitialisation
         try {
             constDSU = await $$.promisify(resolver.createConstDSU)(domain, name);
         } catch (e) {
-            throw createOpenDSUErrorWrapper(`Failed to create constDSU`, e);
+            return target.dispatchEvent("error", createOpenDSUErrorWrapper(`Failed to create constDSU`, e));
         }
 
         constDSU.beginBatch();
         try {
             target.dsu = await $$.promisify(resolver.createSeedDSU)(domain);
         } catch (e) {
-            throw createOpenDSUErrorWrapper(`Failed to create writableDSU`, e);
+            return target.dispatchEvent("error", createOpenDSUErrorWrapper(`Failed to create writableDSU`, e));
         }
 
         let publicKey = await generatePublicKey();
         try {
             await $$.promisify(target.addPublicKey)(publicKey);
         } catch (e) {
-            throw createOpenDSUErrorWrapper(`Failed to save public key`, e);
+            return target.dispatchEvent("error", createOpenDSUErrorWrapper(`Failed to save public key`, e));
         }
         let seedSSI;
         try {
             seedSSI = await $$.promisify(target.dsu.getKeySSIAsString)();
         } catch (e) {
-            throw createOpenDSUErrorWrapper(`Failed to get seedSSI`, e);
+            return target.dispatchEvent("error", createOpenDSUErrorWrapper(`Failed to get seedSSI`, e));
         }
 
         try {
             await $$.promisify(constDSU.mount)(WRITABLE_DSU_PATH, seedSSI);
         } catch (e) {
-            throw createOpenDSUErrorWrapper(`Failed to mount writable DSU`, e);
+            return target.dispatchEvent("error", createOpenDSUErrorWrapper(`Failed to mount writable DSU`, e));
         }
 
         try {
             await $$.promisify(constDSU.commitBatch)();
         } catch (e) {
-            throw createOpenDSUErrorWrapper(`Failed to commit batch in Const DSU`, e);
+            return target.dispatchEvent("error", createOpenDSUErrorWrapper(`Failed to commit batch in Const DSU`, e));
         }
 
         target.finishInitialisation();
@@ -82,7 +82,7 @@ function ConstDID_Document_Mixin(target, enclave, domain, name, isInitialisation
             try {
                 domain = await $$.promisify(scAPI.getDIDDomain)();
             } catch (e) {
-                throw createOpenDSUErrorWrapper(`Failed to get did domain`, e);
+                return target.dispatchEvent("error", createOpenDSUErrorWrapper(`Failed to get did domain`, e));
             }
         }
         resolver.loadDSU(keySSISpace.createConstSSI(domain, name), async (err, constDSUInstance) => {
@@ -93,7 +93,7 @@ function ConstDID_Document_Mixin(target, enclave, domain, name, isInitialisation
                 try {
                     await createDSU(domain, name);
                 } catch (e) {
-                    throw createOpenDSUErrorWrapper(`Failed to create DSU`, e);
+                    return target.dispatchEvent("error", createOpenDSUErrorWrapper(`Failed to create DSU`, e));
                 }
                 return;
             }
@@ -102,7 +102,7 @@ function ConstDID_Document_Mixin(target, enclave, domain, name, isInitialisation
                 const dsuContext = await $$.promisify(constDSUInstance.getArchiveForPath)(WRITABLE_DSU_PATH);
                 target.dsu = dsuContext.archive;
             } catch (e) {
-                throw createOpenDSUErrorWrapper(`Failed to load writableDSU`, e);
+                return target.dispatchEvent("error", createOpenDSUErrorWrapper(`Failed to load writableDSU`, e));
             }
 
             target.finishInitialisation();

@@ -2,6 +2,7 @@ function PathKeyMapping(enclaveHandler) {
     const utils = require("./utils");
     const openDSU = require("opendsu");
     const utilsAPI = openDSU.loadAPI("utils");
+    utilsAPI.ObservableMixin(this);
     const keySSISpace = openDSU.loadAPI("keyssi");
     let pathKeysMapping = {};
     let initialised = false;
@@ -10,6 +11,7 @@ function PathKeyMapping(enclaveHandler) {
         pathKeysMapping = await $$.promisify(utils.getKeySSIsMappingFromPathKeys)(paths);
 
         this.finishInitialisation();
+        this.dispatchEvent("initialised");
     };
 
     this.isInitialised = () => {
@@ -104,7 +106,7 @@ function PathKeyMapping(enclaveHandler) {
         callback(undefined, pathKeysMapping);
     };
 
-    utilsAPI.bindAutoPendingFunctions(this);
+    utilsAPI.bindAutoPendingFunctions(this, ["on", "off", "dispatchEvent"]);
     init();
 }
 

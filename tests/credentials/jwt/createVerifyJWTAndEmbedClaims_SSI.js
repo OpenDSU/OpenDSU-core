@@ -38,7 +38,7 @@ assert.callback("[DID] Create JWT, embed public and subject claims and verify JW
         }
 
         const {issuerSeedSSI, subjectSeedSSI} = result;
-        const jwtOptions = {exp: 1678812494957};
+        const jwtOptions = {exp: 2531468420000};
         credentials.createJWTVerifiableCredential(issuerSeedSSI, subjectSeedSSI, jwtOptions, (createJWTError, jwtInstance) => {
             if (createJWTError) {
                 throw createJWTError;

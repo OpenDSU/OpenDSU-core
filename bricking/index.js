@@ -32,7 +32,7 @@ const getBrick = (hashLinkSSI, authToken, callback) => {
         __getBrickFromEndpoint();
     } else {
         cache.get(brickHash, (err, brick) => {
-            if (err || typeof brick === "undefined") {
+            if (err || typeof brick === "undefined" || !isValidBrickHash(hashLinkSSI, brick)) {
                 __getBrickFromEndpoint();
             } else {
                 callback(undefined, brick);
@@ -104,7 +104,9 @@ const getMultipleBricks = (hashLinkSSIList, authToken, callback) => {
             }
 
             resultsArr[taskNumber] = brickData;
-            attemptCallback();
+            setTimeout(()=>{
+                attemptCallback();
+            })
         });
     }
 

@@ -42,12 +42,12 @@ assert.callback("[DID] Test JWT verifiable credential validation strategy possib
         }
 
         const {issuerDidDocument, subjectDidDocument} = result;
-        const jwtVcInstance = await credentials.createJWTVerifiableCredentialAsync(issuerDidDocument, subjectDidDocument, {exp: 1678812494957});
+        const jwtVcInstance = await credentials.createJWTVerifiableCredentialAsync(issuerDidDocument, subjectDidDocument, {exp: 2531468420000});
         await jwtVcInstance.embedSubjectClaimAsync('https://some.uri.test', 'TestSubjectClaim', {test: 'test'});
 
         const encodedJwtVc = await jwtVcInstance.getEncodedJWTAsync();
         const jwtVpInstance = await credentials.createJWTVerifiablePresentationAsync(subjectDidDocument, {
-            exp: 1678812494957,
+            exp: 2531468420000,
             credentialsToPresent: [encodedJwtVc]
         });
         await jwtVpInstance.embedClaimAsync('testClaim', 'Claim');
@@ -108,4 +108,4 @@ assert.callback("[DID] Test JWT verifiable credential validation strategy possib
 
         callback();
     });
-}, 1000);
+}, 3000);

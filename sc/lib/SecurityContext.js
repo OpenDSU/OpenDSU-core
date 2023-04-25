@@ -210,7 +210,7 @@ function SecurityContext(target, PIN) {
         let asyncDBMethods = ["insertRecord", "updateRecord", "getRecord", "deleteRecord", "filter", "commitBatch", "cancelBatch", "getKeySSI", "readKey", "writeKey", "getAllRecords", "addIndex"];
         for (let i = 0; i < asyncDBMethods.length; i++) {
             wrappedEnclave[asyncDBMethods[i]] = (...args) => {
-                enclave[asyncDBMethods[i]](asDID, ...args);
+                return enclave[asyncDBMethods[i]](asDID, ...args);
             }
 
             wrappedEnclave[`${asyncDBMethods[i]}Async`] = $$.promisify(wrappedEnclave[asyncDBMethods[i]]);
@@ -219,7 +219,7 @@ function SecurityContext(target, PIN) {
         Object.keys(enclave).forEach(methodName => {
             if (typeof wrappedEnclave[methodName] === "undefined") {
                 wrappedEnclave[methodName] = (...args) => {
-                    enclave[methodName](asDID, ...args);
+                    return enclave[methodName](asDID, ...args);
                 }
             }
         })

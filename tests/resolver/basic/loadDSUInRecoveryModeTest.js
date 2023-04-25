@@ -24,7 +24,7 @@ assert.callback('load DSU in recovery mode test', (testFinished) => {
         const brickHash = dsuVersionHash.getHash();
         const brickPath = path.join(folder, "external-volume", "domains", DOMAIN, "brick-storage", brickHash.slice(0, 5), brickHash);
         fs.appendFileSync(brickPath, "something");
-        console.log(fs.readFileSync(brickPath).toString());
+        //console.log(fs.readFileSync(brickPath).toString());
         // let dsuVersionFileContent = await $$.promisify(dsuVersion.readFile)(FILEPATH);
         // dsuVersionFileContent = dsuVersionFileContent.toString();
         // assert.equal(dsuVersionFileContent, INITIAL_FILE_CONTENT);
@@ -33,7 +33,7 @@ assert.callback('load DSU in recovery mode test', (testFinished) => {
         let loadedDSU;
         let error;
         try {
-            loadedDSU = await $$.promisify(resolver.loadDSU)(keySSI);
+            loadedDSU = await $$.promisify(resolver.loadDSU)(keySSI, {skipCache: true});
         } catch (e) {
             error = e;
         }

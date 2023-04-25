@@ -22,6 +22,12 @@ module.exports = {
 	DOMAIN: "domain",
 	DID_DOMAIN: "didDomain",
 	MAIN_APP_DID: "mainAppDID",
+	NOTIFICATION_TYPES: {
+		ERROR: "error",
+		WARN: "warn",
+		INFO: "info",
+		DEV: "dev"
+	},
 	MAIN_ENCLAVE: {
 		TYPE: "enclaveType",
 		DID: "enclaveDID",
@@ -78,6 +84,12 @@ module.exports = {
 			cachedKeySSIResolver = require("key-ssi-resolver");
 		}
 		 return cachedKeySSIResolver.SSITypes;
+	 },
+	 get KEY_SSI_FAMILIES(){
+		if(cachedKeySSIResolver === undefined){
+			cachedKeySSIResolver = require("key-ssi-resolver");
+		}
+		 return cachedKeySSIResolver.SSIFamilies;
 	 },
 	get CRYPTO_FUNCTION_TYPES(){
 		if(cachedKeySSIResolver === undefined){

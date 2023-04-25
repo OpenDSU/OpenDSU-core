@@ -25,7 +25,8 @@ assert.callback('WalletDBEnclaveHandler test', (testFinished) => {
             await $$.promisify(scAPI.setMainEnclave)(mainEnclave);
             const NO_PATH_KEY_SSIS = 30;
             const mainEnclaveKeySSI = await $$.promisify(mainEnclave.getKeySSI)();
-            const enclaveHandler = new EnclaveHandler(mainEnclaveKeySSI, {maxNoScatteredKeys: 10});
+            const mainEnclaveDSU = await $$.promisify(mainEnclave.getDSU)();
+            const enclaveHandler = new EnclaveHandler(mainEnclaveDSU, {maxNoScatteredKeys: 10});
             let expectedResult = {};
             for (let i = 0; i < NO_PATH_KEY_SSIS; i++) {
                 const path = crypto.generateRandom(16).toString("hex")

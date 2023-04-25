@@ -76,6 +76,28 @@ function ErrorWrapper(message, err, otherErrors, rootCause) {
     if (otherErrors) {
         newErr.otherErrors = otherErrors;
     }
+
+    function dumpErrorWrapper(ew, showIntermediateErrors) {
+        let level = 0;
+        let str = `Top level error: ${ew.debug_message} ${ew.debug_stack}`
+        let firstError;
+        ew = ew.previousError;
+        while (ew) {
+            if (showIntermediateErrors && ew.previousError) {
+                str += `\nError at layer ${level}: ${ew.debug_message} ${ew.debug_stack}`;
+            }
+            level++;
+            firstError = ew;
+            ew = ew.previousError;
+        }
+        str += `\n\tFirst error in the ErrorWrapper at level ${level} :${firstError}\n`;
+        return str
+    }
+
+    newErr.toString = function () {
+        return dumpErrorWrapper(newErr, true);
+    };
+
     return newErr;
 }
 
@@ -129,71 +151,82 @@ function OpenDSUSafeCallback(callback) {
 let observable = require("./../utils/observable").createObservable();
 let devObservers = [];
 
-function reportUserRelevantError(message, err, showIntermediateErrors) {
-    observable.dispatchEvent("error", {message, err});
-    console.log(message);
+function reportUserRelevantError(message, err) {
+  genericDispatchEvent(constants.NOTIFICATION_TYPES.ERROR, message, err);
+}
+
+function reportUserRelevantWarning(message, err) {
+  genericDispatchEvent(constants.NOTIFICATION_TYPES.WARN, message, err);
+}
+
+
+function reportUserRelevantInfo(message, err) {
+  genericDispatchEvent(constants.NOTIFICATION_TYPES.INFO, message, err);
+}
+
+function reportDevRelevantInfo(message, err) {
+    genericDispatchEvent(constants.NOTIFICATION_TYPES.DEV, message, err);
+}
+
+function genericDispatchEvent(type, message, err) {
+    observable.dispatchEvent(type, {message, err});
+    console.log(message, err ? err : "");
     if (err && typeof err.debug_message != "undefined") {
-        printErrorWrapper(err, showIntermediateErrors);
+      printErrorWrapper(err, false);
     }
 }
 
-function reportUserRelevantWarning(message) {
-    observable.dispatchEvent("warn", message);
-    console.log(">>>", message);
-}
-
-
-function reportUserRelevantInfo(message) {
-    observable.dispatchEvent("info", message);
-    console.log(">>>", message);
-}
-
-function reportDevRelevantInfo(message) {
-    devObservers.forEach(c => {
-        c(message);
-    })
-    console.log(">>>", message);
-}
 
 function unobserveUserRelevantMessages(type, callback) {
     switch (type) {
-        case "error":
+        case constants.NOTIFICATION_TYPES.ERROR:
             observable.off(type, callback);
             break;
-        case "info":
+        case constants.NOTIFICATION_TYPES.INFO:
             observable.off(type, callback);
             break;
-        case "warn":
+        case constants.NOTIFICATION_TYPES.WARN:
+            observable.off(type, callback);
+            break;
+        case constants.NOTIFICATION_TYPES.DEV:
             observable.off(type, callback);
             break;
         default:
-            let index = devObservers.indexOf(callback);
-            if (index !== -1) {
-                devObservers.splice(index, 1);
-            }
+            observable.off(constants.NOTIFICATION_TYPES.DEV, callback);
     }
 }
 
 function observeUserRelevantMessages(type, callback) {
     switch (type) {
-        case "error":
+        case constants.NOTIFICATION_TYPES.ERROR:
             observable.on(type, callback);
             break;
-        case "info":
+        case constants.NOTIFICATION_TYPES.INFO:
             observable.on(type, callback);
             break;
-        case "warn":
+        case constants.NOTIFICATION_TYPES.WARN:
             observable.on(type, callback);
             break;
-        case "dev":
-            devObservers.push(callback);
+        case constants.NOTIFICATION_TYPES.DEV:
+            observable.on(type, callback);
+            break;
+        case "unhandled":
+            observable.on(type, callback);
             break;
         default:
-            devObservers.push(callback);
+            observable.on(constants.NOTIFICATION_TYPES.DEV, callback);
             break;
     }
 }
 
+if (typeof window !== "undefined") {
+    window.onerror = (msg, url, line, call, err)=>{
+        observable.dispatchEvent("unhandled", err);
+        console.log(msg, url, line, call);
+    }
+
+    window.addEventListener("error", window.onerror)
+}
 function printErrorWrapper(ew, showIntermediateErrors) {
     let level = 0;
     console.log("Top level error:", ew.debug_message, ew.debug_stack);

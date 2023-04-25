@@ -41,7 +41,7 @@ assert.callback("[DID] Test create JWT verifiable credential errors", (callback)
             throw err;
         }
 
-        const jwtOptions = {exp: 1678812494957};
+        const jwtOptions = {exp: 2531468420000};
         const {issuerDidDocument, subjectDidDocument} = result;
         const issuer = issuerDidDocument.getIdentifier();
         const subject = subjectDidDocument.getIdentifier();
