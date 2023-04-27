@@ -35,16 +35,18 @@ assert.callback('Create DSU on already configured domain', (testfinished) => {
 
 
 function createdsu(domain, keySSICallback) {
-    resolver.createConstDSU(domain, "someString", (err, dsu) => {
+    resolver.createConstDSU(domain, "someString", async (err, dsu) => {
         if (err) {
             return console.log(err);
         }
 
-        dsu.writeFile("somePath", "someText", (err)=>{
+        await dsu.safeBeginBatchAsync();
+        dsu.writeFile("somePath", "someText", async (err)=>{
             if (err) {
                 throw err;
             }
 
+            await dsu.commitBatchAsync();
             dsu.getLastHashLinkSSI((err, hashlink) => {
                 if (err) {
                     throw err;

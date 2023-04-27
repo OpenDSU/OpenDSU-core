@@ -145,7 +145,19 @@ function ConstDID_Document_Mixin(target, enclave, domain, name, isInitialisation
     };
 
     target.addPublicKey = (publicKey, callback) => {
-        target.dsu.writeFile(`${PUB_KEYS_PATH}/${publicKey.toString("hex")}`, callback);
+        target.dsu.safeBeginBatch((err) => {
+            if(err){
+                return callback(createOpenDSUErrorWrapper(`Failed to begin batch`, err));
+            }
+
+            target.dsu.writeFile(`${PUB_KEYS_PATH}/${publicKey.toString("hex")}`, (err) => {
+                if(err) {
+                    return callback(createOpenDSUErrorWrapper(`Failed to add public key for did ${target.getIdentifier()}`, err));
+                }
+
+                target.dsu.commitBatch(callback);
+            });
+        });
     }
 }
 

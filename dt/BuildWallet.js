@@ -14,10 +14,12 @@ function BuildWallet() {
         writableDSU.readFile("/environment.json", async (err, env) => {
             if (err) {
                 try {
+                    await writableDSU.safeBeginBatchAsync();
                     await $$.promisify(writableDSU.writeFile)("/environment.json", JSON.stringify({
                         vaultDomain: vaultDomain,
                         didDomain: vaultDomain
                     }))
+                    await writableDSU.commitBatchAsync();
                 } catch (e) {
                     return callback(e);
                 }
@@ -85,8 +87,12 @@ function BuildWallet() {
                         await $$.promisify(scAPI.setEnclave)(enclave, enclaveType);
                         callback();
                     } catch (e) {
-                        callback(createOpenDSUErrorWrapper("Failed to set shared enclave", e));
+                        return callback(createOpenDSUErrorWrapper("Failed to set shared enclave", e));
                     }
+                })
+
+                enclave.on("error", (err) => {
+                    return callback(createOpenDSUErrorWrapper("Failed to set shared enclave", err));
                 })
             } else {
                 callback();
