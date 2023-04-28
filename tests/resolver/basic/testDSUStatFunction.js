@@ -9,6 +9,7 @@ const resolver = openDSU.loadAPI("resolver");
 const DOMAIN = "default";
 const FILEPATH = "/folder/file1";
 const FILE_CONTENT = "some content";
+$$.LEGACY_BEHAVIOUR_ENABLED = true;
 assert.callback('Test DSU stat function', (testFinished) => {
     dc.createTestFolder('writeEmbeddedFile', async (err, folder) => {
         await tir.launchConfigurableApiHubTestNodeAsync({rootFolder: folder});

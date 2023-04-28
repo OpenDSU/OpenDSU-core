@@ -129,7 +129,9 @@ module.exports = {
                     }
 
                     try {
+                        await mainDSU.safeBeginBatchAsync();
                         await $$.promisify(mainDSU.writeFile)(DB_KEY_SSI_PATH, keySSI.getIdentifier());
+                        await mainDSU.commitBatchAsync();
                     } catch (e) {
                         return callback(createOpenDSUErrorWrapper(`Failed to store key SSI in mainDSU for db <${dbName}>`, e));
                     }
@@ -152,7 +154,9 @@ module.exports = {
                 }
             }
             try {
+                await mainDSU.safeBeginBatchAsync();
                 await $$.promisify(mainDSU.writeFile)(DB_KEY_SSI_PATH, keySSI.getIdentifier());
+                await mainDSU.commitBatchAsync();
             } catch (e) {
                 return callback(createOpenDSUErrorWrapper(`Failed to store key SSI in mainDSU for db <${dbName}>`, e));
             }

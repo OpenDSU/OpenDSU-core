@@ -10,7 +10,7 @@ const resolver = opendsu.loadApi('resolver');
 
 const INFO_PATH = '/info';
 const STATUS_PATH = '/status';
-
+$$.LEGACY_BEHAVIOUR_ENABLED = true;
 const getShipment = function(id){
     return {
         id: Math.floor(Math.random() * 10000000),

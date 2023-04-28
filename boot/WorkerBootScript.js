@@ -1,4 +1,5 @@
 function boot(keySSI) {
+    $$.LEGACY_BEHAVIOUR_ENABLED = true;
     const { handleMessage } = require("./boot-utils.js");
 
     onmessage = (message) => {

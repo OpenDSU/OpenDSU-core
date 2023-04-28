@@ -10,7 +10,7 @@ const keySSI = require("../../../keyssi")
 
 const _createDSU = promisify(resolver.createDSU);
 const _loadDSU = promisify(resolver.loadDSU);
-
+$$.LEGACY_BEHAVIOUR_ENABLED = true;
 assert.callback('LoadDSUSkipCacheTest', (testfinished) => {
 
     dc.createTestFolder('loadDSUSkipCache',(err,folder) => {
