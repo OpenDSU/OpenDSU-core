@@ -187,7 +187,19 @@ function GroupDID_Document(enclave, domain, groupName, isInitialisation) {
                         members[id] = info[index];
                     }
                 });
-                return this.dsu.writeFile(MEMBERS_FILE, JSON.stringify(members), callback);
+                return this.dsu.safeBeginBatch(err => {
+                    if (err) {
+                        return callback(err);
+                    }
+
+                    this.dsu.writeFile(MEMBERS_FILE, JSON.stringify(members), err => {
+                        if (err) {
+                            return callback(err);
+                        }
+
+                        this.dsu.commitBatch(callback);
+                    });
+                })
             } else {
                 callback(Error(`Invalid operation ${operation}`));
             }

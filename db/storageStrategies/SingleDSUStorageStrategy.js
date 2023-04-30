@@ -516,12 +516,6 @@ function SingleDSUStorageStrategy() {
         }
 
         const recordPath = getRecordPath(tableName, key);
-        let batchInProgress = false;
-        if (storageDSU.batchInProgress()) {
-            batchInProgress = true
-        } else {
-            storageDSU.beginBatch();
-        }
         storageDSU.writeFile(recordPath, JSON.stringify(newRecord), function (err, res) {
             if (err) {
                 return callback(createOpenDSUErrorWrapper(`Failed to update record in ${recordPath}`, err));
@@ -538,10 +532,7 @@ function SingleDSUStorageStrategy() {
                             return callback(createOpenDSUErrorWrapper(`Failed to update indexes for record ${newRecord}`, err));
                         }
 
-                        if (batchInProgress) {
-                            return callback(undefined, newRecord);
-                        }
-                        storageDSU.commitBatch(err => callback(err, newRecord));
+                        callback(err, newRecord);
                     });
                 });
             }
@@ -551,10 +542,7 @@ function SingleDSUStorageStrategy() {
                     return callback(createOpenDSUErrorWrapper(`Failed to update indexes for record ${newRecord}`, err));
                 }
 
-                if (batchInProgress) {
-                    return callback(undefined, newRecord);
-                }
-                storageDSU.commitBatch(err => callback(err, newRecord));
+                callback(err, newRecord)
             });
         });
     };
