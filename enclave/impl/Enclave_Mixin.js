@@ -427,11 +427,11 @@ function Enclave_Mixin(target, did, keySSI) {
 
         target.storageDB.getRecord(constants.TABLE_NAMES.DIDS_PRIVATE_KEYS, storedDID.getIdentifier(), (err, res) => {
             if (err || !res) {
-                target.storageDB.safeBeginBatch((err) => {
+                return target.storageDB.safeBeginBatch((err) => {
                     if (err) {
                         return callback(err);
                     }
-                    return target.storageDB.insertRecord(constants.TABLE_NAMES.DIDS_PRIVATE_KEYS, storedDID.getIdentifier(), {privateKeys: privateKeys}, (err) => {
+                    target.storageDB.insertRecord(constants.TABLE_NAMES.DIDS_PRIVATE_KEYS, storedDID.getIdentifier(), {privateKeys: privateKeys}, (err, rec) => {
                         if (err) {
                             return target.storageDB.cancelBatch((err) => {
                                 if (err) {
@@ -441,7 +441,7 @@ function Enclave_Mixin(target, did, keySSI) {
                             });
                         }
 
-                        target.storageDB.commitBatch(callback);
+                        target.storageDB.commitBatch(err => callback(err, rec));
                     });
                 })
             }
@@ -536,7 +536,7 @@ function Enclave_Mixin(target, did, keySSI) {
             target.storageDB.insertRecord(constants.TABLE_NAMES.PRIVATE_KEYS, alias, {
                 privateKey: privateKey,
                 type: type
-            }, (err) => {
+            }, (err, rec) => {
                 if (err) {
                     return target.storageDB.cancelBatch((err) => {
                         if (err) {
@@ -546,7 +546,7 @@ function Enclave_Mixin(target, did, keySSI) {
                     });
                 }
 
-                target.storageDB.commitBatch(callback);
+                target.storageDB.commitBatch(err => callback(err, rec));
             });
         });
     }
@@ -563,20 +563,20 @@ function Enclave_Mixin(target, did, keySSI) {
         }
 
         target.storageDB.safeBeginBatch((err) => {
-            if(err){
+            if (err) {
                 return callback(err);
             }
-            target.storageDB.insertRecord(constants.TABLE_NAMES.SECRET_KEYS, alias, {secretKey: secretKey}, (err) => {
-                if(err){
+            target.storageDB.insertRecord(constants.TABLE_NAMES.SECRET_KEYS, alias, {secretKey: secretKey}, (err, res) => {
+                if (err) {
                     return target.storageDB.cancelBatch((err) => {
-                        if(err){
+                        if (err) {
                             return callback(err);
                         }
                         callback(err);
                     });
                 }
 
-                target.storageDB.commitBatch(callback);
+                target.storageDB.commitBatch(err => callback(err, res));
             })
         })
     };

@@ -7,6 +7,7 @@ const openDSU = require('../../index');
 $$.__registerModule("opendsu", openDSU);
 const enclaveAPI = openDSU.loadAPI("enclave");
 const scAPI = openDSU.loadAPI("sc");
+$$.LEGACY_BEHAVIOUR_ENABLED = true;
 assert.callback('WalletDBEnclave test', (testFinished) => {
     dc.createTestFolder('createDSU', async (err, folder) => {
         const vaultDomainConfig = {

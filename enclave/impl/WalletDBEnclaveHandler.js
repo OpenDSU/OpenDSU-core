@@ -19,32 +19,40 @@ function WalletDBEnclaveHandler(walletDBEnclaveDSU, config) {
 
     this.storePathKeySSI = (pathKeySSI, callback) => {
         if (typeof pathKeySSI === "string") {
-            try{
+            try {
                 pathKeySSI = keySSISpace.parse(pathKeySSI);
-            }catch (e) {
+            } catch (e) {
                 return callback(e);
             }
         }
         const __storePathKeySSI = () => {
             const filePath = pathModule.join(constants.PATHS.SCATTERED_PATH_KEYS, pathKeySSI.getSpecificString(), pathKeySSI.getIdentifier());
-            walletDBEnclaveDSU.writeFile(filePath, async err => {
+            walletDBEnclaveDSU.safeBeginBatch(err => {
                 if (err) {
                     return callback(err);
                 }
 
-                try {
-                    const files = await $$.promisify(walletDBEnclaveDSU.listFiles)(constants.PATHS.SCATTERED_PATH_KEYS);
-                    if (files.length === config.maxNoScatteredKeys) {
-                        try {
-                            await compactPathKeys();
-                        } catch (e) {
-                            return callback(e);
-                        }
+                walletDBEnclaveDSU.writeFile(filePath, async err => {
+                    if (err) {
+                        return callback(err);
                     }
-                    callback();
-                } catch (e) {
-                    return callback(e);
-                }
+
+                    try {
+                        const files = await $$.promisify(walletDBEnclaveDSU.listFiles)(constants.PATHS.SCATTERED_PATH_KEYS);
+                        if (files.length === config.maxNoScatteredKeys) {
+                            try {
+                                await compactPathKeys();
+                            } catch (e) {
+                                return callback(e);
+                            }
+                        }
+                        callback();
+                    } catch (e) {
+                        return callback(e);
+                    }
+
+                    walletDBEnclaveDSU.commitBatch(callback);
+                })
             })
         };
 
@@ -81,7 +89,7 @@ function WalletDBEnclaveHandler(walletDBEnclaveDSU, config) {
     }
 
     this.loadPaths = (callback) => {
-        const __loadPaths = ()=> {
+        const __loadPaths = () => {
             loadCompactedPathKeys((err, compactedKeys) => {
                 if (err) {
                     return callback(err);

@@ -128,7 +128,6 @@ module.exports = {
                     }
 
                     try {
-                        console.trace("==================================");
                         await mainDSU.safeBeginBatchAsync();
                         await $$.promisify(mainDSU.writeFile)(DB_KEY_SSI_PATH, keySSI.getIdentifier());
                         await mainDSU.commitBatchAsync();

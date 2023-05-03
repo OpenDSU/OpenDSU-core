@@ -9,7 +9,7 @@ const keySSI = openDSU.loadAPI("keyssi");
 const resolver = openDSU.loadAPI("resolver");
 const scAPI = openDSU.loadAPI("sc");
 const w3cDID = openDSU.loadAPI("w3cdid");
-
+$$.LEGACY_BEHAVIOUR_ENABLED = true;
 assert.callback('key DID SSI test', (testFinished) => {
     const domain = 'default';
     let sc;

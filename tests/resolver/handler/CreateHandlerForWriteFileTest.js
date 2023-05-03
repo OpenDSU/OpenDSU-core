@@ -5,6 +5,7 @@ const assert = dc.assert;
 
 const resolver = require("../../../resolver");
 const { createTestFolderWithDSU, isHashLinkSSI } = require("./utils");
+$$.LEGACY_BEHAVIOUR_ENABLED = true;
 
 assert.callback(
     "getHandler writeFile",
