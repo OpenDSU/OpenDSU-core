@@ -32,16 +32,20 @@ assert.callback(
                         '{"runtimeBundles":["pskruntime.js","webshims.js"],"constitutionBundles":["domain.js"]}';
 
                     try {
+                        await dsuToMount.safeBeginBatchAsync();
                         await writeFile(BOOT_CONFIG_FILE, bootConfigContent);
-
+                        await dsuToMount.commitBatchAsync();
                         const { dsu: mainDSU, keySSI: mainDsuKeySSI } = await $$.promisify(createDSU)(domain);
 
+                        await mainDSU.safeBeginBatchAsync();
                         await $$.promisify(mainDSU.mount)("/code", dsuToMountKeySSI);
+                        await mainDSU.commitBatchAsync();
 
+                        await dsuToMount.safeBeginBatchAsync();
                         await writeFile(`/constitution/pskruntime.js`, "");
                         await writeFile(`/constitution/webshims.js`, "");
                         await writeFile(`/constitution/domain.js`, "");
-
+                        await dsuToMount.commitBatchAsync();
                         const dsuResolver = resolver.getDSUHandler(mainDsuKeySSI);
                         await $$.promisify(dsuResolver.listFiles)("/");
                         testFinished();

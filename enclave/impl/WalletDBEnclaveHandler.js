@@ -46,7 +46,6 @@ function WalletDBEnclaveHandler(walletDBEnclaveDSU, config) {
                                 return callback(e);
                             }
                         }
-                        callback();
                     } catch (e) {
                         return callback(e);
                     }

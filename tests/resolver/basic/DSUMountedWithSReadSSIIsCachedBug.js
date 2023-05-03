@@ -10,7 +10,7 @@ const keySSI = require("../../../keyssi")
 
 const _createDSU = promisify(resolver.createDSU);
 const _loadDSU = promisify(resolver.loadDSU);
-
+$$.LEGACY_BEHAVIOUR_ENABLED = true;
 // Test context:
 // A ChildDSU is created
 // A file is created in ChildDSU at /file

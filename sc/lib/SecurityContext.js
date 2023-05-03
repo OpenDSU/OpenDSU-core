@@ -89,7 +89,6 @@ function SecurityContext(target, PIN) {
         }
 
         enclave = enclaveAPI.createEnclave(enclaveType);
-        await initSharedEnclave();
         const __saveEnclaveDIDAndFinishInit = async () => {
             if (typeof enclaveDID === "undefined") {
                 enclaveDID = await $$.promisify(enclave.getDID)();
@@ -99,6 +98,8 @@ function SecurityContext(target, PIN) {
                     throw createOpenDSUErrorWrapper(`Failed to set env enclaveDID`, e);
                 }
             }
+
+            await initSharedEnclave();
 
             if (!sharedEnclave || isPromise(sharedEnclave)) {
                 return finishInit();

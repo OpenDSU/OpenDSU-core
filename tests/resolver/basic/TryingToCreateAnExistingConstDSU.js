@@ -5,7 +5,7 @@ const dc = require("double-check");
 const assert = dc.assert;
 
 const resolver = require('../../../resolver');
-
+$$.LEGACY_BEHAVIOUR_ENABLED = true;
 assert.callback('Trying to create a new anchor for an existing ConstDSU', (testFinished) => {
 
     dc.createTestFolder('createDSU', (err, folder) => {

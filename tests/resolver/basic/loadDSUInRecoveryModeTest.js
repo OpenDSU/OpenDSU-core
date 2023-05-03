@@ -13,14 +13,21 @@ const DOMAIN = "default";
 const FILEPATH = "/folder/file1";
 const INITIAL_FILE_CONTENT = "some content";
 const NEW_FILE_CONTENT = "some other content";
+$$.LEGACY_BEHAVIOUR_ENABLED = true;
+$$.BRICK_CACHE_ENABLED = false;
 assert.callback('load DSU in recovery mode test', (testFinished) => {
     dc.createTestFolder('loadDSUVersion', async (err, folder) => {
         await tir.launchConfigurableApiHubTestNodeAsync({rootFolder: folder});
-        const seedDSU = await $$.promisify(resolver.createSeedDSU)(DOMAIN);
+        const seedDSU = await $$.promisify(resolver.createSeedDSU)(DOMAIN, );
         const keySSI = await $$.promisify(seedDSU.getKeySSIAsObject)();
+        await seedDSU.safeBeginBatchAsync()
         await $$.promisify(seedDSU.writeFile)(FILEPATH, INITIAL_FILE_CONTENT);
+        await seedDSU.commitBatchAsync();
+        await seedDSU.safeBeginBatchAsync();
         await $$.promisify(seedDSU.writeFile)(FILEPATH, NEW_FILE_CONTENT);
+        await seedDSU.commitBatchAsync();
         const dsuVersionHash = await $$.promisify(seedDSU.getLatestAnchoredHashLink)();
+        const anchorId = seedDSU.getAnchorIdSync();
         const brickHash = dsuVersionHash.getHash();
         const brickPath = path.join(folder, "external-volume", "domains", DOMAIN, "brick-storage", brickHash.slice(0, 5), brickHash);
         fs.appendFileSync(brickPath, "something");
