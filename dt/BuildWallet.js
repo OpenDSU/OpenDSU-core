@@ -125,12 +125,26 @@ const initialiseWallet = (callback) => {
         }
 
         scAPI.setMainDSU(buildWallet);
-        buildWallet.ensureMainEnclaveExists(err => {
-            if (err) {
+        const _ensureEnclavesExist = () => {
+            buildWallet.ensureMainEnclaveExists(err => {
+                if (err) {
+                    return callback(err);
+                }
+                buildWallet.ensureSharedEnclaveExists(callback);
+            })
+        }
+        const sc = scAPI.getSecurityContext();
+        if (sc.isInitialised()) {
+            _ensureEnclavesExist()
+        } else {
+            sc.on("initialised", () => {
+                _ensureEnclavesExist();
+            });
+
+            sc.on("error", (err) => {
                 return callback(err);
-            }
-            buildWallet.ensureSharedEnclaveExists(callback);
-        })
+            });
+        }
     });
 }
 
