@@ -192,7 +192,7 @@ function MappingEngine(storageService, options) {
       // const conflictResolutionFn = function (...args) {
       //   console.log("merge conflicts", ...args);
       // }
-      await commitBatch();
+      // await commitBatch();
     }
 
     return new Promise(async (resolve, reject) => {
@@ -225,7 +225,7 @@ function MappingEngine(storageService, options) {
             return reject(Error(`Failed to acquire lock`));
           }
 
-          storageService.beginBatch();
+          // await storageService.safeBeginBatchAsync();
 
           //commitPromisses will contain promises for each of message
           let commitPromisses = [];

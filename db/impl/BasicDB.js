@@ -273,7 +273,11 @@ function BasicDB(storageStrategy, conflictSolvingStrategy, options) {
         return await storageStrategy.commitBatchAsync();
     }
 
-    bindAutoPendingFunctions(this, ["on", "off", "dispatchEvent"]);
+    this.batchInProgress = () => {
+        return storageStrategy.batchInProgress();
+    }
+
+    bindAutoPendingFunctions(this, ["on", "off", "dispatchEvent", "batchInProgress"]);
     //============================================================
     // To not add others property on this object below this call =
     //============================================================

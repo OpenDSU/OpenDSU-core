@@ -49,6 +49,10 @@ function SingleDSUStorageStrategy() {
         return await storageDSU.commitBatchAsync();
     }
 
+    this.batchInProgress = () => {
+        return storageDSU.batchInProgress();
+    }
+
     this.getAllRecords = (tableName, callback) => {
         readTheWholeTable(tableName, (err, tbl) => {
             if (err) {

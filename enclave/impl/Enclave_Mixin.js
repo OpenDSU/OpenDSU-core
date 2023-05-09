@@ -196,6 +196,10 @@ function Enclave_Mixin(target, did, keySSI) {
         return await target.storageDB.cancelBatchAsync();
     }
 
+    target.batchInProgress = (forDID) => {
+        return target.storageDB.batchInProgress();
+    }
+
     target.readKey = (forDID, key, callback) => {
         target.storageDB.readKey(key, callback);
     }
