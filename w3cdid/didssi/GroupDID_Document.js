@@ -112,10 +112,9 @@ function GroupDID_Document(enclave, domain, groupName, isInitialisation) {
             const membersIds = Object.keys(members);
             const noMembers = membersIds.length;
             let senderDIDDocument;
-            try{
+            try {
                 senderDIDDocument = await $$.promisify(w3cDID.resolveDID)(membersIds[0]);
-            }
-            catch (e) {
+            } catch (e) {
                 return callback(e);
             }
             let counter = noMembers;
@@ -170,23 +169,24 @@ function GroupDID_Document(enclave, domain, groupName, isInitialisation) {
                 return callback(err);
             }
 
-            if (operation === "remove") {
-                identities.forEach(id => {
-                    if (typeof members[id] !== "undefined") {
-                        delete members[id];
-                    }
-                });
+            if (operation === "remove" || operation === "add") {
+                if (operation === "remove") {
+                    identities.forEach(id => {
+                        if (typeof members[id] !== "undefined") {
+                            delete members[id];
+                        }
+                    });
+                } else {
+                    identities.forEach((id, index) => {
+                        if (typeof id === "object") {
+                            id = id.getIdentifier();
+                        }
+                        if (typeof members[id] === "undefined") {
+                            members[id] = info[index];
+                        }
+                    });
+                }
 
-                return this.dsu.writeFile(MEMBERS_FILE, JSON.stringify(members), callback);
-            } else if (operation === "add") {
-                identities.forEach((id, index) => {
-                    if (typeof id === "object") {
-                        id = id.getIdentifier();
-                    }
-                    if (typeof members[id] === "undefined") {
-                        members[id] = info[index];
-                    }
-                });
                 return this.dsu.safeBeginBatch(err => {
                     if (err) {
                         return callback(err);
@@ -210,7 +210,7 @@ function GroupDID_Document(enclave, domain, groupName, isInitialisation) {
 
     try {
         this.init();
-    }catch (e) {
+    } catch (e) {
         this.dispatchEvent("error", e);
     }
     return this;
