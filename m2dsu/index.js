@@ -192,7 +192,7 @@ function MappingEngine(storageService, options) {
       // const conflictResolutionFn = function (...args) {
       //   console.log("merge conflicts", ...args);
       // }
-      // await commitBatch();
+      await commitBatch();
     }
 
     return new Promise(async (resolve, reject) => {

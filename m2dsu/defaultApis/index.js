@@ -89,10 +89,10 @@ registry.defineApi("registerDSU", async function (dsu) {
     }
 
     //TODO: temporary fix, this apiRegistry is now instantiated for each mapping message
-    // if (!dsu.batchInProgress()) {
-    //     this.registeredDSUs.push(dsu);
-    //     dsu.beginBatch();
-    // }
+    if (!dsu.batchInProgress()) {
+        this.registeredDSUs.push(dsu);
+        dsu.safeBeginBatchAsync();
+    }
 
     return promisifyDSUAPIs(dsu);
 });
