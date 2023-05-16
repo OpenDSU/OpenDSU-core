@@ -22,7 +22,7 @@ function RemoteEnclave(clientDID, remoteDID, requestTimeout) {
         }
         this.initialised = true;
         this.dispatchEvent("initialised");
-
+        this.subscribe();
     }
 
     this.isInitialised = () => {
@@ -41,9 +41,8 @@ function RemoteEnclave(clientDID, remoteDID, requestTimeout) {
         const commandID = JSON.parse(command).commandID;
         this.commandsMap.set(commandID, { "callback": callback, "time": Date.now() });
 
-        if (this.commandsMap.size == 1) {
-            this.subscribe();
-
+        if (this.commandsMap.size === 1) {
+            this.clientDIDDocument.startWaitingForMessages();
         }
 
         this.clientDIDDocument.sendMessage(command, this.remoteDIDDocument, (err, res) => {
@@ -55,7 +54,7 @@ function RemoteEnclave(clientDID, remoteDID, requestTimeout) {
     }
 
     this.subscribe = () => {
-        this.clientDIDDocument.waitForMessages((err, res) => {
+        this.clientDIDDocument.subscribe((err, res) => {
             if (err) {
                 console.log(err);
                 return;
@@ -72,7 +71,7 @@ function RemoteEnclave(clientDID, remoteDID, requestTimeout) {
                 callback(err, JSON.stringify(commandResult));
 
                 this.commandsMap.delete(commandID);
-                if (this.commandsMap.size == 0) {
+                if (this.commandsMap.size === 0) {
                     this.clientDIDDocument.stopWaitingForMessages();
                 }
             }
@@ -88,13 +87,12 @@ function RemoteEnclave(clientDID, remoteDID, requestTimeout) {
         const callback = this.commandsMap.get(commandID).callback;
         callback(createOpenDSUErrorWrapper(`Timeout for command ${commandID}`), undefined);
         this.commandsMap.delete(commandID);
-        if (this.commandsMap.size == 0) {
+        if (this.commandsMap.size === 0) {
             this.clientDIDDocument.stopWaitingForMessages();
         }
     }
 
     init();
-
 }
 
 module.exports = RemoteEnclave;

@@ -193,6 +193,14 @@ function W3CDID_Mixin(target, enclave) {
         target.stopReceivingMessages = true;
     }
 
+    target.startWaitingForMessages = function () {
+        const mqHandler = require("opendsu")
+            .loadAPI("mq")
+            .getMQHandlerForDID(target);
+        mqHandler.stopReceivingMessages = false;
+        target.stopReceivingMessages = false;
+    }
+
     target.getEnclave = () => {
         return enclave;
     }

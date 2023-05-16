@@ -221,7 +221,6 @@ function MQHandler(didDocument, domain, pollingTimeout) {
                         request.then(response => response.json())
                             .then((response) => {
                                 if(self.stopReceivingMessages){
-
                                     return callback(new Error("Message rejected by client"));
                                 }
                                 //the return value of the listing callback helps to stop the polling mechanism in case that
@@ -284,7 +283,7 @@ function MQHandler(didDocument, domain, pollingTimeout) {
     };
 
     this.readAndWaitForMessages = (callback) => {
-        consumeMessage("get", true, getSafeMessageRead(callback));
+        consumeMessage("take", true, getSafeMessageRead(callback));
     };
 
     this.readAndWaitForMore = (waitForMore, callback) => {
