@@ -19,7 +19,7 @@ function storeDIDInSC(didDocument, callback) {
 }
 
 const openDSU = require("opendsu");
-const KeyDIDDocument = require("./KeyDID_Document");
+const KeyDIDDocument = require("./SSIKeyDID_Document");
 const dbAPI = openDSU.loadAPI("db")
 const __ensureEnclaveExistsThenExecute = (fn, enclave, ...args) => {
     if (typeof enclave === "undefined") {
@@ -56,8 +56,8 @@ function SReadDID_Method() {
     }
 }
 
-function KeyDID_Method() {
-    let KeyDIDDocument = require("./KeyDID_Document");
+function SSIKeyDID_Method() {
+    let KeyDIDDocument = require("./SSIKeyDID_Document");
     this.create = function (enclave, seedSSI, callback) {
         const keyDIDDocument = KeyDIDDocument.initiateDIDDocument(enclave, seedSSI);
         keyDIDDocument.on("error", callback);
@@ -137,8 +137,8 @@ function GroupDID_Method() {
     }
 }
 
-function create_KeyDID_Method() {
-    return new KeyDID_Method();
+function create_SSIKeyDID_Method() {
+    return new SSIKeyDID_Method();
 }
 
 function create_SReadDID_Method() {
@@ -155,7 +155,7 @@ function create_GroupDID_Method() {
 
 
 module.exports = {
-    create_KeyDID_Method,
+    create_SSIKeyDID_Method,
     create_SReadDID_Method,
     create_NameDID_Method,
     create_GroupDID_Method
