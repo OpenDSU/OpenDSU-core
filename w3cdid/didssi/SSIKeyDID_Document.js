@@ -75,6 +75,9 @@ function SSIKeyDID_Document(enclave, isInitialisation, seedSSI) {
     };
 
     this.getPrivateKeys = () => {
+        if(typeof seedSSI === "undefined"){
+            return [];
+        }
         return [seedSSI.getPrivateKey()];
     };
 
