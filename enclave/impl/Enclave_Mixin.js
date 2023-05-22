@@ -556,13 +556,18 @@ function Enclave_Mixin(target, did, keySSI) {
             didTo = didFrom;
             didFrom = forDID;
         }
-        getPrivateInfoForDID(didFrom.getIdentifier(), (err, privateKeys) => {
-            if (err) {
-                return callback(createOpenDSUErrorWrapper(`Failed to get private info for did ${didFrom.getIdentifier()}`, err));
-            }
+        const privateKeys = didFrom.getPrivateKeys();
+        if (typeof privateKeys[privateKeys.length - 1] === "undefined") {
+            getPrivateInfoForDID(didFrom.getIdentifier(), (err, privateKeys) => {
+                if (err) {
+                    return callback(createOpenDSUErrorWrapper(`Failed to get private info for did ${didFrom.getIdentifier()}`, err));
+                }
 
+                CryptoSkills.applySkill(didFrom.getMethodName(), CryptoSkills.NAMES.ENCRYPT_MESSAGE, privateKeys, didFrom, didTo, message, callback);
+            });
+        } else {
             CryptoSkills.applySkill(didFrom.getMethodName(), CryptoSkills.NAMES.ENCRYPT_MESSAGE, privateKeys, didFrom, didTo, message, callback);
-        });
+        }
     }
 
     target.decryptMessage = (forDID, didTo, encryptedMessage, callback) => {
@@ -571,13 +576,19 @@ function Enclave_Mixin(target, did, keySSI) {
             encryptedMessage = didTo;
             didTo = forDID;
         }
-        getPrivateInfoForDID(didTo.getIdentifier(), (err, privateKeys) => {
-            if (err) {
-                return callback(createOpenDSUErrorWrapper(`Failed to get private info for did ${didTo.getIdentifier()}`, err));
-            }
 
+        const privateKeys = didTo.getPrivateKeys();
+        if (typeof privateKeys[privateKeys.length - 1] === "undefined") {
+            getPrivateInfoForDID(didTo.getIdentifier(), (err, privateKeys) => {
+                if (err) {
+                    return callback(createOpenDSUErrorWrapper(`Failed to get private info for did ${didTo.getIdentifier()}`, err));
+                }
+
+                CryptoSkills.applySkill(didTo.getMethodName(), CryptoSkills.NAMES.DECRYPT_MESSAGE, privateKeys, didTo, encryptedMessage, callback);
+            });
+        } else {
             CryptoSkills.applySkill(didTo.getMethodName(), CryptoSkills.NAMES.DECRYPT_MESSAGE, privateKeys, didTo, encryptedMessage, callback);
-        });
+        }
     };
 
 
