@@ -33,6 +33,10 @@ function RemoteEnclave(clientDID, remoteDID, requestTimeout) {
         callback(undefined, did);
     }
 
+    this.callLambda = (lambdaName, ...args) => {
+        this.__putCommandObject(lambdaName, ...args);
+    }
+
     this.__putCommandObject = (commandName, ...args) => {
         const callback = args.pop();
         args.push(clientDID);

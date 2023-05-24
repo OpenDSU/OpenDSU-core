@@ -287,10 +287,14 @@ function MQHandler(didDocument, domain, pollingTimeout) {
     };
 
     this.readAndWaitForMore = (waitForMore, callback) => {
+        if(typeof waitForMore === "function" && typeof callback === "undefined"){
+            callback = waitForMore;
+            waitForMore = undefined;
+        }
         consumeMessage("get", waitForMore ? waitForMore() : true, getSafeMessageRead(callback));
     };
 
-    this.subscribe = this.readAndWaitForMessages;
+    this.subscribe = this.readAndWaitForMore;
 
     this.abort = (callback) => {
         let request = callback.__requestInProgress;

@@ -149,7 +149,18 @@ function W3CDID_Mixin(target, enclave) {
                 return callback(createOpenDSUErrorWrapper(`Failed to parse received message`, err));
             }
 
-            target.decryptMessage(message, callback);
+            target.decryptMessage(message, (err, decryptedMessage) => {
+                if (err) {
+                    return callback(err);
+                }
+
+                mqHandler.deleteMessage(encryptedMessage.messageId, (err) => {
+                    if (err) {
+                        return callback(createOpenDSUErrorWrapper(`Failed to delete message`, err));
+                    }
+                    callback(undefined, decryptedMessage);
+                })
+            });
         });
     };
 
@@ -159,7 +170,7 @@ function W3CDID_Mixin(target, enclave) {
             .getMQHandlerForDID(target);
 
         target.onCallback = (err, encryptedMessage, notificationHandler) => {
-            if(target.stopReceivingMessages){
+            if (target.stopReceivingMessages) {
                 console.log(`Received message for unsubscribed DID`);
                 return;
             }
@@ -168,7 +179,7 @@ function W3CDID_Mixin(target, enclave) {
                 return callback(createOpenDSUErrorWrapper(`Failed to read message`, err));
             }
 
-            if(notificationHandler){
+            if (notificationHandler) {
                 notificationHandler();
             }
 
