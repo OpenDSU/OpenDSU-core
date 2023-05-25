@@ -5,7 +5,7 @@ const db = require("../../../db");
 const tir = require("../../../../../psknode/tests/util/tir");
 
 //ow.register("opendsu", "../index.js")
-
+$$.LEGACY_BEHAVIOUR_ENABLED = true;
 assert.callback("DB Indexing test", (testFinishCallback) => {
     dc.createTestFolder("wallet", function (err, folder) {
         const no_retries = 10;

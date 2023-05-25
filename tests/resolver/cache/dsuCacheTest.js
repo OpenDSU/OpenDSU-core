@@ -13,7 +13,7 @@ const assert = dc.assert;
 
 const keyssi = require('opendsu').loadApi('keyssi');
 const resolver = require('opendsu').loadApi('resolver');
-
+$$.LEGACY_BEHAVIOUR_ENABLED = true;
 const argParser = function (defaultOpts, args) {
     let config = JSON.parse(JSON.stringify(defaultOpts));
     if (!args)

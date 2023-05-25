@@ -14,10 +14,12 @@ function BuildWallet() {
         writableDSU.readFile("/environment.json", async (err, env) => {
             if (err) {
                 try {
+                    await writableDSU.safeBeginBatchAsync();
                     await $$.promisify(writableDSU.writeFile)("/environment.json", JSON.stringify({
                         vaultDomain: vaultDomain,
                         didDomain: vaultDomain
                     }))
+                    await writableDSU.commitBatchAsync();
                 } catch (e) {
                     return callback(e);
                 }
@@ -85,8 +87,12 @@ function BuildWallet() {
                         await $$.promisify(scAPI.setEnclave)(enclave, enclaveType);
                         callback();
                     } catch (e) {
-                        callback(createOpenDSUErrorWrapper("Failed to set shared enclave", e));
+                        return callback(createOpenDSUErrorWrapper("Failed to set shared enclave", e));
                     }
+                })
+
+                enclave.on("error", (err) => {
+                    return callback(createOpenDSUErrorWrapper("Failed to set shared enclave", err));
                 })
             } else {
                 callback();
@@ -119,12 +125,26 @@ const initialiseWallet = (callback) => {
         }
 
         scAPI.setMainDSU(buildWallet);
-        buildWallet.ensureMainEnclaveExists(err => {
-            if (err) {
+        const _ensureEnclavesExist = () => {
+            buildWallet.ensureMainEnclaveExists(err => {
+                if (err) {
+                    return callback(err);
+                }
+                buildWallet.ensureSharedEnclaveExists(callback);
+            })
+        }
+        const sc = scAPI.getSecurityContext();
+        if (sc.isInitialised()) {
+            _ensureEnclavesExist()
+        } else {
+            sc.on("initialised", () => {
+                _ensureEnclavesExist();
+            });
+
+            sc.on("error", (err) => {
                 return callback(err);
-            }
-            buildWallet.ensureSharedEnclaveExists(callback);
-        })
+            });
+        }
     });
 }
 

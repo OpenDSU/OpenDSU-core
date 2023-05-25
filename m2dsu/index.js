@@ -225,8 +225,7 @@ function MappingEngine(storageService, options) {
             return reject(Error(`Failed to acquire lock`));
           }
 
-          await $$.promisify(storageService.refresh)();
-          storageService.beginBatch();
+          // await storageService.safeBeginBatchAsync();
 
           //commitPromisses will contain promises for each of message
           let commitPromisses = [];

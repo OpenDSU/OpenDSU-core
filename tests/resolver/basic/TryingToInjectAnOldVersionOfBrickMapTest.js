@@ -20,15 +20,16 @@ assert.callback(`Trying to inject an old version of BrickMap in the latest Brick
     // it creates a DSU
     const dsu = await $$.promisify(resolver.createDSUx)(env.domain, 'seed', { addLog: false });
     const keySSI = await $$.promisify(dsu.getKeySSIAsObject)();
-
+    await dsu.safeBeginBatchAsync();
     // it writes a file in DSU
     await $$.promisify(dsu.writeFile)('/example.txt', initialData, { encrypt });
-
+    await dsu.commitBatchAsync();
     let [brickMap] = await utils.extractLatestBrickMap(env);
 
+    await dsu.safeBeginBatchAsync();
     // it writes a new version of the same file
     await $$.promisify(dsu.writeFile)('/example.txt', expectedData, { encrypt });
-
+    await dsu.commitBatchAsync();
     const oldBrickMap = brickMap;
     [brickMap] = await utils.extractLatestBrickMap(env);
 

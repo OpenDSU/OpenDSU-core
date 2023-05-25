@@ -46,10 +46,10 @@ function WalletDBEnclave(keySSI, did) {
             }
         }
 
-        try{
+        try {
             await $$.promisify(resolver.invalidateDSUCache)(keySSI);
             this.storageDB = db.getSimpleWalletDB(DB_NAME, {keySSI});
-        }catch (e) {
+        } catch (e) {
             this.dispatchEvent("error", e)
         }
         this.storageDB.on("error", err => {
@@ -61,12 +61,19 @@ function WalletDBEnclave(keySSI, did) {
             }
             enclaveDSU = this.storageDB.getStorageDSU();
             let privateKey;
-            try{
+            try {
                 privateKey = await $$.promisify(this.storageDB.getRecord)(constants.TABLE_NAMES.PATH_KEY_SSI_PRIVATE_KEYS, 0);
             } catch (e) {
             }
             if (!privateKey) {
-                await $$.promisify(this.storageDB.insertRecord)(constants.TABLE_NAMES.PATH_KEY_SSI_PRIVATE_KEYS, 0, {privateKey: keySSI.getPrivateKey()});
+                try {
+                    await this.storageDB.safeBeginBatchAsync();
+                    await $$.promisify(this.storageDB.insertRecord)(constants.TABLE_NAMES.PATH_KEY_SSI_PRIVATE_KEYS, 0, {privateKey: keySSI.getPrivateKey()});
+                    await this.storageDB.commitBatchAsync();
+                } catch (e) {
+                    this.dispatchEvent("error", e);
+                    return
+                }
             }
 
             initialised = true;
@@ -83,7 +90,7 @@ function WalletDBEnclave(keySSI, did) {
         callback(undefined, keySSI);
     }
 
-    this.getDSU = (forDID, callback)=>{
+    this.getDSU = (forDID, callback) => {
         if (typeof forDID === "function") {
             callback = forDID;
             forDID = undefined;

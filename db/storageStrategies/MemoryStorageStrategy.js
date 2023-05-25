@@ -183,12 +183,28 @@ function MemoryStorageStrategy() {
     this.beginBatch = () => {
     }
 
+    this.safeBeginBatch = (callback) => {
+        callback(undefined);
+    }
+
+    this.safeBeginBatchAsync = async () => {
+
+    }
+
     this.commitBatch = (callback) => {
         callback(undefined);
     }
 
+    this.commitBatchAsync = async () => {
+
+    }
+
     this.cancelBatch = (callback) => {
         callback(undefined);
+    }
+
+    this.cancelBatchAsync = async () => {
+
     }
 
     this.getUniqueIdAsync = async () => {

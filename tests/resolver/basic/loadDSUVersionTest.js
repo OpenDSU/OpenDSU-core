@@ -16,9 +16,13 @@ assert.callback('load DSU version test', (testFinished) => {
         await tir.launchConfigurableApiHubTestNodeAsync({rootFolder: folder});
         const seedDSU = await $$.promisify(resolver.createSeedDSU)(DOMAIN);
         const keySSI = await $$.promisify(seedDSU.getKeySSIAsObject)();
+        await seedDSU.safeBeginBatchAsync()
         await $$.promisify(seedDSU.writeFile)(FILEPATH, INITIAL_FILE_CONTENT);
+        await seedDSU.commitBatchAsync();
         const dsuVersionHash = await $$.promisify(seedDSU.getLatestAnchoredHashLink)();
+        await seedDSU.safeBeginBatchAsync();
         await $$.promisify(seedDSU.writeFile)(FILEPATH, NEW_FILE_CONTENT);
+        await seedDSU.commitBatchAsync();
         const dsuVersion = await $$.promisify(resolver.loadDSUVersion)(keySSI, dsuVersionHash);
         let dsuVersionFileContent = await $$.promisify(dsuVersion.readFile)(FILEPATH);
         dsuVersionFileContent = dsuVersionFileContent.toString();

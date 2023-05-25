@@ -1,5 +1,6 @@
 function InMemoryMainDSU() {
     const obj = {};
+    let batchInProgress = false;
     obj["/environment.json"] = Buffer.from(JSON.stringify({
         vaultDomain: "vault",
         didDomain: "vault"
@@ -7,12 +8,44 @@ function InMemoryMainDSU() {
 
     obj["environment.json"] = obj["/environment.json"];
 
+    const preventUpdateOutsideBatch = (updateFn, ...args) => {
+        if($$.LEGACY_BEHAVIOUR_ENABLED){
+            return updateFn(...args);
+        }
+
+        if (!this.batchInProgress()) {
+            const callback = args.pop();
+            return callback(Error("Batch not started. Use safeBeginBatch() or safeBeginBatchAsync before calling this method."));
+        }
+
+        updateFn(...args);
+    }
+    const convertUpdateFnToAsync = (updateFn, ...args) => {
+        if (!this.batchInProgress()) {
+            throw Error("No batch has been started");
+        }
+
+        return $$.promisify(updateFn)(...args);
+    }
+
+    const convertGetFunctionToAsync = (getFn, ...args) => {
+        return $$.promisify(getFn)(...args);
+    }
+
     this.writeFile = (path, data, callback) => {
         if (!path.startsWith("/")) {
             path = `/${path}`;
         }
-        obj[path] = data;
-        callback();
+
+        const _writeFile = (path, data, callback) => {
+            obj[path] = data;
+            callback();
+        }
+        preventUpdateOutsideBatch(_writeFile, path, data, callback);
+    }
+
+    this.writeFileAsync = async (path, data) => {
+        return convertUpdateFnToAsync(this.writeFile, path, data);
     }
 
     this.readFile = (path, callback) => {
@@ -20,6 +53,35 @@ function InMemoryMainDSU() {
             path = `/${path}`;
         }
         callback(undefined, obj[path]);
+    }
+
+    this.readFileAsync = async (path) => {
+        return convertGetFunctionToAsync(this.readFile, path);
+    }
+
+    this.batchInProgress = () => {
+        return batchInProgress;
+    }
+
+    this.safeBeginBatch = (callback) => {
+        if (this.batchInProgress()) {
+            return callback(Error("Batch already in progress"));
+        }
+        batchInProgress = true;
+        callback();
+    }
+
+    this.safeBeginBatchAsync = async () => {
+        return convertGetFunctionToAsync(this.safeBeginBatch);
+    }
+
+    this.commitBatch = (callback) => {
+        batchInProgress = false;
+        callback();
+    }
+
+    this.commitBatchAsync = async () => {
+        convertUpdateFnToAsync(this.commitBatch);
     }
 
     this.refresh = (callback)=>{

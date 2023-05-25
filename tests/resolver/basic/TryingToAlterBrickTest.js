@@ -6,7 +6,7 @@ const assert = dc.assert;
 
 const resolver = require('../../../resolver');
 const utils = require('./utils');
-
+$$.LEGACY_BEHAVIOUR_ENABLED = true;
 assert.callback(`Alter the content of a raw brick`, async (testDone) => {
     const fs = require('fs');
     const env = await utils.mockEnvironment({ folder: 'alter-brick-test_' });

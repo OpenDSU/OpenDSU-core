@@ -10,7 +10,7 @@ const double_check = require("double-check");
 const assert = double_check.assert;
 const db = require("../../../db");
 const tir = require("../../../../../psknode/tests/util/tir");
-
+$$.LEGACY_BEHAVIOUR_ENABLED = true;
 require("callflow").initialise();
 //ow.register("opendsu", "../index.js")
 
