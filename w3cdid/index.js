@@ -38,6 +38,10 @@ function createIdentity(didMethod, ...args) {
     we_createIdentity(undefined, didMethod, ...args);
 }
 
+function getDIDKeyFromSecret(secret) {
+
+}
+
 function we_createIdentity(enclave, didMethod, ...args) {
     let callback = args.pop();
 
@@ -107,7 +111,7 @@ function registerDIDMethod(method, implementation) {
 
 
 registerDIDMethod(methodsNames.S_READ_SUBTYPE, require("./didssi/ssiMethods").create_SReadDID_Method());
-registerDIDMethod(methodsNames.SSI_KEY_SUBTYPE, require("./didssi/ssiMethods").create_KeyDID_Method());
+registerDIDMethod(methodsNames.SSI_KEY_SUBTYPE, require("./didssi/ssiMethods").create_SSIKeyDID_Method());
 registerDIDMethod(methodsNames.NAME_SUBTYPE, require("./didssi/ssiMethods").create_NameDID_Method());
 
 registerDIDMethod(methodsNames.GROUP_METHOD_NAME, require("./didssi/ssiMethods").create_GroupDID_Method());

@@ -2,7 +2,7 @@ const methodsNames = require("./didMethodsNames");
 const createNameDIDDocument = require("./didssi/NameDID_Document").initiateDIDDocument;
 const createGroupDID_Document = require("./didssi/GroupDID_Document").initiateDIDDocument;
 const createSReadDID_Document = require("./didssi/SReadDID_Document").initiateDIDDocument;
-const createSSI_KeyDID_Document = require("./didssi/KeyDID_Document").initiateDIDDocument;
+const createSSI_KeyDID_Document = require("./didssi/SSIKeyDID_Document").initiateDIDDocument;
 const createKeyDID_Document = require("./w3cdids/KeyDID_Document").initiateDIDDocument;
 
 const didsConstructors = {};
