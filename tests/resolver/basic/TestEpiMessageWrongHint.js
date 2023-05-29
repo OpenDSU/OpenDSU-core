@@ -7,7 +7,7 @@ const assert = dc.assert;
 const resolver = require('../../../resolver');
 const keySSI = require("../../../keyssi")
 
-
+$$.LEGACY_BEHAVIOUR_ENABLED = true;
 assert.callback('Create DSU on already configured domain', (testfinished) => {
 
     dc.createTestFolder('createDSU', (err, folder) => {

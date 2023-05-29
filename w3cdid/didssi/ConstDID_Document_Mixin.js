@@ -41,7 +41,6 @@ function ConstDID_Document_Mixin(target, enclave, domain, name, isInitialisation
             return target.dispatchEvent("error", createOpenDSUErrorWrapper(`Failed to create constDSU`, e));
         }
 
-        constDSU.beginBatch();
         try {
             target.dsu = await $$.promisify(resolver.createSeedDSU)(domain);
         } catch (e) {
@@ -62,13 +61,19 @@ function ConstDID_Document_Mixin(target, enclave, domain, name, isInitialisation
         }
 
         try {
+            await constDSU.safeBeginBatchAsync();
+        } catch (e) {
+            return target.dispatchEvent("error", createOpenDSUErrorWrapper(`Failed to begin batch in Const DSU`, e));
+        }
+
+        try {
             await $$.promisify(constDSU.mount)(WRITABLE_DSU_PATH, seedSSI);
         } catch (e) {
             return target.dispatchEvent("error", createOpenDSUErrorWrapper(`Failed to mount writable DSU`, e));
         }
 
         try {
-            await $$.promisify(constDSU.commitBatch)();
+            await constDSU.commitBatchAsync();
         } catch (e) {
             return target.dispatchEvent("error", createOpenDSUErrorWrapper(`Failed to commit batch in Const DSU`, e));
         }
@@ -145,7 +150,19 @@ function ConstDID_Document_Mixin(target, enclave, domain, name, isInitialisation
     };
 
     target.addPublicKey = (publicKey, callback) => {
-        target.dsu.writeFile(`${PUB_KEYS_PATH}/${publicKey.toString("hex")}`, callback);
+        target.dsu.safeBeginBatch((err) => {
+            if (err) {
+                return callback(createOpenDSUErrorWrapper(`Failed to begin batch`, err));
+            }
+
+            target.dsu.writeFile(`${PUB_KEYS_PATH}/${publicKey.toString("hex")}`, (err) => {
+                if (err) {
+                    return callback(createOpenDSUErrorWrapper(`Failed to add public key for did ${target.getIdentifier()}`, err));
+                }
+
+                target.dsu.commitBatch(callback);
+            });
+        });
     }
 }
 

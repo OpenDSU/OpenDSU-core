@@ -249,16 +249,35 @@ function BasicDB(storageStrategy, conflictSolvingStrategy, options) {
         storageStrategy.beginBatch()
     }
 
+    this.safeBeginBatch = (callback) => {
+        storageStrategy.safeBeginBatch(callback);
+    }
+
+    this.safeBeginBatchAsync = async () => {
+        return await storageStrategy.safeBeginBatchAsync();
+    }
+
     this.cancelBatch = (callback) => {
         storageStrategy.cancelBatch(callback)
+    }
+
+    this.cancelBatchAsync = async () => {
+        return await storageStrategy.cancelBatchAsync();
     }
 
     this.commitBatch = (callback) => {
         storageStrategy.commitBatch(callback)
     }
 
+    this.commitBatchAsync = async () => {
+        return await storageStrategy.commitBatchAsync();
+    }
 
-    bindAutoPendingFunctions(this, ["on", "off", "dispatchEvent"]);
+    this.batchInProgress = () => {
+        return storageStrategy.batchInProgress();
+    }
+
+    bindAutoPendingFunctions(this, ["on", "off", "dispatchEvent", "batchInProgress"]);
     //============================================================
     // To not add others property on this object below this call =
     //============================================================

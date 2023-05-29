@@ -24,15 +24,11 @@ assert.callback('PathKeySSI stress test', (testFinished) => {
             const sc = scAPI.refreshSecurityContext();
             const NO_KEYSSIS = 150;
             sc.on("initialised", async () => {
-                mainEnclave.beginBatch();
                 const initialPathKeySSI = await $$.promisify(keySSISpace.createPathKeySSI)("vault", `0/something`);
                 for (let i = 0; i < NO_KEYSSIS; i++) {
                     const path = crypto.generateRandom(32).toString("hex");
                     const pathKeySSI = await $$.promisify(keySSISpace.createPathKeySSI)("vault", `0/${path}`);
                 }
-
-                await $$.promisify(mainEnclave.commitBatch)(undefined);
-                await $$.promisify(mainEnclave.refresh)()
                 const sReadSSI = await $$.promisify(mainEnclave.getReadForKeySSI)(undefined, initialPathKeySSI);
                 console.log(sReadSSI.getIdentifier(true));
                 testFinished();

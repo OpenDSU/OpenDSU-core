@@ -22,13 +22,19 @@ assert.callback('Delete shared enclave test', (testFinished) => {
             const enclaveAPI = openDSU.loadAPI("enclave");
             const config = openDSU.loadAPI("config");
             const sharedEnclave = enclaveAPI.initialiseWalletDBEnclave();
-            await $$.promisify(scAPI.setSharedEnclave)(sharedEnclave);
-            let env = await $$.promisify(config.readEnvFile)();
-            assert.true(typeof env["sharedEnclaveKeySSI"] !== "undefined");
-            await $$.promisify(scAPI.deleteSharedEnclave)();
-            env = await $$.promisify(config.readEnvFile)();
-            assert.true(typeof env["sharedEnclaveKeySSI"] === "undefined");
-            testFinished();
+            sharedEnclave.on("initialised", async () => {
+                await $$.promisify(scAPI.setSharedEnclave)(sharedEnclave);
+                let env = await $$.promisify(config.readEnvFile)();
+                assert.true(typeof env["sharedEnclaveKeySSI"] !== "undefined");
+                await $$.promisify(scAPI.deleteSharedEnclave)();
+                env = await $$.promisify(config.readEnvFile)();
+                assert.true(typeof env["sharedEnclaveKeySSI"] === "undefined");
+                testFinished();
+            })
+
+            sharedEnclave.on("error", (err) => {
+                console.log(err);
+            })
         })
     });
 }, 5000000);

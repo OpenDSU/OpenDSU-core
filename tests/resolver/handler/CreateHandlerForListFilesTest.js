@@ -4,6 +4,7 @@ const dc = require("double-check");
 const assert = dc.assert;
 
 const { testHandlerMethod } = require("./utils");
+$$.LEGACY_BEHAVIOUR_ENABLED = true;
 
 assert.callback(
     "getHandler listFiles",

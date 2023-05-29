@@ -89,7 +89,6 @@ function SecurityContext(target, PIN) {
         }
 
         enclave = enclaveAPI.createEnclave(enclaveType);
-        await initSharedEnclave();
         const __saveEnclaveDIDAndFinishInit = async () => {
             if (typeof enclaveDID === "undefined") {
                 enclaveDID = await $$.promisify(enclave.getDID)();
@@ -99,6 +98,8 @@ function SecurityContext(target, PIN) {
                     throw createOpenDSUErrorWrapper(`Failed to set env enclaveDID`, e);
                 }
             }
+
+            await initSharedEnclave();
 
             if (!sharedEnclave || isPromise(sharedEnclave)) {
                 return finishInit();
@@ -207,7 +208,7 @@ function SecurityContext(target, PIN) {
 
     const wrapEnclave = (asDID, enclave) => {
         const wrappedEnclave = {};
-        let asyncDBMethods = ["insertRecord", "updateRecord", "getRecord", "deleteRecord", "filter", "commitBatch", "cancelBatch", "getKeySSI", "readKey", "writeKey", "getAllRecords", "addIndex"];
+        let asyncDBMethods = ["insertRecord", "updateRecord", "getRecord", "deleteRecord", "filter", "getKeySSI", "readKey", "writeKey", "getAllRecords", "addIndex"];
         for (let i = 0; i < asyncDBMethods.length; i++) {
             wrappedEnclave[asyncDBMethods[i]] = (...args) => {
                 return enclave[asyncDBMethods[i]](asDID, ...args);

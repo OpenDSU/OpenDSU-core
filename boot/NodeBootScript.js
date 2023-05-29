@@ -1,4 +1,5 @@
 function boot(keySSI) {
+    $$.LEGACY_BEHAVIOUR_ENABLED = true;
     const worker_threads = "worker_threads";
     const { parentPort } = require(worker_threads);
     const { handleMessage } = require("./boot-utils.js");

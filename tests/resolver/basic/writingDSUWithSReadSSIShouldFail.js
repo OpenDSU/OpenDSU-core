@@ -6,7 +6,7 @@ const assert = dc.assert;
 const openDSU = require('../../../index');
 $$.__registerModule("opendsu", openDSU);
 const resolver = openDSU.loadAPI("resolver");
-
+$$.LEGACY_BEHAVIOUR_ENABLED = true;
 assert.callback('Writing DSU with SReadSSI via SC', (testFinished) => {
     const domain = 'default';
 

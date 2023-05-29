@@ -24,7 +24,7 @@ assert.callback(
         const standardDSU = await createStandardDSU();
 
         const folderPath = "/demo/demo1";
-
+        await standardDSU.safeBeginBatchAsync();
         await $$.promisify(standardDSU.createFolder)("/demo");
 
         console.log(`Creating folder ${folderPath}...`);
@@ -39,7 +39,7 @@ assert.callback(
         // failed before the fixed with error:
         // Error: Unable to create folder. A file or folder already exists in that location.
         await $$.promisify(standardDSU.createFolder)(folderPath);
-
+        await standardDSU.commitBatchAsync();
         testFinished();
     },
     50000

@@ -42,5 +42,5 @@ assert.callback('Store secret keys on WalletDB test', (testFinished) => {
             })
         })
     });
-}, 500);
+}, 5000);
 

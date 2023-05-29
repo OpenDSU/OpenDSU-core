@@ -9,7 +9,7 @@ const keySSI = openDSU.loadAPI("keyssi");
 const resolver = openDSU.loadAPI("resolver");
 const scAPI = openDSU.loadAPI("sc");
 const w3cDID = openDSU.loadAPI("w3cdid");
-$$.LEGACY_BEHAVIOUR_ENABLED = true;
+
 assert.callback('key DID SSI test', (testFinished) => {
     const domain = 'default';
     let sc;
@@ -26,11 +26,11 @@ assert.callback('key DID SSI test', (testFinished) => {
         sc.on("initialised", async () => {
             try {
                 const seedSSI = await $$.promisify(keySSI.createSeedSSI)(domain);
-                const didDocument = await $$.promisify(w3cDID.createIdentity)("ssi:sread", seedSSI);
+                const didDocument = await $$.promisify(w3cDID.createIdentity)("ssi:key", seedSSI);
 
                 const dataToSign = "someData";
-                const signature = await $$.promisify(didDocument.sign)(dataToSign);
                 const resolvedDIDDocument = await $$.promisify(w3cDID.resolveDID)(didDocument.getIdentifier());
+                const signature = await $$.promisify(resolvedDIDDocument.sign)(dataToSign);
                 const verificationResult = await $$.promisify(resolvedDIDDocument.verify)(dataToSign, signature);
                 assert.true(verificationResult, "Failed to verify signature");
                 testFinished();

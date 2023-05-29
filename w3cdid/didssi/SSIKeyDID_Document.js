@@ -1,6 +1,6 @@
 const methodsNames = require("../didMethodsNames");
 
-function KeyDID_Document(enclave, isInitialisation, seedSSI) {
+function SSIKeyDID_Document(enclave, isInitialisation, seedSSI) {
     let DID_mixin = require("../W3CDID_Mixin");
     DID_mixin(this, enclave);
     const ObservableMixin = require("../../utils/ObservableMixin");
@@ -75,6 +75,9 @@ function KeyDID_Document(enclave, isInitialisation, seedSSI) {
     };
 
     this.getPrivateKeys = () => {
+        if(typeof seedSSI === "undefined"){
+            return [];
+        }
         return [seedSSI.getPrivateKey()];
     };
 
@@ -84,9 +87,9 @@ function KeyDID_Document(enclave, isInitialisation, seedSSI) {
 
 module.exports = {
     initiateDIDDocument: function (enclave, seedSSI) {
-        return new KeyDID_Document(enclave, true, seedSSI);
+        return new SSIKeyDID_Document(enclave, true, seedSSI);
     },
     createDIDDocument: function (enclave, tokens) {
-        return new KeyDID_Document(enclave, false,  [tokens[3], tokens[4]]);
+        return new SSIKeyDID_Document(enclave, false,  [tokens[3], tokens[4]]);
     }
 };

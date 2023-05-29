@@ -6,11 +6,29 @@ const parse = (ssiString, options) => {
     return keySSIFactory.create(ssiString, options);
 };
 
-const createSeedSSI = (domain, vn, hint, callback) => {
-    return we_createSeedSSI(openDSU.loadAPI("sc").getMainEnclave(), domain, vn, hint, callback);
+const createSeedSSI = (domain, privateKey, vn, hint, callback) => {
+    return we_createSeedSSI(openDSU.loadAPI("sc").getMainEnclave(), domain, privateKey, vn, hint, callback);
 };
 
-const we_createSeedSSI = (enclave, domain, vn, hint, callback) => {
+const isJson = (obj) => {
+    if (typeof obj === "object") {
+        return true;
+    }
+
+    try {
+        JSON.parse(obj);
+    } catch (e) {
+        return false;
+    }
+    return true;
+}
+
+const we_createSeedSSI = (enclave, domain, privateKey, vn, hint, callback) => {
+    if (typeof privateKey === "function") {
+        callback = privateKey;
+        privateKey = undefined;
+    }
+
     if (typeof vn == "function") {
         callback = vn;
         vn = undefined;
@@ -21,10 +39,20 @@ const we_createSeedSSI = (enclave, domain, vn, hint, callback) => {
         hint = undefined;
     }
 
+    if (isJson(privateKey)) {
+        hint = privateKey;
+        privateKey = undefined;
+    }
+
+    if (isJson(vn)) {
+        hint = vn;
+        vn = undefined;
+    }
+
     let seedSSI = keySSIFactory.createType(SSITypes.SEED_SSI);
 
     if (typeof callback === "function") {
-        seedSSI.initialize(domain, undefined, undefined, vn, hint, (err => {
+        seedSSI.initialize(domain, privateKey, undefined, vn, hint, (err => {
             if (err) {
                 return callback(err);
             }
@@ -36,7 +64,7 @@ const we_createSeedSSI = (enclave, domain, vn, hint, callback) => {
             }
         }));
     } else {
-        seedSSI.initialize(domain, undefined, undefined, vn, hint);
+        seedSSI.initialize(domain, privateKey, undefined, vn, hint);
     }
     return seedSSI;
 };
@@ -284,7 +312,7 @@ const createEmbedSSI = (domain, data) => {
     return embedSSI;
 }
 
-const createVersionlessSSI = (domain, path, encryptionKey, vn, hint) => {    
+const createVersionlessSSI = (domain, path, encryptionKey, vn, hint) => {
     const versionlessSSI = keySSIFactory.createType(SSITypes.VERSIONLESS_SSI);
     versionlessSSI.initialize(domain, path, encryptionKey, vn, hint);
     return versionlessSSI;

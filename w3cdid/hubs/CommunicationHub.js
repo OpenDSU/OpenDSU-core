@@ -29,8 +29,6 @@ function CommunicationHub() {
         if(!didDocuments[identifier]){
             didDocuments[identifier] = did;
         }
-        console.log(did === didDocuments[identifier], identifier, did, didDocuments[identifier]);
-        console.log(didDocuments);
         fnToExecute(undefined, didDocuments[identifier]);
     }
 

@@ -11,6 +11,7 @@ const FILEPATH = "/folder/file1";
 const FILE_CONTENT = "some content";
 const NEW_FILE_CONTENT = "some other content";
 const APPENDED_FILE_CONTENT = "appended content";
+$$.LEGACY_BEHAVIOUR_ENABLED = true;
 assert.callback('write embedded file test', (testFinished) => {
     dc.createTestFolder('writeEmbeddedFile', async (err, folder) => {
         await tir.launchConfigurableApiHubTestNodeAsync({rootFolder: folder});

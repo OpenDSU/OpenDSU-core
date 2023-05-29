@@ -172,12 +172,32 @@ function Enclave_Mixin(target, did, keySSI) {
         target.storageDB.beginBatch();
     }
 
+    target.safeBeginBatch = (forDID, callback) => {
+        target.storageDB.safeBeginBatch(callback);
+    }
+
+    target.safeBeginBatchAsync = async (forDID) => {
+        return await target.storageDB.safeBeginBatchAsync();
+    }
+
     target.commitBatch = (forDID, callback) => {
         target.storageDB.commitBatch(callback);
     }
 
+    target.commitBatchAsync = async (forDID) => {
+        return await target.storageDB.commitBatchAsync();
+    }
+
     target.cancelBatch = (forDID, callback) => {
         target.storageDB.cancelBatch(callback);
+    }
+
+    target.cancelBatchAsync = async (forDID) => {
+        return await target.storageDB.cancelBatchAsync();
+    }
+
+    target.batchInProgress = (forDID) => {
+        return target.storageDB.batchInProgress();
     }
 
     target.readKey = (forDID, key, callback) => {
@@ -214,28 +234,28 @@ function Enclave_Mixin(target, did, keySSI) {
         const keySSIIdentifier = seedSSI.getIdentifier();
         const isExistingKeyError = (error) => error.originalMessage === errorAPI.DB_INSERT_EXISTING_RECORD_ERROR;
 
-        function registerDerivedKeySSIs(derivedKeySSI, sReadSSIIdentifier) {
+        function registerDerivedKeySSIs(derivedKeySSI, sReadSSIIdentifier, cb) {
             target.storageDB.insertRecord(constants.TABLE_NAMES.KEY_SSIS, derivedKeySSI.getIdentifier(), {capableOfSigningKeySSI: keySSIIdentifier}, (err) => {
                 if (err && !isExistingKeyError(err)) {
                     // ignore if KeySSI is already present
-                    return callback(err);
+                    return cb(err);
                 }
                 target.storageDB.insertRecord(constants.TABLE_NAMES.SREAD_SSIS, derivedKeySSI.getIdentifier(), {sReadSSI: sReadSSIIdentifier}, (err) => {
                     if (err && !isExistingKeyError(err)) {
                         // ignore if sReadSSI is already present
-                        return callback(err);
+                        return cb(err);
                     }
 
                     if (typeof derivedKeySSI.derive !== "function") {
-                        return callback();
+                        return cb();
                     }
 
                     derivedKeySSI.derive((err, _derivedKeySSI) => {
                         if (err) {
-                            return callback(err);
+                            return cb(err);
                         }
 
-                        registerDerivedKeySSIs(_derivedKeySSI, sReadSSIIdentifier);
+                        registerDerivedKeySSIs(_derivedKeySSI, sReadSSIIdentifier, cb);
                     })
 
                 });
@@ -248,7 +268,23 @@ function Enclave_Mixin(target, did, keySSI) {
             }
 
             const sReadSSIIdentifier = sReadSSI.getIdentifier();
-            return registerDerivedKeySSIs(seedSSI, sReadSSIIdentifier);
+            target.storageDB.safeBeginBatch((err) => {
+                if (err) {
+                    return callback(err);
+                }
+                return registerDerivedKeySSIs(seedSSI, sReadSSIIdentifier, (err) => {
+                    if (err) {
+                        return target.storageDB.cancelBatch((err) => {
+                            if (err) {
+                                return callback(err);
+                            }
+                            callback(err);
+                        });
+                    }
+
+                    target.storageDB.commitBatch(callback);
+                });
+            });
         })
     }
 
@@ -283,7 +319,23 @@ function Enclave_Mixin(target, did, keySSI) {
 
         if (keySSI.getFamilyName() === openDSU.constants.KEY_SSI_FAMILIES.SEED_SSI_FAMILY) {
             const keySSIIdentifier = keySSI.getIdentifier();
-            target.storageDB.insertRecord(constants.TABLE_NAMES.KEY_SSIS, keySSIIdentifier, {keySSI: keySSIIdentifier}, callback)
+            target.storageDB.safeBeginBatch((err) => {
+                if (err) {
+                    return callback(err);
+                }
+                target.storageDB.insertRecord(constants.TABLE_NAMES.KEY_SSIS, keySSIIdentifier, {keySSI: keySSIIdentifier}, (err) => {
+                    if (err) {
+                        return target.storageDB.cancelBatch((err) => {
+                            if (err) {
+                                return callback(err);
+                            }
+                            callback(err);
+                        });
+                    }
+
+                    target.storageDB.commitBatch(callback);
+                });
+            })
         } else {
             callback();
         }
@@ -306,7 +358,23 @@ function Enclave_Mixin(target, did, keySSI) {
             }
         }
         const keySSIIdentifier = sReadSSI.getIdentifier();
-        target.storageDB.insertRecord(constants.TABLE_NAMES.SREAD_SSIS, aliasSSI.getIdentifier(), {sReadSSI: keySSIIdentifier}, callback)
+        target.storageDB.safeBeginBatch((err) => {
+            if (err) {
+                return callback(err);
+            }
+            target.storageDB.insertRecord(constants.TABLE_NAMES.SREAD_SSIS, aliasSSI.getIdentifier(), {sReadSSI: keySSIIdentifier}, (err) => {
+                if (err) {
+                    return target.storageDB.cancelBatch((err) => {
+                        if (err) {
+                            return callback(err);
+                        }
+                        callback(err);
+                    });
+                }
+
+                target.storageDB.commitBatch(callback);
+            });
+        })
     }
 
     target.getReadForKeySSI = (forDID, keySSI, callback) => {
@@ -363,13 +431,45 @@ function Enclave_Mixin(target, did, keySSI) {
 
         target.storageDB.getRecord(constants.TABLE_NAMES.DIDS_PRIVATE_KEYS, storedDID.getIdentifier(), (err, res) => {
             if (err || !res) {
-                return target.storageDB.insertRecord(constants.TABLE_NAMES.DIDS_PRIVATE_KEYS, storedDID.getIdentifier(), {privateKeys: privateKeys}, callback);
+                return target.storageDB.safeBeginBatch((err) => {
+                    if (err) {
+                        return callback(err);
+                    }
+                    target.storageDB.insertRecord(constants.TABLE_NAMES.DIDS_PRIVATE_KEYS, storedDID.getIdentifier(), {privateKeys: privateKeys}, (err, rec) => {
+                        if (err) {
+                            return target.storageDB.cancelBatch((err) => {
+                                if (err) {
+                                    return callback(err);
+                                }
+                                callback(err);
+                            });
+                        }
+
+                        target.storageDB.commitBatch(err => callback(err, rec));
+                    });
+                })
             }
 
             privateKeys.forEach(privateKey => {
                 res.privateKeys.push(privateKey);
             })
-            target.storageDB.updateRecord(constants.TABLE_NAMES.DIDS_PRIVATE_KEYS, storedDID.getIdentifier(), res, callback);
+            target.storageDB.safeBeginBatch((err) => {
+                if (err) {
+                    return callback(err);
+                }
+                target.storageDB.updateRecord(constants.TABLE_NAMES.DIDS_PRIVATE_KEYS, storedDID.getIdentifier(), res, (err) => {
+                    if (err) {
+                        return target.storageDB.cancelBatch((err) => {
+                            if (err) {
+                                return callback(err);
+                            }
+                            callback(err);
+                        });
+                    }
+
+                    target.storageDB.commitBatch(callback);
+                });
+            })
         });
     }
 
@@ -377,11 +477,43 @@ function Enclave_Mixin(target, did, keySSI) {
         const privateKeyObj = {privateKeys: [privateKey]}
         target.storageDB.getRecord(constants.TABLE_NAMES.DIDS_PRIVATE_KEYS, didDocument.getIdentifier(), (err, res) => {
             if (err || !res) {
-                return target.storageDB.insertRecord(constants.TABLE_NAMES.DIDS_PRIVATE_KEYS, didDocument.getIdentifier(), privateKeyObj, callback);
+                target.storageDB.safeBeginBatch((err) => {
+                    if (err) {
+                        return callback(err);
+                    }
+                    return target.storageDB.insertRecord(constants.TABLE_NAMES.DIDS_PRIVATE_KEYS, didDocument.getIdentifier(), privateKeyObj, (err) => {
+                        if (err) {
+                            return target.storageDB.cancelBatch((err) => {
+                                if (err) {
+                                    return callback(err);
+                                }
+                                callback(err);
+                            });
+                        }
+
+                        target.storageDB.commitBatch(callback);
+                    });
+                })
             }
 
             res.privateKeys.push(privateKey);
-            target.storageDB.updateRecord(constants.TABLE_NAMES.DIDS_PRIVATE_KEYS, didDocument.getIdentifier(), res, callback);
+            target.storageDB.safeBeginBatch((err) => {
+                if (err) {
+                    return callback(err);
+                }
+                target.storageDB.updateRecord(constants.TABLE_NAMES.DIDS_PRIVATE_KEYS, didDocument.getIdentifier(), res, (err) => {
+                    if (err) {
+                        return target.storageDB.cancelBatch((err) => {
+                            if (err) {
+                                return callback(err);
+                            }
+                            callback(err);
+                        });
+                    }
+
+                    target.storageDB.commitBatch(callback);
+                });
+            })
         });
     }
 
@@ -401,11 +533,26 @@ function Enclave_Mixin(target, did, keySSI) {
             alias = generateUid(10).toString("hex");
         }
 
-        target.storageDB.insertRecord(constants.TABLE_NAMES.PRIVATE_KEYS, alias, {
-            privateKey: privateKey,
-            type: type
-        }, callback)
+        target.storageDB.safeBeginBatch((err) => {
+            if (err) {
+                return callback(err);
+            }
+            target.storageDB.insertRecord(constants.TABLE_NAMES.PRIVATE_KEYS, alias, {
+                privateKey: privateKey,
+                type: type
+            }, (err, rec) => {
+                if (err) {
+                    return target.storageDB.cancelBatch((err) => {
+                        if (err) {
+                            return callback(err);
+                        }
+                        callback(err);
+                    });
+                }
 
+                target.storageDB.commitBatch(err => callback(err, rec));
+            });
+        });
     }
 
     target.storeSecretKey = (forDID, secretKey, alias, callback) => {
@@ -419,7 +566,23 @@ function Enclave_Mixin(target, did, keySSI) {
             alias = generateUid(10).toString("hex");
         }
 
-        target.storageDB.insertRecord(constants.TABLE_NAMES.SECRET_KEYS, alias, {secretKey: secretKey}, callback)
+        target.storageDB.safeBeginBatch((err) => {
+            if (err) {
+                return callback(err);
+            }
+            target.storageDB.insertRecord(constants.TABLE_NAMES.SECRET_KEYS, alias, {secretKey: secretKey}, (err, res) => {
+                if (err) {
+                    return target.storageDB.cancelBatch((err) => {
+                        if (err) {
+                            return callback(err);
+                        }
+                        callback(err);
+                    });
+                }
+
+                target.storageDB.commitBatch(err => callback(err, res));
+            })
+        })
     };
 
     target.generateSecretKey = (forDID, secretKeyAlias, callback) => {
@@ -556,13 +719,18 @@ function Enclave_Mixin(target, did, keySSI) {
             didTo = didFrom;
             didFrom = forDID;
         }
-        getPrivateInfoForDID(didFrom.getIdentifier(), (err, privateKeys) => {
-            if (err) {
-                return callback(createOpenDSUErrorWrapper(`Failed to get private info for did ${didFrom.getIdentifier()}`, err));
-            }
+        const privateKeys = didFrom.getPrivateKeys();
+        if (typeof privateKeys[privateKeys.length - 1] === "undefined") {
+            getPrivateInfoForDID(didFrom.getIdentifier(), (err, privateKeys) => {
+                if (err) {
+                    return callback(createOpenDSUErrorWrapper(`Failed to get private info for did ${didFrom.getIdentifier()}`, err));
+                }
 
+                CryptoSkills.applySkill(didFrom.getMethodName(), CryptoSkills.NAMES.ENCRYPT_MESSAGE, privateKeys, didFrom, didTo, message, callback);
+            });
+        } else {
             CryptoSkills.applySkill(didFrom.getMethodName(), CryptoSkills.NAMES.ENCRYPT_MESSAGE, privateKeys, didFrom, didTo, message, callback);
-        });
+        }
     }
 
     target.decryptMessage = (forDID, didTo, encryptedMessage, callback) => {
@@ -571,13 +739,19 @@ function Enclave_Mixin(target, did, keySSI) {
             encryptedMessage = didTo;
             didTo = forDID;
         }
-        getPrivateInfoForDID(didTo.getIdentifier(), (err, privateKeys) => {
-            if (err) {
-                return callback(createOpenDSUErrorWrapper(`Failed to get private info for did ${didTo.getIdentifier()}`, err));
-            }
 
+        const privateKeys = didTo.getPrivateKeys();
+        if (typeof privateKeys[privateKeys.length - 1] === "undefined") {
+            getPrivateInfoForDID(didTo.getIdentifier(), (err, privateKeys) => {
+                if (err) {
+                    return callback(createOpenDSUErrorWrapper(`Failed to get private info for did ${didTo.getIdentifier()}`, err));
+                }
+
+                CryptoSkills.applySkill(didTo.getMethodName(), CryptoSkills.NAMES.DECRYPT_MESSAGE, privateKeys, didTo, encryptedMessage, callback);
+            });
+        } else {
             CryptoSkills.applySkill(didTo.getMethodName(), CryptoSkills.NAMES.DECRYPT_MESSAGE, privateKeys, didTo, encryptedMessage, callback);
-        });
+        }
     };
 
 
@@ -695,7 +869,14 @@ function Enclave_Mixin(target, did, keySSI) {
     }
 
     target.loadDSURecoveryMode = (forDID, ssi, contentRecoveryFnc, callback) => {
-        target.loadDSU(forDID, ssi, {contentRecoveryFnc, recoveryMode: true}, callback);
+        const defaultOptions = {recoveryMode: true};
+        let options = {contentRecoveryFnc, recoveryMode: true};
+        if (typeof contentRecoveryFnc === "object") {
+            options = contentRecoveryFnc;
+        }
+
+        options = Object.assign(defaultOptions, options);
+        target.loadDSU(forDID, ssi, options, callback);
     }
 }
 

@@ -43,21 +43,20 @@ module.exports = {
                     if (err) {
                         return callback(createOpenDSUErrorWrapper("Failed to create wrapper DSU while initialising shared database " + dbName, err));
                     }
-                    res.beginBatch();
-                    res.mount("/data", writableDSU.getCreationSSI(), function (err, resSSI) {
+                    res.safeBeginBatch(err => {
                         if (err) {
-                            return callback(createOpenDSUErrorWrapper("Failed to mount writable DSU in wrapper DSU while initialising shared database " + dbName, err));
+                            return callback(createOpenDSUErrorWrapper("Failed to begin batch", err));
                         }
-                        res.commitBatch((err) => {
+                        res.mount("/data", writableDSU.getCreationSSI(), function (err, resSSI) {
                             if (err) {
-                                return callback(createOpenDSUErrorWrapper("Failed to anchor batch", err));
+                                return callback(createOpenDSUErrorWrapper("Failed to mount writable DSU in wrapper DSU while initialising shared database " + dbName, err));
                             }
-                            keySSI.derive((err, derivedKeySSI)=>{
+                            res.commitBatch((err) => {
                                 if (err) {
-                                    return callback(createOpenDSUErrorWrapper(`Failed to derive keySSI ${keySSI.getIdentifier()}`, err));
+                                    return callback(createOpenDSUErrorWrapper("Failed to anchor batch", err));
                                 }
-                                doStorageDSUInitialisation(writableDSU, derivedKeySSI);
-                            })
+                                doStorageDSUInitialisation(writableDSU, keySSI);
+                            });
                         });
                     });
                 });
@@ -104,7 +103,7 @@ module.exports = {
                 return callback(err);
             }
 
-            if(!keySSI){
+            if (!keySSI) {
                 try {
                     keySSI = await $$.promisify(mainDSU.readFile)(DB_KEY_SSI_PATH);
                     keySSI = keySSI.toString();
@@ -129,7 +128,9 @@ module.exports = {
                     }
 
                     try {
+                        await mainDSU.safeBeginBatchAsync();
                         await $$.promisify(mainDSU.writeFile)(DB_KEY_SSI_PATH, keySSI.getIdentifier());
+                        await mainDSU.commitBatchAsync();
                     } catch (e) {
                         return callback(createOpenDSUErrorWrapper(`Failed to store key SSI in mainDSU for db <${dbName}>`, e));
                     }
@@ -144,15 +145,17 @@ module.exports = {
                 return callback(createOpenDSUErrorWrapper(`Failed to load storage DSU for db <${dbName}>`, e));
             }
 
-            if(typeof keySSI === "string") {
-                try{
+            if (typeof keySSI === "string") {
+                try {
                     keySSI = keySSISpace.parse(keySSI);
-                }catch (e) {
+                } catch (e) {
                     return callback(createOpenDSUErrorWrapper(`Failed to parse keySSI <${keySSI}>`, e));
                 }
             }
             try {
+                await mainDSU.safeBeginBatchAsync();
                 await $$.promisify(mainDSU.writeFile)(DB_KEY_SSI_PATH, keySSI.getIdentifier());
+                await mainDSU.commitBatchAsync();
             } catch (e) {
                 return callback(createOpenDSUErrorWrapper(`Failed to store key SSI in mainDSU for db <${dbName}>`, e));
             }

@@ -38,12 +38,18 @@ function writeEnvFile(env, callback) {
         if (err) {
             return callback(createOpenDSUErrorWrapper(`Failed to get main DSU`, err));
         }
-        mainDSU.writeFile(constants.ENVIRONMENT_PATH, JSON.stringify(env), (err)=>{
+
+        mainDSU.safeBeginBatch(err => {
             if (err) {
-                return callback(createOpenDSUErrorWrapper(`Failed to write env`, err));
+                return callback(createOpenDSUErrorWrapper(`Failed to begin batch`, err));
             }
-            callback();
-        });
+            mainDSU.writeFile(constants.ENVIRONMENT_PATH, JSON.stringify(env), (err) => {
+                if (err) {
+                    return callback(createOpenDSUErrorWrapper(`Failed to write env`, err));
+                }
+                mainDSU.commitBatch(callback);
+            });
+        })
     });
 }
 
