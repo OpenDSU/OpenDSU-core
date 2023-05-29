@@ -259,7 +259,7 @@ class TwoDSUTester {
             fileContentSize = 1024;
         }
         const fileContent = crypto.randomBytes(fileContentSize);
-        const filePath = path.join(dsuTester.testFolder, relativePath);
+        const filePath = path.join(this.testFolder, relativePath);
         logger.info(`Generating file at ${filePath}`);
         ensureDirectoryExistence(filePath);
         await $$.promisify(fs.writeFile.bind(fs))(filePath, fileContent);
