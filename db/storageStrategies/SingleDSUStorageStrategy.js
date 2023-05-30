@@ -201,23 +201,34 @@ function SingleDSUStorageStrategy() {
             }
 
             const __filterIndexedTable = () => {
-                storageDSU.listFiles(getIndexPath(tableName, indexName), (err, values) => {
+                storageDSU.listFiles(getIndexPath(tableName, indexName), async (err, values) => {
                     if (err) {
                         return callback(createOpenDSUErrorWrapper(`Failed read values for field ${indexName}`, err));
                     }
 
                     const pks = [];
                     const uniqueIndexedValues = [];
-                    values.forEach(value => {
+
+                    for (let i = 0; i < values.length; i++) {
+                        const value = values[i];
                         const splitValue = value.split("/");
-                        if (pks.indexOf(splitValue[1]) === -1) {
+                        const indexOfPk = pks.indexOf(splitValue[1]);
+                        if (indexOfPk === -1) {
                             pks.push(splitValue[1]);
                             uniqueIndexedValues.push(splitValue[0]);
                         } else {
+                            const pk = pks[indexOfPk];
+                            const record = await $$.promisify(this.getRecord, this)(tableName, pk)
+                            if (record.__deleted) {
+                                pks.splice(indexOfPk, 1);
+                                uniqueIndexedValues.splice(indexOfPk, 1);
+                            } else {
+                                uniqueIndexedValues[indexOfPk] = record;
+                            }
                             console.warn(`Record with pk ${splitValue[1]} already indexed on field ${indexName}`);
                         }
-                    })
 
+                    }
                     let filteredValues = query.filterValuesForIndex(uniqueIndexedValues);
                     query.sortValues(filteredValues, sort);
                     const getNextRecordForValue = getNextRecordFunction(tableName, indexName)

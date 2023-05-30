@@ -12,16 +12,28 @@ function BuildWallet() {
 
     const __ensureEnvIsInitialised = (writableDSU, callback) => {
         writableDSU.readFile("/environment.json", async (err, env) => {
+            //TODO: check if env is a valid JSON
             if (err) {
                 try {
                     await writableDSU.safeBeginBatchAsync();
+                } catch (e) {
+                    return callback(createOpenDSUErrorWrapper(`Failed to begin batch`, e));
+                }
+
+                try {
                     await $$.promisify(writableDSU.writeFile)("/environment.json", JSON.stringify({
                         vaultDomain: vaultDomain,
                         didDomain: vaultDomain
                     }))
                     await writableDSU.commitBatchAsync();
                 } catch (e) {
-                    return callback(e);
+                    const writeFileError = createOpenDSUErrorWrapper(`Failed to store environment.json`, e);
+                    try {
+                        await writableDSU.cancelBatchAsync();
+                    } catch (error) {
+                        return callback(createOpenDSUErrorWrapper(`Failed to cancel batch`, error, writeFileError));
+                    }
+                    return callback(writeFileError);
                 }
             }
 

@@ -7,6 +7,7 @@ const path = require("path");
 const fs = require("fs");
 const crypto = require("crypto");
 
+$$.LEGACY_BEHAVIOUR_ENABLED = true;
 
 assert.callback(
     "VersionlessDSU files without mounts test",

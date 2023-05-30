@@ -49,7 +49,14 @@ module.exports = {
                         }
                         res.mount("/data", writableDSU.getCreationSSI(), function (err, resSSI) {
                             if (err) {
-                                return callback(createOpenDSUErrorWrapper("Failed to mount writable DSU in wrapper DSU while initialising shared database " + dbName, err));
+                                const mountError = createOpenDSUErrorWrapper("Failed to mount writable DSU in wrapper DSU while initialising shared database " + dbName, err)
+                                res.cancelBatch(error => {
+                                    if (error) {
+                                        return callback(createOpenDSUErrorWrapper(`Failed to cancel batch`, error, mountError));
+                                    }
+
+                                    return callback(mountError);
+                                })
                             }
                             res.commitBatch((err) => {
                                 if (err) {
@@ -127,12 +134,23 @@ module.exports = {
                         return callback(createOpenDSUErrorWrapper(`Failed to get storageDSU's keySSI`, e));
                     }
 
-                    try {
+                    try{
                         await mainDSU.safeBeginBatchAsync();
+                    } catch (e) {
+                        return callback(createOpenDSUErrorWrapper(`Failed to begin batch`, e));
+                    }
+
+                    try {
                         await $$.promisify(mainDSU.writeFile)(DB_KEY_SSI_PATH, keySSI.getIdentifier());
                         await mainDSU.commitBatchAsync();
                     } catch (e) {
-                        return callback(createOpenDSUErrorWrapper(`Failed to store key SSI in mainDSU for db <${dbName}>`, e));
+                        const writeFileError = createOpenDSUErrorWrapper(`Failed to store key SSI in mainDSU for db <${dbName}>`, e);
+                        try {
+                            await mainDSU.cancelBatchAsync();
+                        } catch (error) {
+                            return callback(createOpenDSUErrorWrapper(`Failed to cancel batch`, error, writeFileError));
+                        }
+                        return callback(writeFileError);
                     }
 
                     return callback(undefined, storageDSU, keySSI);
@@ -152,12 +170,24 @@ module.exports = {
                     return callback(createOpenDSUErrorWrapper(`Failed to parse keySSI <${keySSI}>`, e));
                 }
             }
+
             try {
                 await mainDSU.safeBeginBatchAsync();
+            } catch (e) {
+                return callback(createOpenDSUErrorWrapper(`Failed to begin batch`, e));
+            }
+
+            try {
                 await $$.promisify(mainDSU.writeFile)(DB_KEY_SSI_PATH, keySSI.getIdentifier());
                 await mainDSU.commitBatchAsync();
             } catch (e) {
-                return callback(createOpenDSUErrorWrapper(`Failed to store key SSI in mainDSU for db <${dbName}>`, e));
+                const writeFileError = createOpenDSUErrorWrapper(`Failed to store key SSI in mainDSU for db <${dbName}>`, e);
+                try {
+                    await mainDSU.cancelBatchAsync();
+                } catch (error) {
+                    return callback(createOpenDSUErrorWrapper(`Failed to cancel batch`, error, writeFileError));
+                }
+                return callback(writeFileError);
             }
 
             return callback(undefined, storageDSU, keySSI);

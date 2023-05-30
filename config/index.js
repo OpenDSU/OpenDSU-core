@@ -43,9 +43,15 @@ function writeEnvFile(env, callback) {
             if (err) {
                 return callback(createOpenDSUErrorWrapper(`Failed to begin batch`, err));
             }
-            mainDSU.writeFile(constants.ENVIRONMENT_PATH, JSON.stringify(env), (err) => {
+            mainDSU.writeFile(constants.ENVIRONMENT_PATH, JSON.stringify(env), async (err) => {
                 if (err) {
-                    return callback(createOpenDSUErrorWrapper(`Failed to write env`, err));
+                    const writeFileError = createOpenDSUErrorWrapper(`Failed to write env`, err);
+                    try {
+                        await mainDSU.cancelBatchAsync();
+                    }catch (e) {
+                        return callback(createOpenDSUErrorWrapper(`Failed to cancel batch`, e, writeFileError));
+                    }
+                    return callback(writeFileError);
                 }
                 mainDSU.commitBatch(callback);
             });

@@ -152,8 +152,8 @@ registry.defineApi("loadArraySSIDSU", async function (domain, arr) {
     let dsu ;
     try {
         dsu = await resolver.loadDSU(keySSI);
-    }catch(er){
-        if(exists){
+    } catch (e) {
+        if (exists) {
             throw createOpenDSUErrorWrapper("Failed to load ConstDSU that exists", e);
         }
     }

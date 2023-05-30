@@ -1,3 +1,5 @@
+const {createOpenDSUErrorWrapper} = require("../../error");
+
 function WalletDBEnclave(keySSI, did) {
     const openDSU = require("opendsu");
     const constants = require("./constants");
@@ -66,12 +68,25 @@ function WalletDBEnclave(keySSI, did) {
             } catch (e) {
             }
             if (!privateKey) {
-                try {
+                try{
                     await this.storageDB.safeBeginBatchAsync();
+                } catch (e) {
+                    this.dispatchEvent("error", e);
+                }
+
+                try {
                     await $$.promisify(this.storageDB.insertRecord)(constants.TABLE_NAMES.PATH_KEY_SSI_PRIVATE_KEYS, 0, {privateKey: keySSI.getPrivateKey()});
                     await this.storageDB.commitBatchAsync();
                 } catch (e) {
-                    this.dispatchEvent("error", e);
+                    const insertError = createOpenDSUErrorWrapper(`Failed to insert private key`, e);
+                    try {
+                        await this.storageDB.cancelBatchAsync();
+                    } catch (error) {
+                        const newError = createOpenDSUErrorWrapper(`Failed to cancel batch`, error, insertError);
+                        this.dispatchEvent("error", newError);
+                        return
+                    }
+                    this.dispatchEvent("error", insertError);
                     return
                 }
             }

@@ -69,7 +69,13 @@ function ConstDID_Document_Mixin(target, enclave, domain, name, isInitialisation
         try {
             await $$.promisify(constDSU.mount)(WRITABLE_DSU_PATH, seedSSI);
         } catch (e) {
-            return target.dispatchEvent("error", createOpenDSUErrorWrapper(`Failed to mount writable DSU`, e));
+            const mountError = createOpenDSUErrorWrapper(`Failed to mount writable DSU`, e);
+            try {
+                await constDSU.cancelBatchAsync();
+            }catch (error) {
+                return target.dispatchEvent("error", createOpenDSUErrorWrapper(`Failed to cancel batch in Const DSU`, error));
+            }
+            return target.dispatchEvent("error", mountError);
         }
 
         try {
@@ -155,9 +161,15 @@ function ConstDID_Document_Mixin(target, enclave, domain, name, isInitialisation
                 return callback(createOpenDSUErrorWrapper(`Failed to begin batch`, err));
             }
 
-            target.dsu.writeFile(`${PUB_KEYS_PATH}/${publicKey.toString("hex")}`, (err) => {
+            target.dsu.writeFile(`${PUB_KEYS_PATH}/${publicKey.toString("hex")}`, async (err) => {
                 if (err) {
-                    return callback(createOpenDSUErrorWrapper(`Failed to add public key for did ${target.getIdentifier()}`, err));
+                    const writeError = createOpenDSUErrorWrapper(`Failed to add public key for did ${target.getIdentifier()}`, err);
+                    try {
+                        await target.dsu.cancelBatchAsync();
+                    }catch (e) {
+                        return callback(createOpenDSUErrorWrapper(`Failed to cancel batch`, e, writeError));
+                    }
+                    return callback(writeError);
                 }
 
                 target.dsu.commitBatch(callback);

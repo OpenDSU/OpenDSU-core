@@ -5,6 +5,7 @@ const { getNonEncryptedAndEncryptedDSUTester, getDSUTesters } = require("./utils
 const dc = require("double-check");
 const { assert } = dc;
 const crypto = require("crypto");
+$$.LEGACY_BEHAVIOUR_ENABLED = true;
 
 assert.callback(
     "VersionlessDSU mounts test",

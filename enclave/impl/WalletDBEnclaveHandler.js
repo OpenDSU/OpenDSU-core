@@ -34,7 +34,13 @@ function WalletDBEnclaveHandler(walletDBEnclaveDSU, config) {
 
                 walletDBEnclaveDSU.writeFile(filePath, async err => {
                     if (err) {
-                        return callback(err);
+                        const writeFileError = createOpenDSUErrorWrapper(`Failed to store path key SSI <${pathKeySSI.getIdentifier()}>`, err);
+                        try {
+                            await walletDBEnclaveDSU.cancelBatchAsync();
+                        } catch (e) {
+                            return callback(createOpenDSUErrorWrapper(`Failed to cancel batch`, e, writeFileError));
+                        }
+                        return callback(writeFileError);
                     }
 
                     try {
@@ -43,11 +49,23 @@ function WalletDBEnclaveHandler(walletDBEnclaveDSU, config) {
                             try {
                                 await compactPathKeys();
                             } catch (e) {
-                                return callback(e);
+                                const compactPathKeysError = createOpenDSUErrorWrapper(`Failed to compact path keys`, e);
+                                try {
+                                    await walletDBEnclaveDSU.cancelBatchAsync();
+                                } catch (error) {
+                                    return callback(createOpenDSUErrorWrapper(`Failed to cancel batch`, error, compactPathKeysError));
+                                }
+                                return callback(compactPathKeysError);
                             }
                         }
                     } catch (e) {
-                        return callback(e);
+                        const listFilesError = createOpenDSUErrorWrapper(`Failed to list files`, e);
+                        try {
+                            await walletDBEnclaveDSU.cancelBatchAsync();
+                        } catch (error) {
+                            return callback(createOpenDSUErrorWrapper(`Failed to cancel batch`, error, listFilesError));
+                        }
+                        return callback(listFilesError);
                     }
 
                     walletDBEnclaveDSU.commitBatch(callback);

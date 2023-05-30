@@ -1,4 +1,5 @@
 const methodsNames = require("../didMethodsNames");
+const {createOpenDSUErrorWrapper} = require("../../error");
 
 function GroupDID_Document(enclave, domain, groupName, isInitialisation) {
     if (typeof domain === "undefined" || typeof groupName === "undefined") {
@@ -192,9 +193,15 @@ function GroupDID_Document(enclave, domain, groupName, isInitialisation) {
                         return callback(err);
                     }
 
-                    this.dsu.writeFile(MEMBERS_FILE, JSON.stringify(members), err => {
+                    this.dsu.writeFile(MEMBERS_FILE, JSON.stringify(members), async err => {
                         if (err) {
-                            return callback(err);
+                            const writeError = createOpenDSUErrorWrapper(`Failed to write members`, err);
+                            try{
+                                await this.dsu.cancelBatchAsync();
+                            }catch (e) {
+                                return callback(createOpenDSUErrorWrapper(`Failed to cancel batch`, e, writeError));
+                            }
+                            return callback(writeError);
                         }
 
                         this.dsu.commitBatch(callback);
