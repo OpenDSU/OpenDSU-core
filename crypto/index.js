@@ -22,6 +22,11 @@ const hash = (keySSI, data, callback) => {
     callback(undefined, hashSync(keySSI, data));
 };
 
+const getRandomSecret = (length) => {
+    const bytes = crypto.randomBytes(length);
+    return bytes.toString("hex");
+}
+
 const hashSync = (keySSI, data) => {
     console.log("This function is obsolete");
     if (typeof data === "object" && !$$.Buffer.isBuffer(data)) {
@@ -357,5 +362,6 @@ module.exports = {
     sha256JOSE,
     joseAPI: require("pskcrypto").joseAPI,
     convertKeySSIObjectToMnemonic,
-    convertMnemonicToKeySSIIdentifier
+    convertMnemonicToKeySSIIdentifier,
+    getRandomSecret
 };
