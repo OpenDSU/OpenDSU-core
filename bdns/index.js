@@ -56,12 +56,18 @@ function BDNS() {
     }
 
     this.getRawInfo = (dlDomain, callback) => {
+
+        if(dlDomain && typeof dlDomain === "function"){
+            callback = dlDomain;
+            dlDomain = null;
+        }
+
         if (!isInitialized) {
             return this.addPendingCall(() => {
-                callback(undefined, bdnsCache[dlDomain]);
+                callback(undefined, dlDomain ? bdnsCache[dlDomain] : bdnsCache);
             })
         }
-        callback(undefined, bdnsCache[dlDomain]);
+        callback(undefined, dlDomain ? bdnsCache[dlDomain] : bdnsCache);
     };
 
     this.getBrickStorages = (dlDomain, callback) => {
