@@ -249,7 +249,13 @@ class TwoDSUTester {
         const openDSU = require("opendsu");
         const { SmartUrl } = openDSU.loadAPI("utils");
         let smartUrl = new SmartUrl(this.apiHubUrl);
-        smartUrl = smartUrl.concatWith(`/versionlessdsu/${filePath}`);
+        let path = "/versionlessdsu";
+        if(filePath.startsWith("/")){
+            path = path.concat(filePath);
+        } else {
+            path = path.concat("/").concat(filePath);
+        }
+        smartUrl = smartUrl.concatWith(path);
 
         return smartUrl.fetch().then((response) => response.text());
     }
