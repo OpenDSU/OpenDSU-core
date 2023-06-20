@@ -4,6 +4,21 @@ html API space
 
 let constants = require("./moduleConstants.js");
 
+$$.callAsync = async function (func, ...args) {
+    let error, result;
+    try {
+        result =  await func(...args);
+    } catch(err) {
+        error = err
+    }
+    return [error, result];
+}
+
+$$.call = async function (func, ...args) {
+    let asyncFunc = $$.promisify(func);
+    return $$.callAsync(asyncFunc, ...args);
+}
+
 switch ($$.environmentType) {
     case constants.ENVIRONMENT_TYPES.WEB_WORKER_ENVIRONMENT_TYPE:
     case constants.ENVIRONMENT_TYPES.SERVICE_WORKER_ENVIRONMENT_TYPE:
