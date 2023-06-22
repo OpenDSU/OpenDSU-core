@@ -1,6 +1,6 @@
 const {createOpenDSUErrorWrapper} = require("../../error");
 
-function ConstDID_Document_Mixin(target, enclave, domain, name, isInitialisation) {
+function ConstDID_Document_Mixin(target, enclave, domain, name, isInitialisation, desiredPrivateKey) {
     if (arguments.length === 4) {
         isInitialisation = name;
         name = domain;
@@ -24,7 +24,7 @@ function ConstDID_Document_Mixin(target, enclave, domain, name, isInitialisation
     const generatePublicKey = async () => {
         let seedSSI;
         try {
-            seedSSI = await $$.promisify(keySSISpace.createSeedSSI)(domain);
+            seedSSI = await $$.promisify(keySSISpace.createSeedSSI)(domain, desiredPrivateKey);
         } catch (e) {
             return target.dispatchEvent("error", createOpenDSUErrorWrapper(`Failed to create SeedSSI`, e));
         }

@@ -473,11 +473,11 @@ function Enclave_Mixin(target, did, keySSI) {
         });
     }
 
-    target.addPrivateKeyForDID = (didDocument, privateKey, callback) => {
+    target.addPrivateKeyForDID = (forDid, didDocument, privateKey, callback) => {
         const privateKeyObj = {privateKeys: [privateKey]}
         target.storageDB.getRecord(constants.TABLE_NAMES.DIDS_PRIVATE_KEYS, didDocument.getIdentifier(), (err, res) => {
             if (err || !res) {
-                target.storageDB.safeBeginBatch((err) => {
+                return target.storageDB.safeBeginBatch((err) => {
                     if (err) {
                         return callback(err);
                     }

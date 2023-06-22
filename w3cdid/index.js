@@ -38,8 +38,40 @@ function createIdentity(didMethod, ...args) {
     we_createIdentity(undefined, didMethod, ...args);
 }
 
-function getDIDKeyFromSecret(secret) {
+function resolveNameDID(domain, publicName, secret, callback) {
+    if(typeof secret == "function"){
+        callback = secret;
+        secret = undefined;
+    }
+    const identifier = `did:ssi:name:${domain}:${publicName}`;
+    if(secret){
+        resolveDID(identifier, (err, res)=>{
+            if(err){
+                createIdentity("ssi:name", domain, publicName, secret, callback);
+            }
+            else{
+                callback(undefined, res);
+            }
+        })
+    }else{
+        resolveDID(identifier, callback);
+    }
+}
 
+function registerNameDIDSecret(domain, publicName, secret, callback) {
+    const sc = openDSU.loadAPI("sc");
+    sc.getMainEnclave((err, enclave)=>{
+        if(err){
+            return callback(err, undefined);
+        }
+        const identifier = `did:ssi:name:${domain}:${publicName}`;
+        resolveDID(identifier, (err, didDoc)=>{
+            if(err){
+                return callback(err, undefined);
+            }
+            enclave.addPrivateKeyForDID(didDoc, secret, callback);
+        });
+    })
 }
 
 function we_createIdentity(enclave, didMethod, ...args) {
@@ -126,6 +158,8 @@ module.exports = {
     resolveDID,
     we_resolveDID,
     registerDIDMethod,
+    resolveNameDID,
+    registerNameDIDSecret,
     CryptographicSkills: require("./CryptographicSkills/CryptographicSkills"),
     W3CDIDMixin: require('./W3CDID_Mixin'),
     W3CCVCMixin: require('./W3CVC_Mixin'),
