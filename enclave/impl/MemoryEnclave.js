@@ -16,6 +16,9 @@ function MemoryEnclave() {
         return openDSU.constants.ENCLAVE_TYPES.MEMORY_ENCLAVE;
     };
 
+    this.getKeySSI = (callback) => {
+        callback(undefined, "ssi::::")
+    }
     this.isInitialised = () => {
         return initialised
     }

@@ -80,13 +80,13 @@ function SSIKeyDID_Method() {
 function NameDID_Method() {
     const NameDIDDocument = require("./NameDID_Document");
 
-    this.create = (enclave, domain, publicName, callback) => {
+    this.create = (enclave, domain, publicName, secret, callback) => {
         if (typeof publicName === "function") {
             callback = publicName;
             publicName = domain;
             domain = undefined;
         }
-        const nameDIDDocument = NameDIDDocument.initiateDIDDocument(enclave, domain, publicName);
+        const nameDIDDocument = NameDIDDocument.initiateDIDDocument(enclave, domain, publicName, secret);
 
         nameDIDDocument.on("error", (err) => {
             return callback(err);
