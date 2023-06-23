@@ -1,7 +1,4 @@
 const { createCommandObject } = require("./lib/createCommandObject");
-const ProxyMixin = require("./ProxyMixin");
-const openDSU = require('../../index');
-const w3cDID = openDSU.loadAPI("w3cdid");
 
 function RemoteEnclave(clientDID, remoteDID, requestTimeout) {
     let initialised = false;
@@ -9,11 +6,13 @@ function RemoteEnclave(clientDID, remoteDID, requestTimeout) {
 
     this.commandsMap = new Map();
     this.requestTimeout = requestTimeout ?? DEFAULT_TIMEOUT;
-
+    
+    const ProxyMixin = require("./ProxyMixin");
     ProxyMixin(this);
 
     const init = async () => {
         try {
+            const w3cDID = require("opendsu").loadAPI("w3cdid");
             this.clientDIDDocument = await $$.promisify(w3cDID.resolveDID)(clientDID);
             this.remoteDIDDocument = await $$.promisify(w3cDID.resolveDID)(remoteDID);
         }
