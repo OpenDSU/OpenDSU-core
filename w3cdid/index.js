@@ -45,15 +45,22 @@ function resolveNameDID(domain, publicName, secret, callback) {
     }
     const identifier = `did:ssi:name:${domain}:${publicName}`;
     if(secret){
-        resolveDID(identifier, (err, res)=>{
+        resolveDID(identifier, (err, didDocument)=>{
             if(err){
                 createIdentity("ssi:name", domain, publicName, secret, callback);
             }
             else{
-                callback(undefined, res);
+                registerNameDIDSecret(domain, publicName, secret, (err)=>{
+                    if(err){
+                        return callback(err);
+                    }
+                    // A new DID document instance, containing the new private key is needed
+                    resolveDID(identifier, callback)
+                });
             }
         })
-    }else{
+    }
+    else{
         resolveDID(identifier, callback);
     }
 }
