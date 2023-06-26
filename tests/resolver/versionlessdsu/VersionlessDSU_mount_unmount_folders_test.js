@@ -69,8 +69,7 @@ assert.callback(
 
             // unmount inner mount
             await $$.promisify(dsuToMount.unmount)("/inner-mount");
-            // refresh DSU mounted by both standard and versionless in order to see same changes
-            await dsuTester.refreshDSU(dsuToMount);
+            
 
             await dsuTester.callMethodWithResultComparison("listFolders", ["/mount-path/inner-mount"]);
             await dsuTester.callMethodWithResultComparison("listFolders", ["mount-path/inner-mount"]);
@@ -138,8 +137,8 @@ assert.callback(
 
             // unmount inner mount
             await $$.promisify(dsuToMount.unmount)("/inner-mount");
-            // refresh DSU mounted by both standard and versionless in order to see same changes
-            await dsuTester.refreshDSU(dsuToMount);
+            
+            
 
             await dsuTester.callMethodWithResultComparison("listFiles", ["/mount-path/inner-mount"]);
             await dsuTester.callMethodWithResultComparison("listFiles", ["mount-path/inner-mount"]);

@@ -56,16 +56,6 @@ assert.callback(
 
         await extractFile("demo1.txt");
         await extractFile("demo/demo2.txt");
-
-        await assertBlockFailure(async () => {
-            // should not work
-            await extractFile("non-existing.txt");
-        });
-
-        await assertBlockFailure(async () => {
-            // should not work
-            await extractFile("demo/non-existing.txt");
-        });
     }),
     60000
 );

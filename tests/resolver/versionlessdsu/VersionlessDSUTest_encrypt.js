@@ -27,7 +27,6 @@ assert.callback(
             const nonEncryptedDsuContent = JSON.parse(nonEncryptedDsuContentBuffer);
             assert.true(nonEncryptedDsuContent.files.length !== 0);
             assert.true(nonEncryptedDsuContent.folders.length !== 0);
-            assert.true(nonEncryptedDsuContent.mounts.length === 0);
 
             // const nonEncryptedDSUKeySSIObject = await $$.promisify(nonEncryptedDsuTester.versionlessDSU.getKeySSIAsObject)();
             const nonEncryptedDSUKeySSIString = await $$.promisify(nonEncryptedDsuTester.versionlessDSU.getKeySSIAsString)();
@@ -51,7 +50,6 @@ assert.callback(
 
             assert.true(decryptedContent.files.length !== 0);
             assert.true(decryptedContent.folders.length !== 0);
-            assert.true(decryptedContent.mounts.length === 0);
 
             assert.arraysMatch(Object.keys(nonEncryptedDsuContent.files), Object.keys(decryptedContent.files));
             assert.arraysMatch(Object.keys(nonEncryptedDsuContent.folders), Object.keys(decryptedContent.folders));

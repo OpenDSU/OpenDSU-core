@@ -79,9 +79,6 @@ assert.callback(
         const dsuKeySSIToMount2 = await $$.promisify(dsuToMount2.getKeySSIAsString)();
         await dsuTester.callStandardDSUMethod("mount", ["/mount-path/inner-mount", dsuKeySSIToMount2]);
 
-        // refresh DSU mounted by both standard and versionless in order to see same changes
-        await dsuTester.refreshDSU(dsuToMount);
-
         await dsuTester.callMethod("addFile", [filePath1, "/mount-path/inner-mount/demo3-added/demo1.txt"]);
         await dsuTester.callMethod("addFile", [filePath2, "/mount-path/inner-mount/demo3-added/demo/demo2.txt"]);
         await executeComparisionCalls();
