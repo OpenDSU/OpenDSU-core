@@ -40,7 +40,7 @@ function VersionlessDSUEnclave(keySSI, did) {
 
         await $$.promisify(resolver.invalidateDSUCache)(keySSI);
 
-        this.storageDB = db.getSimpleWalletDB(DB_NAME, { keySSI });
+        this.storageDB = db.getVersionlessDB(DB_NAME, { keySSI });
         this.storageDB.on("error", (err) => {
             this.dispatchEvent("error", err);
         });

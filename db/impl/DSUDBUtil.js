@@ -194,5 +194,75 @@ module.exports = {
         })
     },
     ensure_MultiUserDB_DSU_Initialisation: function (keySSI, dbName, userId, callback) {
+    },
+    initialiseVersionlessDB: function (dbName, keySSI, callback) {
+        $$.LEGACY_BEHAVIOUR_ENABLED = true;
+        if (typeof keySSI === "function") {
+            callback = keySSI;
+            keySSI = undefined;
+        }
+        const openDSU = require("opendsu");
+        let resolver = openDSU.loadAPI("resolver");
+        let scAPI = openDSU.loadAPI("sc");
+        let keySSISpace = openDSU.loadAPI("keyssi");
+        let storageDSU;
+        const DB_KEY_SSI_PATH = `/db/${dbName}`;
+        scAPI.getMainDSU(async (err, mainDSU) => {
+            if (err) {
+                return callback(err);
+            }
+
+            if (!keySSI) {
+                try {
+                    keySSI = await $$.promisify(mainDSU.readFile)(DB_KEY_SSI_PATH);
+                    keySSI = keySSI.toString();
+
+                } catch (e) {
+                    try {
+                        storageDSU = await $$.promisify(resolver.createVersionlessDSU)();
+                    } catch (e) {
+                        return callback(createOpenDSUErrorWrapper(`Failed to create Seed DSU`, e));
+                    }
+
+                    try {
+                        keySSI = await $$.promisify(storageDSU.getKeySSIAsObject)();
+                    } catch (e) {
+                        return callback(createOpenDSUErrorWrapper(`Failed to get storageDSU's keySSI`, e));
+                    }
+
+                    try {
+                        await $$.promisify(mainDSU.writeFile)(DB_KEY_SSI_PATH, keySSI.getIdentifier());
+                    } catch (e) {
+                        const writeFileError = createOpenDSUErrorWrapper(`Failed to store key SSI in mainDSU for db <${dbName}>`, e);
+                        return callback(writeFileError);
+                    }
+
+                    return callback(undefined, storageDSU, keySSI);
+                }
+            }
+
+            try {
+                storageDSU = await $$.promisify(resolver.loadDSU)(keySSI)
+            } catch (e) {
+                return callback(createOpenDSUErrorWrapper(`Failed to load storage DSU for db <${dbName}>`, e));
+            }
+
+            if (typeof keySSI === "string") {
+                try {
+                    keySSI = keySSISpace.parse(keySSI);
+                } catch (e) {
+                    return callback(createOpenDSUErrorWrapper(`Failed to parse keySSI <${keySSI}>`, e));
+                }
+            }
+
+            try {
+                await $$.promisify(mainDSU.writeFile)(DB_KEY_SSI_PATH, keySSI.getIdentifier());
+            } catch (e) {
+                const writeFileError = createOpenDSUErrorWrapper(`Failed to store key SSI in mainDSU for db <${dbName}>`, e);
+                return callback(writeFileError);
+            }
+
+            return callback(undefined, storageDSU, keySSI);
+        })
     }
 }
