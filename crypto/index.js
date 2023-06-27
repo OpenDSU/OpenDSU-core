@@ -38,6 +38,7 @@ const hashSync = (keySSI, data) => {
 
 const encrypt = (data, encryptionKey) => {
     const logger = $$.getLogger("encrypt", "opendsu/crypto");
+console.trace("Check who is calling the encrypt method");
     logger.info(0x900, "DSUs are encrypted using AES-GCM 256bit");
     const pskEncryption = crypto.createPskEncryption("aes-256-gcm");
     return pskEncryption.encrypt(data, encryptionKey);
