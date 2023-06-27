@@ -20,7 +20,7 @@ function VersionlessDSUEnclave(keySSI, did) {
 
             if (!keySSI) {
                 try {
-                    versionlessDSU = await $$.promisify(resolver.createVersionlessDSU)("/");
+                    versionlessDSU = await $$.promisify(resolver.createVersionlessDSU)();
                 } catch (e) {
                     throw createOpenDSUErrorWrapper(`Failed to create versionless DSU`, e);
                 }
