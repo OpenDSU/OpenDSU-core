@@ -1,5 +1,5 @@
 const constants = require("../moduleConstants");
-const config = {};
+const config = {trustLevel: 1};
 
 function set(key, value) {
     config[key] = value;
