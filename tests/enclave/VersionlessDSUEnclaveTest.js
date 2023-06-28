@@ -76,8 +76,7 @@ assert.callback('Get all records test', (testFinished) => {
                 await $$.promisify(versionlessDSUEnclave.insertRecord)(undefined, TABLE, records[i].pk, records[i].record);
             }
             const tableContent = await $$.promisify(versionlessDSUEnclave.getAllRecords)(undefined, TABLE);
-            records = records.map(e => e.record);
-            tableContent.sort((a, b)=>{
+            const compareFn = (a, b) => {
                 if (a.value < b.value) {
                     return -1;
                 }
@@ -87,9 +86,13 @@ assert.callback('Get all records test', (testFinished) => {
                 }
 
                 return 1;
-            })
-
+            }
+            records = records.map(e => e.record);
+            tableContent.sort(compareFn)
             assert.arraysMatch(tableContent, records);
+
+            const filteredContent = await $$.promisify(versionlessDSUEnclave.filter)(undefined, TABLE, "value > 2");
+            assert.arraysMatch(filteredContent.map(e => e.value), records.filter(e => e.value > 2).map(e => e.value));
             testFinished();
         } catch (e) {
             return console.log(e);

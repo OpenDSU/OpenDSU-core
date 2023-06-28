@@ -24,7 +24,7 @@ assert.callback(
             }
 
             const nonEncryptedDsuContentBuffer = await nonEncryptedDsuTester.getVersionlessDSUContent();
-            const nonEncryptedDsuContent = JSON.parse(nonEncryptedDsuContentBuffer);
+            const nonEncryptedDsuContent = JSON.parse(nonEncryptedDsuContentBuffer.toString());
             assert.true(nonEncryptedDsuContent.files.length !== 0);
             assert.true(nonEncryptedDsuContent.folders.length !== 0);
 

@@ -4,7 +4,6 @@ const dc = require("double-check");
 const { assert } = dc;
 const path = require("path");
 const fs = require("fs");
-const crypto = require("crypto");
 
 const logger = $$.getLogger("VersionlessDSUTestUtils", "apihub/versionlessDSU");
 
@@ -13,6 +12,7 @@ const DOMAIN = "default";
 const opendsu = require("opendsu");
 const keySSIApi = opendsu.loadAPI("keyssi");
 const resolver = opendsu.loadApi("resolver");
+const crypto = opendsu.loadApi("crypto");
 
 async function assertBlockFailure(fn) {
     let isFailed = true;
@@ -257,14 +257,15 @@ class TwoDSUTester {
         }
         smartUrl = smartUrl.concatWith(path);
 
-        return smartUrl.fetch().then((response) => response.text());
+        return smartUrl.fetch().then((response) => response.text())
+            .then((text) => crypto.base64URLDecode(text));
     }
 
     async writeFileAsync(relativePath, fileContentSize) {
         if (!fileContentSize) {
             fileContentSize = 1024;
         }
-        const fileContent = crypto.randomBytes(fileContentSize);
+        const fileContent = crypto.generateRandom(fileContentSize);
         const filePath = path.join(this.testFolder, relativePath);
         logger.info(`Generating file at ${filePath}`);
         ensureDirectoryExistence(filePath);

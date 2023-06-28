@@ -38,7 +38,6 @@ const hashSync = (keySSI, data) => {
 
 const encrypt = (data, encryptionKey) => {
     const logger = $$.getLogger("encrypt", "opendsu/crypto");
-console.trace("Check who is calling the encrypt method");
     logger.info(0x900, "DSUs are encrypted using AES-GCM 256bit");
     const pskEncryption = crypto.createPskEncryption("aes-256-gcm");
     return pskEncryption.encrypt(data, encryptionKey);
@@ -288,7 +287,6 @@ const verifyDIDAuthToken = (jwt, listOfIssuers, callback) => {
     verifyToken(jwt, listOfIssuers, verifyDID_JWT, callback);
 };
 
-
 function createBloomFilter(options) {
     const BloomFilter = require("psk-dbf");
     return new BloomFilter(options);
@@ -304,6 +302,19 @@ const base64UrlEncodeJOSE = (data) => {
         data = $$.Buffer.from(data);
     }
     return data.toString("base64").replaceAll('+', '-').replaceAll('/', '_').replaceAll('=', '');
+}
+
+const base64UrlDecodeJOSE = (data) => {
+    if (typeof $$.Buffer.isBuffer(data)) {
+        data = data.toString();
+    }
+    data = data.replaceAll('-', '+').replaceAll('_', '/');
+    const padding = data.length % 4;
+    if (padding) {
+        data += '='.repeat(4 - padding);
+    }
+
+    return $$.Buffer.from(data, "base64");
 }
 
 const convertKeySSIObjectToMnemonic = (keySSIObject) => {
@@ -360,6 +371,9 @@ module.exports = {
     createAuthTokenForDID,
     createCredentialForDID,
     base64UrlEncodeJOSE,
+    base64UrlDecodeJOSE,
+    base64URLEncode: base64UrlEncodeJOSE,
+    base64URLDecode: base64UrlDecodeJOSE,
     sha256JOSE,
     joseAPI: require("pskcrypto").joseAPI,
     convertKeySSIObjectToMnemonic,
