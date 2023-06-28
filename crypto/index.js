@@ -305,7 +305,7 @@ const base64UrlEncodeJOSE = (data) => {
 }
 
 const base64UrlDecodeJOSE = (data) => {
-    if (typeof $$.Buffer.isBuffer(data)) {
+    if ($$.Buffer.isBuffer(data)) {
         data = data.toString();
     }
     data = data.replaceAll('-', '+').replaceAll('_', '/');
