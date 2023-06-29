@@ -32,34 +32,6 @@ function readEnvFile(callback) {
     });
 }
 
-function writeEnvFile(env, callback) {
-    const sc = require("opendsu").loadAPI("sc");
-    sc.getMainDSU((err, mainDSU) => {
-        if (err) {
-            return callback(createOpenDSUErrorWrapper(`Failed to get main DSU`, err));
-        }
-
-        mainDSU.safeBeginBatch(err => {
-            if (err) {
-                return callback(createOpenDSUErrorWrapper(`Failed to begin batch`, err));
-            }
-            mainDSU.writeFile(constants.ENVIRONMENT_PATH, JSON.stringify(env), async (err) => {
-                if (err) {
-                    const writeFileError = createOpenDSUErrorWrapper(`Failed to write env`, err);
-                    try {
-                        await mainDSU.cancelBatchAsync();
-                    }catch (e) {
-                        return callback(createOpenDSUErrorWrapper(`Failed to cancel batch`, e, writeFileError));
-                    }
-                    return callback(writeFileError);
-                }
-                mainDSU.commitBatch(callback);
-            });
-        })
-    });
-}
-
-
 function setEnv(key, value, callback) {
     //update environment.json
     readEnvFile((err, env) => {
