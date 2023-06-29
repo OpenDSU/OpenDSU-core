@@ -6,6 +6,7 @@ const utils = require('./utils');
 assert.callback("Should fail to get versions from inconsistent persistence", async (callback) => {
 
     const AnchoringAbstractBehaviour = require('../../anchoring/anchoringAbstractBehaviour').AnchoringAbstractBehaviour;
+    require("opendsu").loadApi("config").set("trustLevel", 0);
     const {anchorId, cmp} = await utils.getPopulatedCorruptedMemoryPersistence()
     const ab = new AnchoringAbstractBehaviour(cmp);
 
