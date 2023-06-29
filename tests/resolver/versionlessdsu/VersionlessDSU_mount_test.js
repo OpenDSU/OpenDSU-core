@@ -1,4 +1,4 @@
-require("../../../../../psknode/bundles/testsRuntime");
+require("../../../../../builds/output/testsRuntime");
 $$.LEGACY_BEHAVIOUR_ENABLED = true;
 const { getNonEncryptedAndEncryptedDSUTester, getDSUTesters } = require("./utils");
 

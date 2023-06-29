@@ -1,4 +1,4 @@
-require("../../../../../psknode/bundles/testsRuntime");
+require("../../../../../builds/output/testsRuntime");
 const { assertBlockFailure, getDSUTesters} = require("./utils");
 $$.LEGACY_BEHAVIOUR_ENABLED = true;
 const dc = require("double-check");

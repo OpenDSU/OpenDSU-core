@@ -1,4 +1,4 @@
-require("../../../../psknode/bundles/testsRuntime");
+require("../../../../builds/output/testsRuntime");
 const {launchApiHubTestNode} = require("../../../../psknode/tests/util/tir");
 
 const dc = require("double-check");

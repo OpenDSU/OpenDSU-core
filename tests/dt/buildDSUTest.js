@@ -1,4 +1,4 @@
-require("../../../../psknode/bundles/testsRuntime");
+require("../../../../builds/output/testsRuntime");
 const tir = require("../../../../psknode/tests/util/tir");
 
 const dc = require("double-check");
@@ -32,7 +32,7 @@ assert.callback('Build DSU test', (testFinished) => {
         fs.mkdirSync("code", {recursive: true});
         fs.writeFileSync(path.join("code", "file"), "some data");
         const commandData = "delete /\naddfolder code\n";
-        const bundlesPath = "./../../../../psknode/bundles";
+        const bundlesPath = "./../../../../builds/output";
         const config = {
             "seed": path.join(folder, "seed"),
             "domain": "vault",
