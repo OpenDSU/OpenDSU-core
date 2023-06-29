@@ -81,9 +81,18 @@ const configEnvironment = (config, refreshSC, callback) => {
         callback = refreshSC;
         refreshSC = true;
     }
-    MainDSU.getMainDSU((err, mainDSU) => {
+    MainDSU.getMainDSU(async (err, mainDSU) => {
         if (err) {
             return callback(createOpenDSUErrorWrapper("Failed to get main DSU", err));
+        }
+
+        let [error, env] = await $$.call(mainDSU.readFile, constants.ENVIRONMENT_PATH);
+        if (error) {
+            return callback(createOpenDSUErrorWrapper("Failed to read env", error));
+        }
+
+        if(crypto.sha256(JSON.parse(env.toString())) === crypto.sha256(config)){
+            return callback(undefined, getSecurityContext());
         }
 
         mainDSU.safeBeginBatch(err => {
