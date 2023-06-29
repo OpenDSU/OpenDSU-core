@@ -31,7 +31,7 @@ assert.callback('SimpleLockTest', (testFinished) => {
 
                 await lock.unlockAsync(lockID, secret);
 
-                let errCaught;
+                let errCaught = {};
                 try{
                     await lock.unlockAsync(lockID, secret);
                 }catch(err){
