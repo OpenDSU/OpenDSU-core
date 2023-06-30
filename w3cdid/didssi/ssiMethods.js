@@ -81,6 +81,11 @@ function NameDID_Method() {
     const NameDIDDocument = require("./NameDID_Document");
 
     this.create = (enclave, domain, publicName, secret, callback) => {
+        if(typeof secret === "function"){
+            callback = secret;
+            secret = undefined;
+        }
+
         if (typeof publicName === "function") {
             callback = publicName;
             publicName = domain;

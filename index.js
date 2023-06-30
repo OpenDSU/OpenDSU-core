@@ -4,6 +4,7 @@ html API space
 
 let constants = require("./moduleConstants.js");
 
+
 switch ($$.environmentType) {
     case constants.ENVIRONMENT_TYPES.WEB_WORKER_ENVIRONMENT_TYPE:
     case constants.ENVIRONMENT_TYPES.SERVICE_WORKER_ENVIRONMENT_TYPE:
