@@ -1,4 +1,4 @@
-require("../../../../psknode/bundles/testsRuntime");
+require("../../../../builds/output/testsRuntime");
 const tir = require("../../../../psknode/tests/util/tir");
 
 const { promisify } = require('util');

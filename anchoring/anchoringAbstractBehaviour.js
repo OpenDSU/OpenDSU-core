@@ -29,7 +29,6 @@ function AnchoringAbstractBehaviour(persistenceStrategy) {
 
             let fakeLastVersionForAnchorId = fakeLastVersion[_anchorId];
             if(fakeLastVersionForAnchorId){
-                console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
                 return callback(undefined);
             }
 
@@ -164,20 +163,25 @@ function AnchoringAbstractBehaviour(persistenceStrategy) {
                     return callback(undefined, anchorValues);
                 }
                 const historyOfKeySSI = data.map(el => keySSISpace.parse(el));
-                const progressiveHistoryOfKeySSI = [];
-                let previousSignedHashLinkKeySSI = null;
-                for (let i = 0; i <= historyOfKeySSI.length - 1; i++) {
-                    const anchorValueSSIKeySSI = historyOfKeySSI[i];
-                    const signer = determineSigner(anchorIdKeySSI, progressiveHistoryOfKeySSI);
-                    const signature = anchorValueSSIKeySSI.getSignature();
-                    const dataToVerify = anchorValueSSIKeySSI.getDataToSign(anchorIdKeySSI, previousSignedHashLinkKeySSI);
-                    if (!signer.verify(dataToVerify, signature)) {
-                        return callback(Error("Failed to verify signature"));
+                const config = require("opendsu").loadApi("config");
+                const trustLevel = config.get("trustLevel");
+                if(trustLevel === 0){
+                    const progressiveHistoryOfKeySSI = [];
+                    let previousSignedHashLinkKeySSI = null;
+                    for (let i = 0; i <= historyOfKeySSI.length - 1; i++) {
+                        const anchorValueSSIKeySSI = historyOfKeySSI[i];
+                        const signer = determineSigner(anchorIdKeySSI, progressiveHistoryOfKeySSI);
+                        const signature = anchorValueSSIKeySSI.getSignature();
+                        const dataToVerify = anchorValueSSIKeySSI.getDataToSign(anchorIdKeySSI, previousSignedHashLinkKeySSI);
+                        if (!signer.verify(dataToVerify, signature)) {
+                            return callback(Error("Failed to verify signature"));
+                        }
+                        //build history
+                        progressiveHistoryOfKeySSI.push(anchorValueSSIKeySSI);
+                        previousSignedHashLinkKeySSI = anchorValueSSIKeySSI;
                     }
-                    //build history
-                    progressiveHistoryOfKeySSI.push(anchorValueSSIKeySSI);
-                    previousSignedHashLinkKeySSI = anchorValueSSIKeySSI;
                 }
+
                 //all history was validated
                 return callback(undefined, historyOfKeySSI);
             });

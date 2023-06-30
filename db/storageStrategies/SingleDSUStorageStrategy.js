@@ -1,6 +1,6 @@
 const ObservableMixin = require("../../utils/ObservableMixin");
-
-function SingleDSUStorageStrategy() {
+const SingleDSURecordStorageStrategy = require("./SingleDSURecordStorageStrategy");
+function SingleDSUStorageStrategy(recordStorageStrategy) {
     let volatileMemory = {}
     let self = this
     let storageDSU;
@@ -12,6 +12,9 @@ function SingleDSUStorageStrategy() {
     this.initialise = function (_storageDSU, _dbName) {
         storageDSU = _storageDSU;
         dbName = _dbName;
+        if(!recordStorageStrategy){
+            recordStorageStrategy = new SingleDSURecordStorageStrategy(storageDSU);
+        }
         this.dispatchEvent("initialised");
     }
 
@@ -123,21 +126,7 @@ function SingleDSUStorageStrategy() {
                     filteredRecords.push(record);
                 }
             }
-            // Object.values(tbl).forEach(record => {
-            //     let recordIsValid = true;
-            //     for (let i = 0; i < conditionsArray.length; i++) {
-            //         const condition = conditionsArray[i];
-            //         const [field, operator, value] = condition.split(" ");
-            //         if (!operators[operator](record[field], value) || record.__deleted) {
-            //             recordIsValid = false;
-            //             break;
-            //         }
-            //     }
-            //
-            //     if (recordIsValid) {
-            //         filteredRecords.push(record);
-            //     }
-            // })
+
             const {getCompareFunctionForObjects} = require("./utils");
             filteredRecords.sort(getCompareFunctionForObjects(sort, conditionsArray[0].split(" ")[0]))
             callback(undefined, filteredRecords.slice(0, limit));
@@ -531,7 +520,7 @@ function SingleDSUStorageStrategy() {
         }
 
         const recordPath = getRecordPath(tableName, key);
-        storageDSU.writeFile(recordPath, JSON.stringify(newRecord), function (err, res) {
+        recordStorageStrategy.storeRecord(recordPath, newRecord, oldRecord, function (err, res) {
             if (err) {
                 return callback(createOpenDSUErrorWrapper(`Failed to update record in ${recordPath}`, err));
             }
@@ -567,39 +556,7 @@ function SingleDSUStorageStrategy() {
      */
     this.getRecord = function (tableName, key, callback) {
         const recordPath = getRecordPath(tableName, key);
-        storageDSU.readFile(recordPath, function (err, res) {
-            let record;
-            let retErr = undefined;
-            if (err) {
-                retErr = createOpenDSUErrorWrapper(`Failed to read record in ${recordPath}`, err);
-            } else {
-                try {
-                    record = JSON.parse(res);
-                } catch (newErr) {
-                    retErr = createOpenDSUErrorWrapper(`Failed to parse record in ${recordPath}: ${res}`, retErr);
-                    //let's try to check if the res contains the record twice... at some point there was a bug on this topic
-                    let serializedRecord = res;
-                    if (ArrayBuffer.isView(serializedRecord) || serializedRecord.buffer) {
-                        serializedRecord = new TextDecoder().decode(serializedRecord);
-                    }
-                    let halfOfRes = serializedRecord.slice(0, serializedRecord.length / 2);
-                    let isDuplicated = (serializedRecord === halfOfRes + halfOfRes);
-                    if (isDuplicated) {
-                        try {
-                            record = JSON.parse(halfOfRes);
-                            console.log("We caught an error during record retrieval process and fix it. (duplicate content)");
-                            //we ignore the original error because we were able to fix it.
-                            retErr = undefined;
-                        } catch (err) {
-                            console.log("We caught an error during record retrieval process and we failed to fix it!");
-                        }
-                    } else {
-                        console.log(retErr);
-                    }
-                }
-            }
-            callback(retErr, record);
-        });
+        recordStorageStrategy.getRecord(recordPath, callback);
     };
 
     const READ_WRITE_KEY_TABLE = "KeyValueTable";

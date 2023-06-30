@@ -1,4 +1,4 @@
-require('../../../../psknode/bundles/testsRuntime');
+require('../../../../builds/output/testsRuntime');
 const assert = require('double-check').assert;
 const dc = require("double-check");
 const tir = require("../../../../psknode/tests/util/tir");

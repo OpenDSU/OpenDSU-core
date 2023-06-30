@@ -20,7 +20,7 @@ function VersionlessDSUEnclave(keySSI, did) {
 
             if (!keySSI) {
                 try {
-                    versionlessDSU = await $$.promisify(resolver.createVersionlessDSU)("/");
+                    versionlessDSU = await $$.promisify(resolver.createVersionlessDSU)();
                 } catch (e) {
                     throw createOpenDSUErrorWrapper(`Failed to create versionless DSU`, e);
                 }
@@ -40,7 +40,7 @@ function VersionlessDSUEnclave(keySSI, did) {
 
         await $$.promisify(resolver.invalidateDSUCache)(keySSI);
 
-        this.storageDB = db.getSimpleWalletDB(DB_NAME, { keySSI });
+        this.storageDB = db.getVersionlessDB(DB_NAME, { keySSI });
         this.storageDB.on("error", (err) => {
             this.dispatchEvent("error", err);
         });

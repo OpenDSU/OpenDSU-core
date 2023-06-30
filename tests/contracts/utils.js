@@ -1,4 +1,4 @@
-require("../../../../psknode/bundles/testsRuntime");
+require("../../../../builds/output/testsRuntime");
 const testIntegration = require("../../../../psknode/tests/util/tir");
 const path = require("path");
 

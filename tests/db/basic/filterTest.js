@@ -5,7 +5,7 @@
 ...
  */
 
-require("../../../../../psknode/bundles/testsRuntime");
+require("../../../../../builds/output/testsRuntime");
 const double_check = require("double-check");
 const assert = double_check.assert;
 const db = require("../../../db");

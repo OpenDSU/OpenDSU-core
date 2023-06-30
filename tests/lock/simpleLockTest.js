@@ -1,4 +1,4 @@
-require("../../../../psknode/bundles/testsRuntime");
+require("../../../../builds/output/testsRuntime");
 
 const tir = require("../../../../psknode/tests/util/tir");
 const dc = require("double-check");
@@ -31,7 +31,7 @@ assert.callback('SimpleLockTest', (testFinished) => {
 
                 await lock.unlockAsync(lockID, secret);
 
-                let errCaught;
+                let errCaught = {};
                 try{
                     await lock.unlockAsync(lockID, secret);
                 }catch(err){
