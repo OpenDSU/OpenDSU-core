@@ -5,10 +5,8 @@ const db = require("../../../db");
 const tir = require("../../../../../psknode/tests/util/tir");
 const keySSIApis = require("../../../keyssi");
 const crypto = require("../../../crypto");
-
-require("callflow").initialise();
-
-$$.flows.describe("PopulateDB", {
+$$.LEGACY_BEHAVIOUR_ENABLED = true;
+let obj = {
     start: function (callback) {
         this.callback = callback;
         dc.createTestFolder("createDSU", (err, folder)=>{
@@ -16,54 +14,54 @@ $$.flows.describe("PopulateDB", {
                 throw err;
             }
 
-            tir.launchVirtualMQNode(100, folder,(err, port) => {
+            // tir.launchVirtualMQNode(100, folder,(err, port) => {
                 let keySSIApis = require("../../../keyssi");
-                let storageSSI = keySSIApis.createSeedSSI("default");
+                let storageSSI = keySSIApis.createSeedSSI("vault");
                 this.db = db.getWalletDB(storageSSI, "testDb");
                 this.insertRecords();
-            });
+            // });
         })
     },
 
     insertRecords: function () {
         const crypto = require("../../../crypto");
         let noRecords = 1000;
-        const self = this;
         this.keys = [];
         const TaskCounter = require("swarmutils").TaskCounter;
 
         console.time("insert records");
         const tc = new TaskCounter(()=>{
             console.timeEnd("insert records");
-            return self.getRecords();
+            return this.addIndexes();
         })
 
         tc.increment(noRecords);
+
         for (let i = 0; i < noRecords; i++) {
             const key = crypto.generateRandom(32).toString("hex");
-            self.keys.push(key);
+            this.keys.push(key);
 
             const record = {
                 value: crypto.generateRandom(32).toString("hex")
             }
 
-            self.db.insertRecord("test", key, record, () => {
+            this.db.insertRecord("test", key, record, (err, rec) => {
                 tc.decrement();
             });
         }
     },
 
     getRecords: function () {
-        const self = this;
         console.time("get records");
 
-        function getRecordsRecursively(index) {
-            if (index === self.keys.length) {
+        const getRecordsRecursively = (index) =>  {
+            if (index === this.keys.length) {
                 console.timeEnd("get records");
-                return self.addIndexes();
+                return this.addIndexes();
             }
-            const key = self.keys[index];
-            self.db.getRecord("test", key, () => {
+            const key = this.keys[index];
+            this.db.getRecord("test", key, (err, rec) => {
+                console.log(err, rec)
                 getRecordsRecursively(index + 1);
             });
         }
@@ -93,8 +91,8 @@ $$.flows.describe("PopulateDB", {
             this.callback();
         });
     }
-});
+};
 
 assert.callback("DB performance test", (callback) => {
-    $$.flows.start("PopulateDB", "start", callback);
+    obj.start(callback);
 }, 30000000);
