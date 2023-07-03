@@ -20,8 +20,8 @@ function initialiseHighSecurityProxy(domain, did) {
 }
 
 function initialiseRemoteEnclave(clientDID, remoteDID) {
-    const RemoteEnclave = require("./impl/RemoteEnclave");
-    return new RemoteEnclave(clientDID, remoteDID);}
+    const CloudEnclave = require("./impl/CloudEnclave");
+    return new CloudEnclave(clientDID, remoteDID);}
 
 function initialiseVersionlessDSUEnclave(versionlessSSI) {
     const VersionlessDSUEnclave = require("./impl/VersionlessDSUEnclave");
@@ -61,6 +61,7 @@ module.exports = {
     initialiseAPIHUBProxy,
     initialiseHighSecurityProxy,
     initialiseRemoteEnclave,
+    initialiseCloudEnclave: initialiseRemoteEnclave,
     initialiseVersionlessDSUEnclave,
     connectEnclave,
     createEnclave,
