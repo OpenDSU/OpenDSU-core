@@ -160,6 +160,10 @@ function Enclave_Mixin(target, did, keySSI) {
         target.storageDB.getRecord(table, pk, callback);
     };
 
+    target.getAllTableNames = (forDID, callback) => {
+        target.storageDB.getAllTableNames(callback);
+    }
+
     target.filter = (forDID, table, filter, sort, limit, callback) => {
         target.storageDB.filter(table, filter, sort, limit, callback);
     }

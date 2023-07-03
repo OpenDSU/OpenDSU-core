@@ -143,6 +143,17 @@ function SingleDSUStorageStrategy(recordStorageStrategy) {
         });
     }
 
+    this.getAllTableNames = (callback) => {
+        storageDSU.listFolders(dbName, {recursive: false}, (err, tableNames) => {
+            if (err) {
+                return callback(createOpenDSUErrorWrapper(`Failed to list tables`, err));
+            }
+
+            console.log("tableNames", tableNames)
+            callback(undefined, tableNames);
+        })
+    }
+
     this.filter = function (tableName, conditionsArray, sort, limit, callback) {
         if (typeof conditionsArray === "function") {
             callback = conditionsArray;

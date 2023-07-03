@@ -12,7 +12,8 @@ function initialiseMemoryEnclave() {
 
 function initialiseAPIHUBProxy(domain, did) {
     const APIHUBProxy = require("./impl/APIHUBProxy");
-    return new APIHUBProxy(domain, did);}
+    return new APIHUBProxy(domain, did);
+}
 
 function initialiseHighSecurityProxy(domain, did) {
     const HighSecurityProxy = require("./impl/HighSecurityProxy");
@@ -21,7 +22,8 @@ function initialiseHighSecurityProxy(domain, did) {
 
 function initialiseRemoteEnclave(clientDID, remoteDID) {
     const CloudEnclave = require("./impl/CloudEnclave");
-    return new CloudEnclave(clientDID, remoteDID);}
+    return new CloudEnclave(clientDID, remoteDID);
+}
 
 function initialiseVersionlessDSUEnclave(versionlessSSI) {
     const VersionlessDSUEnclave = require("./impl/VersionlessDSUEnclave");
@@ -33,6 +35,7 @@ function connectEnclave(forDID, enclaveDID, ...args) {
 }
 
 const enclaveConstructors = {};
+
 function createEnclave(enclaveType, ...args) {
     if (typeof enclaveConstructors[enclaveType] !== "function") {
         throw Error(`No constructor function registered for enclave type ${enclaveType}`);
@@ -46,6 +49,56 @@ function registerEnclave(enclaveType, enclaveConstructor) {
         throw Error(`A constructor function already registered for enclave type ${enclaveType}`);
     }
     enclaveConstructors[enclaveType] = enclaveConstructor;
+}
+
+function convertWalletDBEnclaveToVersionlessEnclave(walletDBEnclave, callback) {
+    const openDSU = require("opendsu");
+    const resolver = openDSU.loadAPI("resolver");
+    walletDBEnclave.getAllTableNames(undefined, async (err, tableNames) => {
+        if (err) {
+            return callback(err);
+        }
+
+        let error;
+        let versionlessDSU;
+        [error, versionlessDSU] = await $$.call(resolver.createVersionlessDSU);
+        if (error) {
+            return callback(error);
+        }
+
+        let versionlessSSI;
+        [error, versionlessSSI] = await $$.call(versionlessDSU.getKeySSIAsObject);
+        if (error) {
+            return callback(error);
+        }
+
+        let versionlessEnclave = initialiseVersionlessDSUEnclave(versionlessSSI);
+
+        versionlessEnclave.on("initialised", async () => {
+            for (let i = 0; i < tableNames.length; i++) {
+                [error, records] = await $$.call(walletDBEnclave.getAllRecords, undefined, tableNames[i]);
+                if (error) {
+                    return callback(error);
+                }
+
+                for (let j = 0; j < records.length; j++) {
+                    [error, res] = await $$.call(versionlessEnclave.insertRecord, undefined, tableNames[i], records[j].pk, records[j]);
+                    if (error) {
+                        [error, res] = await $$.call(versionlessEnclave.updateRecord, undefined, tableNames[i], records[j].pk, records[j], records[j]);
+                        if (error) {
+                            return callback(error);
+                        }
+                    }
+                }
+
+            }
+            callback(undefined, versionlessEnclave);
+        })
+    })
+}
+
+function convertWalletDBEnclaveToCloudEnclave(walletDBEnclave) {
+
 }
 
 registerEnclave(constants.ENCLAVE_TYPES.MEMORY_ENCLAVE, initialiseMemoryEnclave);
@@ -67,5 +120,6 @@ module.exports = {
     createEnclave,
     registerEnclave,
     EnclaveMixin: require("./impl/Enclave_Mixin"),
-    ProxyMixin: require("./impl/ProxyMixin")
+    ProxyMixin: require("./impl/ProxyMixin"),
+    convertWalletDBEnclaveToVersionlessEnclave
 }

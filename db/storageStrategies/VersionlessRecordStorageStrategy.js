@@ -9,7 +9,8 @@ function VersionlessRecordStorageStrategy(rootDSU) {
             if (err) {
                 return callback(err);
             }
-            versionlessDSU.writeFile(DATA_PATH, JSON.stringify(newRecord), async (err) => {
+            const filename = recordPath.split("/").pop();
+            versionlessDSU.writeFile(filename, JSON.stringify(newRecord), async (err) => {
                 if (err) {
                     return callback(err);
                 }
@@ -21,7 +22,7 @@ function VersionlessRecordStorageStrategy(rootDSU) {
                         return callback(err);
                     }
 
-                    [err, res] = await $$.call(rootDSU.writeFile, DATA_PATH, versionlessSSI);
+                    [err, res] = await $$.call(rootDSU.writeFile, recordPath, versionlessSSI);
 
                     if(err) {
                         return callback(err);
@@ -46,8 +47,9 @@ function VersionlessRecordStorageStrategy(rootDSU) {
                 return callback(err);
             }
 
+            const filename = recordPath.split("/").pop();
             let record;
-            [err, record] = await $$.call(versionlessDSU.readFile, `${recordPath}/${DATA_PATH}`);
+            [err, record] = await $$.call(versionlessDSU.readFile, filename);
             if(err) {
                 return callback(err);
             }
