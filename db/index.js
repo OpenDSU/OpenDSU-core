@@ -70,10 +70,9 @@ const getEnclaveDB = () => {
     throw Error("Not implemented");
 };
 
-const mainEnclaveIsInitialised = ()=>{
-    const sc = require("opendsu").loadAPI("sc");
-    return sc.securityContextIsInitialised();
-}
+const mainEnclaveIsInitialised = () => {
+    require("opendsu").loadAPI("sc").mainEnclaveIsInitialised();
+};
 
 const getMainEnclaveDB = (callback) => {
     require("opendsu").loadAPI("sc").getMainEnclave(callback);

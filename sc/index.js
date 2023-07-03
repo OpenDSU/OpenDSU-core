@@ -212,6 +212,9 @@ const isPINNeeded = async () => {
     return await sc.isPINNeeded();
 }
 
+const mainEnclaveIsInitialised = () => {
+    return securityContextIsInitialised();
+};
 
 module.exports = {
     setMainDSU: MainDSU.setMainDSU,
@@ -231,6 +234,7 @@ module.exports = {
     sharedEnclaveExists,
     setPIN,
     setEnclaveKeySSI,
-    isPINNeeded
+    isPINNeeded,
+    mainEnclaveIsInitialised
 };
     
