@@ -6,7 +6,7 @@ function CloudEnclave(clientDID, remoteDID, requestTimeout) {
 
     this.commandsMap = new Map();
     this.requestTimeout = requestTimeout ?? DEFAULT_TIMEOUT;
-    
+
     const ProxyMixin = require("./ProxyMixin");
     ProxyMixin(this);
 
@@ -20,8 +20,8 @@ function CloudEnclave(clientDID, remoteDID, requestTimeout) {
             console.log(err);
         }
         this.initialised = true;
-        this.dispatchEvent("initialised");
-        this.subscribe();
+        this.finishInitialisation();
+        subscribe();
     }
 
     this.isInitialised = () => {
@@ -44,19 +44,15 @@ function CloudEnclave(clientDID, remoteDID, requestTimeout) {
         const commandID = JSON.parse(command).commandID;
         this.commandsMap.set(commandID, { "callback": callback, "time": Date.now() });
 
-        if (this.commandsMap.size === 1) {
-            this.clientDIDDocument.startWaitingForMessages();
-        }
-
         this.clientDIDDocument.sendMessage(command, this.remoteDIDDocument, (err, res) => {
+            console.log("Sent command with id " + commandID)
             if (err) {
                 console.log(err);
             }
-            setTimeout(this.checkTimeout, this.requestTimeout, commandID);
         });
     }
 
-    this.subscribe = () => {
+    const subscribe = () => {
         this.clientDIDDocument.subscribe((err, res) => {
             if (err) {
                 console.log(err);
@@ -72,28 +68,16 @@ function CloudEnclave(clientDID, remoteDID, requestTimeout) {
 
                 const callback = this.commandsMap.get(commandID).callback;
                 callback(err, JSON.stringify(commandResult));
-
-                this.commandsMap.delete(commandID);
-                if (this.commandsMap.size === 0) {
-                    this.clientDIDDocument.stopWaitingForMessages();
-                }
+                console.log("Deleting resolverd command with id " + commandID)
+                this.commandsMap.delete(commandID)
             }
             catch (err) {
                 console.log(err);
             }
         })
     }
-
-    this.checkTimeout = (commandID) => {
-        if (!this.commandsMap.has(commandID)) return;
-
-        const callback = this.commandsMap.get(commandID).callback;
-        callback(createOpenDSUErrorWrapper(`Timeout for command ${commandID}`), undefined);
-        this.commandsMap.delete(commandID);
-        if (this.commandsMap.size === 0) {
-            this.clientDIDDocument.stopWaitingForMessages();
-        }
-    }
+    const bindAutoPendingFunctions = require("../../utils/BindAutoPendingFunctions").bindAutoPendingFunctions;
+    bindAutoPendingFunctions(this, ["on", "off", "dispatchEvent", "beginBatch", "isInitialised", "getEnclaveType"]);
 
     init();
 }

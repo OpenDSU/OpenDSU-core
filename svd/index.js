@@ -8,8 +8,9 @@ class FsSVDStorage {
     registerType(typeName, typeDescription) {
         this.factory.registerType(typeName, typeDescription);
     }
-    createSession() {
-        return new FastSVD.createSession(this.factory);
+    createTransaction(callback) {
+        let t =  new FastSVD.createTransaction(this.factory);
+        t.begin(callback);
     }
 }
 
