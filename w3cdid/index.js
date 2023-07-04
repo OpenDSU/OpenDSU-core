@@ -29,7 +29,7 @@ const methodsNames = require("./didMethodsNames");
 let methodRegistry = {};
 
 const openDSU = require("opendsu");
-const dbAPI = openDSU.loadAPI("db");
+const scAPI = openDSU.loadAPI("sc");
 
 /*
     Create a new W3CDID based on SeedSSI
@@ -94,10 +94,10 @@ function we_createIdentity(enclave, didMethod, ...args) {
         });
     }
     if (typeof enclave === "undefined") {
-        if (!dbAPI.mainEnclaveIsInitialised()) {
+        if (!scAPI.mainEnclaveIsInitialised()) {
             return methodRegistry[didMethod].create(enclave, ...args, callback);
         }
-        dbAPI.getMainEnclave((err, mainEnclave) => {
+        scAPI.getMainEnclave((err, mainEnclave) => {
             if (err) {
                 return callback(err);
             }
@@ -127,11 +127,11 @@ function we_resolveDID(enclave, identifier, callback) {
     }
 
     if (typeof enclave === "undefined") {
-        if (!dbAPI.mainEnclaveIsInitialised()) {
+        if (!scAPI.mainEnclaveIsInitialised()) {
             methodRegistry[method].resolve(undefined, tokens, callback);
             return;
         }
-        dbAPI.getMainEnclave((err, mainEnclave) => {
+        scAPI.getMainEnclave((err, mainEnclave) => {
             if (err) {
                 return callback(err);
             }

@@ -1,5 +1,7 @@
 const KeySSIResolver = require("key-ssi-resolver");
-const keySSISpace = require("opendsu").loadApi("keyssi");
+const openDSU = require("opendsu");
+const keySSISpace = openDSU.loadAPI("keyssi");
+const crypto = openDSU.loadAPI("crypto");
 const constants = require("../moduleConstants");
 
 let {ENVIRONMENT_TYPES, KEY_SSIS} = require("../moduleConstants.js");
@@ -92,6 +94,13 @@ const createVersionlessDSU = (filePath, encryptionKey, domain, callback) => {
     }
     if (typeof encryptionKey === "function") {
         callback = encryptionKey;
+        domain = bdnsSpace.getOriginPlaceholder();
+        encryptionKey = undefined;
+    }
+
+    if(typeof filePath === "function") {
+        callback = filePath;
+        filePath = crypto.generateRandom(32).toString("hex");
         domain = bdnsSpace.getOriginPlaceholder();
         encryptionKey = undefined;
     }

@@ -15,32 +15,26 @@ function VersionlessDSUEnclave(keySSI, did) {
     const init = async () => {
         if (!keySSI) {
             try {
-                keySSI = await $$.promisify(config.getEnv)(openDSU.constants.MAIN_ENCLAVE.KEY_SSI);
-            } catch (e) {}
+                versionlessDSU = await $$.promisify(resolver.createVersionlessDSU)();
+            } catch (e) {
+                throw createOpenDSUErrorWrapper(`Failed to create versionless DSU`, e);
+            }
 
-            if (!keySSI) {
-                try {
-                    versionlessDSU = await $$.promisify(resolver.createVersionlessDSU)("/");
-                } catch (e) {
-                    throw createOpenDSUErrorWrapper(`Failed to create versionless DSU`, e);
-                }
-
-                try {
-                    keySSI = await $$.promisify(versionlessDSU.getKeySSIAsString)();
-                } catch (e) {
-                    throw createOpenDSUErrorWrapper(`Failed to get enclave DSU KeySSI`, e);
-                }
-                try {
-                    await $$.promisify(config.setEnv)(openDSU.constants.MAIN_ENCLAVE.KEY_SSI, keySSI);
-                } catch (e) {
-                    throw createOpenDSUErrorWrapper(`Failed to store enclave DSU KeySSI`, e);
-                }
+            try {
+                keySSI = await $$.promisify(versionlessDSU.getKeySSIAsString)();
+            } catch (e) {
+                throw createOpenDSUErrorWrapper(`Failed to get enclave DSU KeySSI`, e);
+            }
+            try {
+                await $$.promisify(config.setEnv)(openDSU.constants.MAIN_ENCLAVE.KEY_SSI, keySSI);
+            } catch (e) {
+                throw createOpenDSUErrorWrapper(`Failed to store enclave DSU KeySSI`, e);
             }
         }
 
         await $$.promisify(resolver.invalidateDSUCache)(keySSI);
 
-        this.storageDB = db.getSimpleWalletDB(DB_NAME, { keySSI });
+        this.storageDB = db.getVersionlessDB(DB_NAME, {keySSI});
         this.storageDB.on("error", (err) => {
             this.dispatchEvent("error", err);
         });
@@ -51,7 +45,8 @@ function VersionlessDSUEnclave(keySSI, did) {
             let privateKey;
             try {
                 privateKey = await $$.promisify(this.storageDB.getRecord)(constants.TABLE_NAMES.PATH_KEY_SSI_PRIVATE_KEYS, 0);
-            } catch (e) {}
+            } catch (e) {
+            }
             if (!privateKey) {
                 await $$.promisify(this.storageDB.insertRecord)(constants.TABLE_NAMES.PATH_KEY_SSI_PRIVATE_KEYS, 0, {
                     privateKey: keySSI.getEncryptionKey(),

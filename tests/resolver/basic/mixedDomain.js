@@ -1,4 +1,4 @@
-require("../../../../../psknode/bundles/testsRuntime");
+require("../../../../../builds/output/testsRuntime");
 const keySSIResolver = require("key-ssi-resolver");
 const { BRICKS_DOMAIN_KEY } = require("../../../moduleConstants");
 const dc = require("double-check");

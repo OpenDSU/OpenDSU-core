@@ -1,4 +1,4 @@
-require("../../../../psknode/bundles/testsRuntime");
+require("../../../../builds/output/testsRuntime");
 const tir = require("../../../../psknode/tests/util/tir");
 
 const dc = require("double-check");
@@ -19,7 +19,7 @@ assert.callback('Remote enclave test', (testFinished) => {
             "enable": ["enclave", "mq"]
         }
         const domain = "mqtestdomain";
-        process.env.REMOTE_ENCLAVE_SECRET = "some secret";
+        process.env.CLOUD_ENCLAVE_SECRET = "some secret";
         await tir.launchConfigurableApiHubTestNodeAsync({ domains: [{ name: domain, config: vaultDomainConfig }] });
         const sc = scAPI.getSecurityContext();
 
@@ -27,7 +27,7 @@ assert.callback('Remote enclave test', (testFinished) => {
             try {
                 
                 const clientDIDDocument = await $$.promisify(w3cDID.createIdentity)("ssi:name", domain, "client");
-                const remoteDIDDocument = await $$.promisify(w3cDID.createIdentity)("key", domain, process.env.REMOTE_ENCLAVE_SECRET);
+                const remoteDIDDocument = await $$.promisify(w3cDID.createIdentity)("key", domain, process.env.CLOUD_ENCLAVE_SECRET);
 
                 const remoteEnclave = enclaveAPI.initialiseRemoteEnclave(clientDIDDocument.getIdentifier(), remoteDIDDocument.getIdentifier());
                 const TABLE = "test_table";

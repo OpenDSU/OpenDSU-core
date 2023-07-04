@@ -1,6 +1,6 @@
 process.env.OPENDSU_ENABLE_DEBUG = true;
 process.env.DEV = true;
-require("../../../../psknode/bundles/testsRuntime");
+require("../../../../builds/output/testsRuntime");
 const tir = require("../../../../psknode/tests/util/tir");
 
 const dc = require("double-check");

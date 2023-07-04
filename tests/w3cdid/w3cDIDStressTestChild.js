@@ -1,6 +1,6 @@
 process.env.NO_LOGS = true;
 
-require("../../../../../opendsu-sdk/psknode/bundles/openDSU");
+require("../../../../../opendsu-sdk/builds/output/openDSU");
 
 const opendsu = require("opendsu");
 const openDSU = require("../../index");

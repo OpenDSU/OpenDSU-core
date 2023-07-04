@@ -1,12 +1,10 @@
-require("../../../../../psknode/bundles/testsRuntime");
+require("../../../../../builds/output/testsRuntime");
 $$.LEGACY_BEHAVIOUR_ENABLED = true;
 const { getNonEncryptedAndEncryptedDSUTester, getDSUTesters } = require("./utils");
 
 const dc = require("double-check");
 const { assert } = dc;
 const crypto = require("crypto");
-$$.LEGACY_BEHAVIOUR_ENABLED = true;
-
 assert.callback(
     "VersionlessDSU mounts test",
     getNonEncryptedAndEncryptedDSUTester(async (dsuTester) => {
@@ -41,8 +39,8 @@ assert.callback(
 
         // mount inner DSU
         await dsuTester.callStandardDSUMethod("mount", ["/mount-path/inner-mount", dsuKeySSIToMount2]);
-        // refresh DSU mounted by both standard and versionless in order to see same changes
-        await dsuTester.refreshDSU(dsuToMount);
+        
+        // 
 
         await dsuTester.callVersionlessDSUMethod("createFolder", ["/mount-path/inner-mount/demo"]);
         await dsuTester.callMethod("writeFile", ["/mount-path/inner-mount/demo2.txt", FILE_CONTENT_2]);
@@ -75,8 +73,8 @@ assert.callback(
         const dsuKeySSIToMount2 = await $$.promisify(dsuToMount2.getKeySSIAsString)();
         await dsuTester.callStandardDSUMethod("mount", ["/mount-path/inner-mount", dsuKeySSIToMount2]);
 
-        // refresh DSU mounted by both standard and versionless in order to see same changes
-        await dsuTester.refreshDSU(dsuToMount);
+        
+        
 
         await dsuTester.callMethodWithResultComparison("getSSIForMount", ["/"]);
         await dsuTester.callMethodWithResultComparison("getSSIForMount", ["/mount-path"]);

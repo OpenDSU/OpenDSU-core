@@ -1,4 +1,4 @@
-require("../../../../../psknode/bundles/testsRuntime");
+require("../../../../../builds/output/testsRuntime");
 const { assertBlockFailure, getNonEncryptedAndEncryptedDSUTester} = require("./utils");
 $$.LEGACY_BEHAVIOUR_ENABLED = true;
 const dc = require("double-check");
@@ -95,8 +95,8 @@ assert.callback(
         const dsuKeySSIToMount2 = await $$.promisify(dsuToMount2.getKeySSIAsString)();
         await dsuTester.callStandardDSUMethod("mount", ["/mount-path/inner-mount", dsuKeySSIToMount2]);
 
-        // refresh DSU mounted by both standard and versionless in order to see same changes
-        await dsuTester.refreshDSU(dsuToMount);
+        
+        
 
         // create and delete file in inner mounted DSU
         for (const filePath of ["mount-path/inner-mount/demo1.txt", "/mount-path/inner-mount/demo1.txt"]) {

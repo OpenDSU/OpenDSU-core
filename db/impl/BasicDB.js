@@ -80,6 +80,10 @@ function BasicDB(storageStrategy, conflictSolvingStrategy, options) {
 
     this.query = this.filter;
 
+    this.getAllTableNames = function (callback) {
+        storageStrategy.getAllTableNames(callback);
+    }
+
     function getDefaultCallback(message, tableName, key) {
         return function (err, res) {
             if (err) {

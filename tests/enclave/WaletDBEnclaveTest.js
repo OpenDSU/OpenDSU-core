@@ -1,4 +1,4 @@
-require("../../../../psknode/bundles/testsRuntime");
+require("../../../../builds/output/testsRuntime");
 const tir = require("../../../../psknode/tests/util/tir");
 
 const dc = require("double-check");
@@ -25,7 +25,7 @@ assert.callback('WalletDBEnclave test', (testFinished) => {
             const TABLE = "test_table";
             const addedRecord = {data: 1};
             try {
-                await $$.promisify(walletDBEnclave.insertRecord)("some_did", TABLE, "pk1", {data: "encrypted"}, addedRecord);
+                await $$.promisify(walletDBEnclave.insertRecord)("some_did", TABLE, "pk1", addedRecord);
                 const record = await $$.promisify(walletDBEnclave.getRecord)("some_did", TABLE, "pk1");
                 const enclaveDID = await $$.promisify(walletDBEnclave.getDID)();
                 console.log(enclaveDID)
