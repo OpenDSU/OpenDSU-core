@@ -3,12 +3,8 @@ const double_check = require("double-check");
 const assert = double_check.assert;
 const db = require("../../../db");
 const tir = require("../../../../../psknode/tests/util/tir");
-const keySSIApis = require("../../../keyssi");
-
-require("callflow").initialise();
-//ow.register("opendsu", "../index.js")
-
-$$.flows.describe("FilterDB", {
+$$.LEGACY_BEHAVIOUR_ENABLED = true;
+const inMemoryDBTest = {
     start: function (callback) {
         this.callback = callback;
 
@@ -121,8 +117,7 @@ $$.flows.describe("FilterDB", {
             this.callback()
         });
     }
-});
-
+}
 assert.callback("DB filtering test", (callback) => {
-    $$.flows.start("FilterDB", "start", callback);
+    inMemoryDBTest.start(callback);
 }, 10000);
