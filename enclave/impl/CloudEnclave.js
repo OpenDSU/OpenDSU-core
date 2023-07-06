@@ -21,6 +21,7 @@ function CloudEnclave(clientDID, remoteDID, requestTimeout) {
         }
         this.initialised = true;
         this.finishInitialisation();
+        this.dispatchEvent("initialised");
         subscribe();
     }
 
