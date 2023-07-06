@@ -253,12 +253,12 @@ function BasicDB(storageStrategy, conflictSolvingStrategy, options) {
         storageStrategy.beginBatch()
     }
 
-    this.safeBeginBatch = (callback) => {
-        storageStrategy.safeBeginBatch(callback);
+    this.safeBeginBatch = (wait, callback) => {
+        storageStrategy.safeBeginBatch(wait, callback);
     }
 
-    this.safeBeginBatchAsync = async () => {
-        return await storageStrategy.safeBeginBatchAsync();
+    this.safeBeginBatchAsync = async (wait) => {
+        return await storageStrategy.safeBeginBatchAsync(wait);
     }
 
     this.cancelBatch = (callback) => {

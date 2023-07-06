@@ -63,7 +63,11 @@ function InMemoryMainDSU() {
         return batchInProgress;
     }
 
-    this.safeBeginBatch = (callback) => {
+    this.safeBeginBatch = (wait, callback) => {
+        if(typeof wait === "function"){
+            callback = wait;
+            wait = false;
+        }
         if (this.batchInProgress()) {
             return callback(Error("Batch already in progress"));
         }
@@ -71,8 +75,8 @@ function InMemoryMainDSU() {
         callback();
     }
 
-    this.safeBeginBatchAsync = async () => {
-        return convertGetFunctionToAsync(this.safeBeginBatch);
+    this.safeBeginBatchAsync = async (wait) => {
+        return convertGetFunctionToAsync(this.safeBeginBatch, wait);
     }
 
     this.commitBatch = (callback) => {

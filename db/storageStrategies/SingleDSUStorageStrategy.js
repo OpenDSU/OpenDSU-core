@@ -28,12 +28,12 @@ function SingleDSUStorageStrategy(recordStorageStrategy) {
         }
     }
 
-    this.safeBeginBatch = (callback) => {
-        storageDSU.safeBeginBatch(callback);
+    this.safeBeginBatch = (wait, callback) => {
+        storageDSU.safeBeginBatch(wait, callback);
     }
 
-    this.safeBeginBatchAsync = async () => {
-        return await storageDSU.safeBeginBatchAsync();
+    this.safeBeginBatchAsync = async (wait) => {
+        return await storageDSU.safeBeginBatchAsync(wait);
     }
 
     this.cancelBatch = (callback) => {

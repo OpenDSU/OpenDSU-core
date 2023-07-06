@@ -183,11 +183,15 @@ function MemoryStorageStrategy() {
     this.beginBatch = () => {
     }
 
-    this.safeBeginBatch = (callback) => {
+    this.safeBeginBatch = (wait, callback) => {
+        if(typeof wait === "function") {
+            callback = wait;
+            wait = false;
+        }
         callback(undefined);
     }
 
-    this.safeBeginBatchAsync = async () => {
+    this.safeBeginBatchAsync = async (wait) => {
 
     }
 
