@@ -112,10 +112,10 @@ function BasicDB(storageStrategy, conflictSolvingStrategy, options) {
                 return callback(createOpenDSUErrorWrapper("Failed to insert over an existing record", new Error(errorAPI.DB_INSERT_EXISTING_RECORD_ERROR)));
             }
             const sharedDSUMetadata = {}
-            sharedDSUMetadata.__version = 0;
+            sharedDSUMetadata.__version = record.__version || 0;
             sharedDSUMetadata.pk = key;
             //sharedDSUMetadata.__changeId = uid();
-            sharedDSUMetadata.__timestamp = Date.now();
+            sharedDSUMetadata.__timestamp = record.__timestamp || Date.now();
             storageStrategy.insertRecord(tableName, key, Object.assign(sharedDSUMetadata, record), (err, res) => {
                 if (err) {
                     return callback(createOpenDSUErrorWrapper(`Failed to insert record with key ${key} in table ${tableName} `, err));
