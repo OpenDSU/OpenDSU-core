@@ -10,9 +10,9 @@ function initialiseMemoryEnclave() {
     return new MemoryEnclave();
 }
 
-function initialiseAPIHUBProxy(domain, did) {
-    const APIHUBProxy = require("./impl/APIHUBProxy");
-    return new APIHUBProxy(domain, did);
+function initialiseLokiAdapterClient() {
+    const LokiAdapterClient = require("./impl/LokiAdapterClient");
+    return new LokiAdapterClient();
 }
 
 function initialiseHighSecurityProxy(domain, did) {
@@ -158,7 +158,7 @@ function convertWalletDBEnclaveToCloudEnclave(walletDBEnclave, cloudEnclaveServe
 
 registerEnclave(constants.ENCLAVE_TYPES.MEMORY_ENCLAVE, initialiseMemoryEnclave);
 registerEnclave(constants.ENCLAVE_TYPES.WALLET_DB_ENCLAVE, initialiseWalletDBEnclave);
-registerEnclave(constants.ENCLAVE_TYPES.APIHUB_ENCLAVE, initialiseAPIHUBProxy);
+registerEnclave(constants.ENCLAVE_TYPES.APIHUB_ENCLAVE, initialiseLokiAdapterClient);
 registerEnclave(constants.ENCLAVE_TYPES.HIGH_SECURITY_ENCLAVE, initialiseHighSecurityProxy);
 registerEnclave(constants.ENCLAVE_TYPES.MQ_PROXY_ENCLAVE, initialiseRemoteEnclave)
 registerEnclave(constants.ENCLAVE_TYPES.VERSIONLESS_DSU_ENCLAVE, initialiseVersionlessDSUEnclave);
@@ -166,8 +166,7 @@ registerEnclave(constants.ENCLAVE_TYPES.VERSIONLESS_DSU_ENCLAVE, initialiseVersi
 module.exports = {
     initialiseWalletDBEnclave,
     initialiseMemoryEnclave,
-    initialiseAPIHUBProxy,
-    initialiseHighSecurityProxy,
+    initialiseLokiAdapterClient,
     initialiseRemoteEnclave,
     initialiseCloudEnclave: initialiseRemoteEnclave,
     initialiseVersionlessDSUEnclave,
