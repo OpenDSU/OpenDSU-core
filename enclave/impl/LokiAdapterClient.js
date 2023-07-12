@@ -4,9 +4,6 @@ function LokiAdapterClient() {
     const openDSU = require("opendsu");
     const http = openDSU.loadAPI("http");
     const system = openDSU.loadAPI("system");
-    const w3cDID = openDSU.loadAPI("w3cdid");
-    const scAPI = openDSU.loadAPI("sc");
-    const CryptoSkills = w3cDID.CryptographicSkills;
     let initialised = false;
     const ProxyMixin = require("./ProxyMixin");
     ProxyMixin(this);
