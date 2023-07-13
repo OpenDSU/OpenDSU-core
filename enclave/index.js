@@ -10,14 +10,9 @@ function initialiseMemoryEnclave() {
     return new MemoryEnclave();
 }
 
-function initialiseLokiAdapterClient() {
-    const LokiAdapterClient = require("./impl/LokiAdapterClient");
-    return new LokiAdapterClient();
-}
-
-function initialiseHighSecurityProxy(domain, did) {
-    const HighSecurityProxy = require("./impl/HighSecurityProxy");
-    return new HighSecurityProxy(domain, did)
+function initialiseLightDBEnclaveClient() {
+    const LightDBEnclaveClient = require("./impl/LightDBEnclaveClient");
+    return new LightDBEnclaveClient();
 }
 
 function initialiseRemoteEnclave(clientDID, remoteDID) {
@@ -163,14 +158,14 @@ function convertWalletDBEnclaveToCloudEnclave(walletDBEnclave, cloudEnclaveServe
 
 registerEnclave(constants.ENCLAVE_TYPES.MEMORY_ENCLAVE, initialiseMemoryEnclave);
 registerEnclave(constants.ENCLAVE_TYPES.WALLET_DB_ENCLAVE, initialiseWalletDBEnclave);
-registerEnclave(constants.ENCLAVE_TYPES.LIGHT_DB_ENCLAVE, initialiseLokiAdapterClient);
-registerEnclave(constants.ENCLAVE_TYPES.CLOUD_ENCLAVE, initialiseRemoteEnclave)
+registerEnclave(constants.ENCLAVE_TYPES.LIGHT_DB_ENCLAVE, initialiseLightDBEnclaveClient);
+registerEnclave(constants.ENCLAVE_TYPES.CLOUD_ENCLAVE, initialiseCloudEnclaveClient)
 registerEnclave(constants.ENCLAVE_TYPES.VERSIONLESS_DSU_ENCLAVE, initialiseVersionlessDSUEnclave);
 
 module.exports = {
     initialiseWalletDBEnclave,
     initialiseMemoryEnclave,
-    initialiseLokiAdapterClient,
+    initialiseLightDBEnclaveClient,
     initialiseRemoteEnclave,
     initialiseCloudEnclaveClient,
     initialiseVersionlessDSUEnclave,

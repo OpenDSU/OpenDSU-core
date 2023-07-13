@@ -17,7 +17,7 @@ assert.callback('Get all records test', (testFinished) => {
             }
         }
         // await $$.promisify(launchApiHubTestNode)(10, folder);
-        const lokiAdapterClient = enclaveAPI.initialiseLokiAdapterClient();
+        const lokiAdapterClient = enclaveAPI.initialiseLightDBEnclaveClient();
         const TABLE = "test_table";
         let noRecords = 10000;
         const TaskCounter = require("swarmutils").TaskCounter;
