@@ -21,10 +21,15 @@ function initialiseHighSecurityProxy(domain, did) {
 }
 
 function initialiseRemoteEnclave(clientDID, remoteDID) {
-    const CloudEnclave = require("./impl/CloudEnclave");
+    console.warn("initialiseRemoteEnclave is deprecated. Use initialiseCloudEnclaveClient instead");
+    const CloudEnclave = require("./impl/CloudEnclaveClient");
     return new CloudEnclave(clientDID, remoteDID);
 }
 
+function initialiseCloudEnclaveClient(clientDID, remoteDID) {
+    const CloudEnclave = require("./impl/CloudEnclaveClient");
+    return new CloudEnclave(clientDID, remoteDID);
+}
 function initialiseVersionlessDSUEnclave(versionlessSSI) {
     const VersionlessDSUEnclave = require("./impl/VersionlessDSUEnclave");
     return new VersionlessDSUEnclave(versionlessSSI);
@@ -158,9 +163,8 @@ function convertWalletDBEnclaveToCloudEnclave(walletDBEnclave, cloudEnclaveServe
 
 registerEnclave(constants.ENCLAVE_TYPES.MEMORY_ENCLAVE, initialiseMemoryEnclave);
 registerEnclave(constants.ENCLAVE_TYPES.WALLET_DB_ENCLAVE, initialiseWalletDBEnclave);
-registerEnclave(constants.ENCLAVE_TYPES.APIHUB_ENCLAVE, initialiseLokiAdapterClient);
-registerEnclave(constants.ENCLAVE_TYPES.HIGH_SECURITY_ENCLAVE, initialiseHighSecurityProxy);
-registerEnclave(constants.ENCLAVE_TYPES.MQ_PROXY_ENCLAVE, initialiseRemoteEnclave)
+registerEnclave(constants.ENCLAVE_TYPES.LIGHT_DB_ENCLAVE, initialiseLokiAdapterClient);
+registerEnclave(constants.ENCLAVE_TYPES.CLOUD_ENCLAVE, initialiseRemoteEnclave)
 registerEnclave(constants.ENCLAVE_TYPES.VERSIONLESS_DSU_ENCLAVE, initialiseVersionlessDSUEnclave);
 
 module.exports = {
@@ -168,7 +172,7 @@ module.exports = {
     initialiseMemoryEnclave,
     initialiseLokiAdapterClient,
     initialiseRemoteEnclave,
-    initialiseCloudEnclave: initialiseRemoteEnclave,
+    initialiseCloudEnclaveClient,
     initialiseVersionlessDSUEnclave,
     connectEnclave,
     createEnclave,

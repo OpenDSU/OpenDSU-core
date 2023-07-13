@@ -41,10 +41,9 @@ module.exports = {
     ENCLAVE_TYPES: {
         WALLET_DB_ENCLAVE: "WalletDBEnclave",
         MEMORY_ENCLAVE: "MemoryEnclave",
-        APIHUB_ENCLAVE: "ApihubEnclave",
-        HIGH_SECURITY_ENCLAVE: "HighSecurityEnclave",
         VERSIONLESS_DSU_ENCLAVE: "VersionlessDSUEnclave",
-        MQ_PROXY_ENCLAVE: "MQProxyEnclave"
+        CLOUD_ENCLAVE: "CloudEnclave",
+        LIGHT_DB_ENCLAVE: "LightDBEnclave",
     },
     CACHE: {
         FS: "fs",

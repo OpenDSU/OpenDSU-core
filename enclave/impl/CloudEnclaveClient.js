@@ -1,6 +1,6 @@
 const { createCommandObject } = require("./lib/createCommandObject");
 
-function CloudEnclave(clientDID, remoteDID, requestTimeout) {
+function CloudEnclaveClient(clientDID, remoteDID, requestTimeout) {
     let initialised = false;
     const DEFAULT_TIMEOUT = 30000;
 
@@ -83,4 +83,4 @@ function CloudEnclave(clientDID, remoteDID, requestTimeout) {
     init();
 }
 
-module.exports = CloudEnclave;
+module.exports = CloudEnclaveClient;

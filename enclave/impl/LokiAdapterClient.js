@@ -1,6 +1,6 @@
 const {createCommandObject} = require("./lib/createCommandObject");
 
-function LokiAdapterClient() {
+function LightDBEnclaveClient() {
     const openDSU = require("opendsu");
     const http = openDSU.loadAPI("http");
     const system = openDSU.loadAPI("system");
@@ -20,4 +20,4 @@ function LokiAdapterClient() {
     }
 }
 
-module.exports = LokiAdapterClient;
+module.exports = LightDBEnclaveClient;
