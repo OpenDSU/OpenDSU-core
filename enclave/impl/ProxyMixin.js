@@ -10,15 +10,23 @@ function ProxyMixin(target) {
             callback = encryptedRecord;
             encryptedRecord = undefined;
         }
-        target.__putCommandObject(commandNames.INSERT_RECORD, forDID, table, pk, plainRecord, callback);
+
+        if(!encryptedRecord){
+            encryptedRecord = plainRecord;
+        }
+        target.__putCommandObject(commandNames.INSERT_RECORD, forDID, table, pk, encryptedRecord, callback);
     };
 
     target.updateRecord = (forDID, table, pk, plainRecord, encryptedRecord, callback) => {
         if (typeof encryptedRecord === "function") {
             callback = encryptedRecord;
-            encryptedRecord = undefined;
+            encryptedRecord = plainRecord;
         }
-        target.__putCommandObject(commandNames.UPDATE_RECORD, forDID, table, pk, plainRecord, callback);
+
+        if(!encryptedRecord){
+            encryptedRecord = plainRecord;
+        }
+        target.__putCommandObject(commandNames.UPDATE_RECORD, forDID, table, pk, encryptedRecord, callback);
     }
 
     target.getRecord = (forDID, table, pk, callback) => {

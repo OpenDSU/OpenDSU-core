@@ -145,6 +145,9 @@ function Enclave_Mixin(target, did, keySSI) {
             callback = encryptedRecord;
             encryptedRecord = plainRecord;
         }
+        if(!encryptedRecord){
+            encryptedRecord = plainRecord;
+        }
         target.storageDB.insertRecord(table, pk, encryptedRecord, callback);
     }
 
