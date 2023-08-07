@@ -34,7 +34,7 @@ assert.callback('communicationHub test', async (testFinished) => {
             domains: [{
                 name: "vault",
                 config: vaultDomainConfig
-            }, {name: domain, config: DOMAIN_CONFIG}]
+            }, {name: domain, config: DOMAIN_CONFIG}], rootFolder: folder
         });
         sc = scAPI.getSecurityContext();
         sc.on("initialised", async () => {

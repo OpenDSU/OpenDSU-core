@@ -20,7 +20,7 @@ assert.callback('Shared enclave db test', (testFinished) => {
         }
 
         try {
-            await tir.launchConfigurableApiHubTestNodeAsync({domains: [{name: "vault", config: vaultDomainConfig}]});
+            await tir.launchConfigurableApiHubTestNodeAsync({domains: [{name: "vault", config: vaultDomainConfig}], rootFolder: folder});
             const seedDSU = await $$.promisify(resolver.createSeedDSU)("vault");
             const keySSI = await $$.promisify(seedDSU.getKeySSIAsString)();
             const mainEnclave = dbAPI.getMainEnclave();

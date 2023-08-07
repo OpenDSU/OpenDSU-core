@@ -19,7 +19,8 @@ assert.callback('Get capable of signing SSI', (testfinished) => {
             domains: [{
                 name: "vault",
                 config: vaultDomainConfig
-            }]
+            }],
+            rootFolder: folder
         });
 
         const domain = 'default';

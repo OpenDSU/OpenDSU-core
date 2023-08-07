@@ -32,7 +32,8 @@ assert.callback('Ordered messages read-write from MQ', (testFinished) => {
             domains: [
                 {name: "vault", config: vaultDomainConfig},
                 {name: domain, config: domainConfig}
-            ]
+            ],
+            rootFolder: folder
         });
         sc = scAPI.getSecurityContext();
         sc.on("initialised", async () => {

@@ -9,7 +9,7 @@ const enclaveAPI = openDSU.loadAPI("enclave");
 const scAPI = openDSU.loadAPI("sc");
 
 assert.callback('Generate DID on WalletDB test', (testFinished) => {
-    dc.createTestFolder('createDSU', async () => {
+    dc.createTestFolder('createDSU', async (err, folder) => {
         const domainConfig = {
             "anchoring": {
                 "type": "FS",
@@ -17,7 +17,7 @@ assert.callback('Generate DID on WalletDB test', (testFinished) => {
             }
         }
         const domain = "generateDIDTestdomain";
-        await tir.launchConfigurableApiHubTestNodeAsync({ domains: [{ name: domain, config: domainConfig }] });
+        await tir.launchConfigurableApiHubTestNodeAsync({ domains: [{ name: domain, config: domainConfig }], rootFolder: folder });
         const sc = scAPI.getSecurityContext();
         sc.on("initialised", async () => {
             const walletDBEnclave = enclaveAPI.initialiseWalletDBEnclave();

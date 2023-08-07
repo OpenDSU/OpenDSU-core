@@ -19,7 +19,7 @@ assert.callback('key DID SSI test', (testFinished) => {
                 "option": {}
             }
         }
-        await tir.launchConfigurableApiHubTestNodeAsync({ domains: [{ name: "vault", config: vaultDomainConfig }] });
+        await tir.launchConfigurableApiHubTestNodeAsync({ domains: [{ name: "vault", config: vaultDomainConfig }], rootFolder: folder });
         sc = scAPI.getSecurityContext();
         sc.on("initialised", async () => {
             try {

@@ -6,15 +6,9 @@ const assert = dc.assert;
 assert.callback(
     "Testing insertRecord and getRecord from main enclave db",
     async (testDone) => {
-        await tir.launchConfigurableApiHubTestNodeAsync();
-
-        const env = {
-            domain: "default",
-        };
-
+        const rootFolder = await $$.promisify(dc.createTestFolder)("createDSU");
+        await tir.launchConfigurableApiHubTestNodeAsync({rootFolder});
         const openDSU = require("opendsu");
-        const resolver = openDSU.loadAPI("resolver");
-        const sc = openDSU.loadAPI("sc").getSecurityContext();
         const dbAPI = openDSU.loadAPI("db");
 
         const testStorage = await $$.promisify(dbAPI.getMainEnclaveDB)();

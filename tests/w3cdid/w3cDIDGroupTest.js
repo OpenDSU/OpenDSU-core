@@ -103,7 +103,7 @@ assert.callback(
                 domains: [{
                     name: "vault",
                     config: vaultDomainConfig
-                }, {name: DOMAIN, config: DOMAIN_CONFIG}]
+                }, {name: DOMAIN, config: DOMAIN_CONFIG}], rootFolder: folder
             });
 
             const resolver = openDSU.loadAPI("resolver");

@@ -16,7 +16,7 @@ assert.callback('Initialise security context test', (testFinished) => {
                 "option": {}
             }
         }
-        await tir.launchConfigurableApiHubTestNodeAsync({domains: [{name: "vault", config: vaultDomainConfig}]});
+        await tir.launchConfigurableApiHubTestNodeAsync({domains: [{name: "vault", config: vaultDomainConfig}], rootFolder: folder});
         const sc = scAPI.getSecurityContext();
         const seedSSI = await $$.promisify(keySSISpace.createSeedSSI)("default");
         const alias = await $$.promisify(sc.registerKeySSI)("someDID", seedSSI);

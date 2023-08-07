@@ -11,7 +11,8 @@ const scAPI = openDSU.loadAPI("sc");
 assert.callback(
     "w3cDIDSignTest",
     async (testFinished) => {
-        await tir.launchConfigurableApiHubTestNodeAsync();
+        const rootFolder = await $$.promisify(dc.createTestFolder)("createDSU");
+        await tir.launchConfigurableApiHubTestNodeAsync({rootFolder});
         let sc = scAPI.getSecurityContext();
         sc.on("initialised", async () => {
             try {

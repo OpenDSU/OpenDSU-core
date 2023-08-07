@@ -21,7 +21,7 @@ assert.callback('Remote enclave test', (testFinished) => {
         }
 
         const domain = "mqtestdomain";
-        await tir.launchConfigurableApiHubTestNodeAsync({domains: [{name: domain, config: vaultDomainConfig}]});
+        await tir.launchConfigurableApiHubTestNodeAsync({domains: [{name: domain, config: vaultDomainConfig}], rootFolder: folder});
 
         const runAssertions = async () => {
             try {

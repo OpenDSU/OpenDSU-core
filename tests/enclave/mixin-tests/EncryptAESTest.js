@@ -9,14 +9,14 @@ const enclaveAPI = openDSU.loadAPI("enclave");
 const scAPI = openDSU.loadAPI("sc");
 
 assert.callback('Encrypt AES on Walled DB test', (testFinished) => {
-    dc.createTestFolder('createDSU', async () => {
+    dc.createTestFolder('createDSU', async (err, folder) => {
         const vaultDomainConfig = {
             "anchoring": {
                 "type": "FS",
                 "option": {}
             }
         }
-        await tir.launchConfigurableApiHubTestNodeAsync({ domains: [{ name: "vault", config: vaultDomainConfig }] });
+        await tir.launchConfigurableApiHubTestNodeAsync({ domains: [{ name: "vault", config: vaultDomainConfig }], rootFolder: folder });
         const sc = scAPI.getSecurityContext();
         sc.on("initialised", async () => {
             const walletDBEnclave = enclaveAPI.initialiseWalletDBEnclave();

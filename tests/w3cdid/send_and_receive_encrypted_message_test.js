@@ -40,7 +40,7 @@ assert.callback(
                 domains: [{
                     name: "vault",
                     config: vaultDomainConfig
-                }, {name: domain, config: DOMAIN_CONFIG}]
+                }, {name: domain, config: DOMAIN_CONFIG}], rootFolder: folder
             });
 
             const dataToSend = "someData";

@@ -19,7 +19,7 @@ assert.callback('w3cDID MQ test', (testFinished) => {
             },
             "enable": ["mq"]
         }
-        await tir.launchConfigurableApiHubTestNodeAsync({domains: [{name: "vault", config: vaultDomainConfig}]});
+        await tir.launchConfigurableApiHubTestNodeAsync({domains: [{name: "vault", config: vaultDomainConfig}], rootFolder: folder});
         let sc = scAPI.getSecurityContext();
         sc.on("initialised", async () => {
             w3cDID.createIdentity("demo", (err, firstDIDDocument) => {

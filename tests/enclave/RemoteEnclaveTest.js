@@ -22,7 +22,7 @@ assert.callback('Remote enclave test', (testFinished) => {
 
         const domain = "mqtestdomain";
         process.env.CLOUD_ENCLAVE_SECRET = "some secret";
-        await tir.launchConfigurableApiHubTestNodeAsync({domains: [{name: domain, config: vaultDomainConfig}]});
+        await tir.launchConfigurableApiHubTestNodeAsync({domains: [{name: domain, config: vaultDomainConfig}], rootFolder: folder});
         const serverDID = await tir.launchConfigurableCloudEnclaveTestNodeAsync({
             rootFolder: folder,
             domain,

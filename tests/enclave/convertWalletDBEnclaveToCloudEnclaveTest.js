@@ -17,7 +17,7 @@ assert.callback('Convert WalletDBEnclave to CloudEnclave test', (testFinished) =
             }
         }
         const domain = "vault";
-        await tir.launchConfigurableApiHubTestNodeAsync({domains: [{name: domain, config: vaultDomainConfig}]});
+        await tir.launchConfigurableApiHubTestNodeAsync({domains: [{name: domain, config: vaultDomainConfig}], rootFolder: folder});
         const serverDID = await tir.launchConfigurableCloudEnclaveTestNodeAsync({
             rootFolder: folder,
             domain,

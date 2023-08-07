@@ -20,7 +20,7 @@ assert.callback('Get all records test', (testFinished) => {
         }
 
         try {
-            await tir.launchConfigurableApiHubTestNodeAsync({domains: [{name: "vault", config: vaultDomainConfig}]});
+            await tir.launchConfigurableApiHubTestNodeAsync({domains: [{name: "vault", config: vaultDomainConfig}], rootFolder: folder});
             const TABLE = "test_table";
             let records = [{pk:"key1", record:{"value": 1}}, {pk:"key2", record:{"value": 2}}, {pk:"key3", record:{"value": 3}}, {pk:"key4", record:{"value": 5}}];
             const db = dbAPI.getSimpleWalletDB("mydb");
