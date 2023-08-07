@@ -18,7 +18,7 @@ assert.callback("FSx API test", (callback) => {
                         "type": "FS"
                     }
                 }
-            }]
+            }], rootFolder: folder
         }
         await tir.launchConfigurableApiHubTestNodeAsync(config);
 
