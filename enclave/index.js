@@ -10,9 +10,9 @@ function initialiseMemoryEnclave() {
     return new MemoryEnclave();
 }
 
-function initialiseLightDBEnclaveClient() {
+function initialiseLightDBEnclaveClient(dbName) {
     const LightDBEnclaveClient = require("./impl/LightDBEnclaveClient");
-    return new LightDBEnclaveClient();
+    return new LightDBEnclaveClient(dbName);
 }
 
 function initialiseRemoteEnclave(clientDID, remoteDID) {
