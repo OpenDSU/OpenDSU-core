@@ -10,7 +10,7 @@ const scAPI = openDSU.loadAPI("sc");
 const w3cDID = openDSU.loadAPI("w3cdid");
 
 
-assert.callback('Remote enclave test', (testFinished) => {
+assert.callback('LightDB access control test', (testFinished) => {
     dc.createTestFolder('createDSU', async (err, folder) => {
         const vaultDomainConfig = {
             "anchoring": {
@@ -20,24 +20,23 @@ assert.callback('Remote enclave test', (testFinished) => {
             "enable": ["enclave", "mq"]
         }
 
-        const domain = "mqtestdomain";
-        await tir.launchConfigurableApiHubTestNodeAsync({domains: [{name: domain, config: vaultDomainConfig}]});
-
+        const domain = "vault";
+        await tir.launchConfigurableApiHubTestNodeAsync({domains: [{name: domain, config: vaultDomainConfig}], rootFolder: folder});
         const runAssertions = async () => {
             try {
-                const DB_NAME = "test_db";
+                const DB_NAME = "db";
                 const lokiAdapterClient = enclaveAPI.initialiseLightDBEnclaveClient(DB_NAME)
-                const TABLE = "test_table";
                 const addedRecord = {data: 1};
+                let userDID = await $$.promisify(w3cDID.createIdentity)("ssi:name", domain, "user");
+                userDID = userDID.getIdentifier();
                 try {
                     await $$.promisify(lokiAdapterClient.createDatabase)(DB_NAME);
-                    await $$.promisify(lokiAdapterClient.insertRecord)("some_did", TABLE, "pk1", addedRecord, addedRecord);
-                    await $$.promisify(lokiAdapterClient.insertRecord)("some_did", TABLE, "pk2", addedRecord, addedRecord);
-                    const record = await $$.promisify(lokiAdapterClient.getRecord)("some_did", TABLE, "pk1");
-                    assert.objectsAreEqual(record, addedRecord, "Records do not match");
-                    const allRecords = await $$.promisify(lokiAdapterClient.getAllRecords)("some_did", TABLE);
-
-                    assert.equal(allRecords.length, 2, "Not all inserted records have been retrieved")
+                    await $$.promisify(lokiAdapterClient.grantWriteAccess)(userDID);
+                    const hasWriteAccess = await $$.promisify(lokiAdapterClient.hasWriteAccess)(userDID);
+                    assert.true(hasWriteAccess, "User does not have write access");
+                    await $$.promisify(lokiAdapterClient.revokeWriteAccess)(userDID);
+                    let hasWriteAccessAfterRevoke = await $$.promisify(lokiAdapterClient.hasWriteAccess)(userDID);
+                    assert.false(hasWriteAccessAfterRevoke, "User still has write access after revoke");
                     testFinished();
                 } catch (e) {
                     return console.log(e);

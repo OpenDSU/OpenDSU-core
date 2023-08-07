@@ -39,19 +39,18 @@ function createIdentity(didMethod, ...args) {
 }
 
 function resolveNameDID(domain, publicName, secret, callback) {
-    if(typeof secret == "function"){
+    if (typeof secret == "function") {
         callback = secret;
         secret = undefined;
     }
     const identifier = `did:ssi:name:${domain}:${publicName}`;
-    if(secret){
-        resolveDID(identifier, (err, didDocument)=>{
-            if(err){
+    if (secret) {
+        resolveDID(identifier, (err, didDocument) => {
+            if (err) {
                 createIdentity("ssi:name", domain, publicName, secret, callback);
-            }
-            else{
-                registerNameDIDSecret(domain, publicName, secret, (err)=>{
-                    if(err){
+            } else {
+                registerNameDIDSecret(domain, publicName, secret, (err) => {
+                    if (err) {
                         return callback(err);
                     }
                     // A new DID document instance, containing the new private key is needed
@@ -59,21 +58,20 @@ function resolveNameDID(domain, publicName, secret, callback) {
                 });
             }
         })
-    }
-    else{
+    } else {
         resolveDID(identifier, callback);
     }
 }
 
 function registerNameDIDSecret(domain, publicName, secret, callback) {
     const sc = openDSU.loadAPI("sc");
-    sc.getMainEnclave((err, enclave)=>{
-        if(err){
+    sc.getMainEnclave((err, enclave) => {
+        if (err) {
             return callback(err, undefined);
         }
         const identifier = `did:ssi:name:${domain}:${publicName}`;
-        resolveDID(identifier, (err, didDoc)=>{
-            if(err){
+        resolveDID(identifier, (err, didDoc) => {
+            if (err) {
                 return callback(err, undefined);
             }
             enclave.addPrivateKeyForDID(didDoc, secret, callback);
@@ -143,11 +141,32 @@ function we_resolveDID(enclave, identifier, callback) {
     }
 }
 
+function getKeyDIDFromSecret(secret, callback) {
+    createIdentity(methodsNames.KEY_SUBTYPE, secret, callback);
+}
 
 function registerDIDMethod(method, implementation) {
     methodRegistry[method] = implementation;
 }
 
+function generateSystemDIDFromSecret(secret) {
+    getKeyDIDFromSecret(secret, (err, didDocument) => {
+        if(err){
+            console.error("Failed to create the system DID", err);
+            throw err;
+        }
+        $$.SYSTEM_DID_DOCUMENT = didDocument;
+        $$.SYSTEM_IDENTIFIER = didDocument.getIdentifier();
+    });
+}
+function initSystemDID() {
+    if (process.env.SSO_SECRETS_ENCRYPTION_KEY) {
+        generateSystemDIDFromSecret(process.env.SSO_SECRETS_ENCRYPTION_KEY);
+    } else {
+        console.warn("The system is not safe for production. The SSO_SECRETS_ENCRYPTION_KEY environment variable is not set.")
+        generateSystemDIDFromSecret("default");
+    }
+}
 
 registerDIDMethod(methodsNames.S_READ_SUBTYPE, require("./didssi/ssiMethods").create_SReadDID_Method());
 registerDIDMethod(methodsNames.SSI_KEY_SUBTYPE, require("./didssi/ssiMethods").create_SSIKeyDID_Method());
@@ -167,6 +186,7 @@ module.exports = {
     registerDIDMethod,
     resolveNameDID,
     registerNameDIDSecret,
+    initSystemDID,
     CryptographicSkills: require("./CryptographicSkills/CryptographicSkills"),
     W3CDIDMixin: require('./W3CDID_Mixin'),
     W3CCVCMixin: require('./W3CVC_Mixin'),

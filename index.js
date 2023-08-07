@@ -27,6 +27,9 @@ switch ($$.environmentType) {
             if(!global.PREVENT_DOUBLE_LOADING_OF_OPENDSU){
                 global.PREVENT_DOUBLE_LOADING_OF_OPENDSU = {}
             }
+            setImmediate(function(){
+                require("./w3cdid").initSystemDID();
+            })
         }
 }
 

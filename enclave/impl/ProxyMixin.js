@@ -5,6 +5,42 @@ function ProxyMixin(target) {
     const ObservableMixin = require("../../utils/ObservableMixin");
     ObservableMixin(target);
 
+    target.grantWriteAccess = (forDID, callback) => {
+        target.__putCommandObject(commandNames.GRANT_WRITE_ACCESS, forDID, callback);
+    }
+
+    target.grantReadAccess = (forDID, callback) => {
+        target.__putCommandObject(commandNames.GRANT_READ_ACCESS, forDID, callback);
+    }
+
+    target.revokeWriteAccess = (forDID, callback) => {
+        target.__putCommandObject(commandNames.REVOKE_WRITE_ACCESS, forDID, callback);
+    }
+
+    target.revokeReadAccess = (forDID, callback) => {
+        target.__putCommandObject(commandNames.REVOKE_READ_ACCESS, forDID, callback);
+    }
+
+    target.hasWriteAccess = (forDID, callback) => {
+        target.__putCommandObject(commandNames.HAS_WRITE_ACCESS, forDID, (err, hasWriteAccess) => {
+            if (err) {
+                return callback(createOpenDSUErrorWrapper(`Failed to check if user with DID ${forDID} has write access`, err));
+            }
+
+            callback(undefined, hasWriteAccess === "true");
+        })
+    }
+
+    target.hasReadAccess = (forDID, callback) => {
+        target.__putCommandObject(commandNames.HAS_READ_ACCESS, forDID, (err, hasReadAccess) => {
+            if (err) {
+                return callback(createOpenDSUErrorWrapper(`Failed to check if user with DID ${forDID} has read access`, err));
+            }
+
+            callback(undefined, hasReadAccess === "true");
+        });
+    }
+
     target.insertRecord = (forDID, table, pk, plainRecord, encryptedRecord, callback) => {
         if (typeof encryptedRecord === "function") {
             callback = encryptedRecord;

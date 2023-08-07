@@ -1,6 +1,6 @@
 const {createCommandObject} = require("./lib/createCommandObject");
 
-function LightDBEnclaveClient() {
+function LightDBEnclaveClient(dbName) {
     const openDSU = require("opendsu");
     const http = openDSU.loadAPI("http");
     const system = openDSU.loadAPI("system");
@@ -14,9 +14,14 @@ function LightDBEnclaveClient() {
 
     this.__putCommandObject = (commandName, ...args) => {
         const callback = args.pop();
-        const url = `${system.getBaseURL()}/executeLightDBCommand`;
+        const url = `${system.getBaseURL()}/lightDB/executeCommand/${dbName}`;
         const command = createCommandObject(commandName, ...args);
         http.doPut(url, JSON.stringify(command), callback);
+    }
+
+    this.createDatabase = (dbName, callback) => {
+        const url = `${system.getBaseURL()}/lightDB/createDatabase/${dbName}`;
+        http.doPut(url, "", callback);
     }
 }
 

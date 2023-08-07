@@ -1,4 +1,10 @@
 module.exports = {
+    GRANT_WRITE_ACCESS: "grantWriteAccess",
+    GRANT_READ_ACCESS: "grantReadAccess",
+    REVOKE_WRITE_ACCESS: "revokeWriteAccess",
+    REVOKE_READ_ACCESS: "revokeReadAccess",
+    HAS_WRITE_ACCESS: "hasWriteAccess",
+    HAS_READ_ACCESS: "hasReadAccess",
     INSERT_RECORD: "insertRecord",
     UPDATE_RECORD: "updateRecord",
     GET_RECORD: "getRecord",
