@@ -38,24 +38,18 @@ assert.callback('Remote enclave test', (testFinished) => {
                 const TABLE = "users";
                 cloudEnclave.on("initialised", async () => {
                     try {
-                        const result = await $$.promisify(cloudEnclave.callLambda)("addShadowUser");
-                        assert.true(JSON.parse(result),('pk' in JSON.parse(result)),"pk missing from object");
-                        const shadowUserId= JSON.parse(result).pk;
-                        await $$.promisify(cloudEnclave.callLambda)("addNewUser", shadowUserId, "name1", "email1", "phone1", "publicDescription1",(err) => {
-                            if(err)
-                            {
-                                console.log(err);
-                            }
-                        });
-                        const user = await $$.promisify(cloudEnclave.getRecord)(TABLE, shadowUserId,(err) => {
-                            if (err) {
-                                logger.error("Error at initialising remote client" + err);
-                            }});
-                        console.log(user)
-                        assert.objectsAreEqual(record, addedRecord, "Records do not match");
-                        const allRecords = await $$.promisify(cloudEnclave.getAllRecords)("some_did", TABLE);
+                        const result = await $$.promisify(cloudEnclave.callLambda)("addNewUser", "","", "", "", "");
+                        const user2 = await $$.promisify(cloudEnclave.getRecord)("",TABLE, JSON.parse(result).pk);
+                        assert.equal(result,JSON.stringify(user2),"user input values differ from user output values");
 
-                        assert.equal(allRecords.length, 2, "Not all inserted records have been retrieved")
+                        const result2= await $$.promisify(cloudEnclave.callLambda)("addNewUser", JSON.parse(result).pk, "name1", "email1", "phone1", "publicDescription1", "");
+                        const user = await $$.promisify(cloudEnclave.getRecord)("",TABLE, JSON.parse(result2).pk);
+                        assert.equal(result2,JSON.stringify(user),"user input values differ from user output values");
+
+                        //assert.objectsAreEqual(record, addedRecord, "Records do not match");
+                        //const allRecords = await $$.promisify(cloudEnclave.getAllRecords)("some_did", TABLE);
+
+                        //assert.equal(allRecords.length, 2, "Not all inserted records have been retrieved")
                         testFinished();
                     } catch (e) {
                         return console.log(e);

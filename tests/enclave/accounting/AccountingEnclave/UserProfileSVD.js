@@ -1,6 +1,11 @@
 module.exports = {
-    ctor: function (userId) {
+    ctor: function (userId, name, email, phone, publicDescription, isPrivate) {
         this.userId = userId;
+        this.name = name;
+        this.email = email;
+        this.phone = phone;
+        this.publicDescription=publicDescription;
+        this.isPrivate = isPrivate;
         this.availableInvitesCounter = 0;
         this.acceptedInvites = [];
         this.followedBrands= [];
@@ -12,9 +17,10 @@ module.exports = {
         return this.getState();
     },
     actions: {
-        update: function (name, email, phone, publicDescription, isPrivate) {
+        update: function (userId, name, email, phone, publicDescription, isPrivate) {
             this.name = name;
             this.email = email;
+            this.userId = userId;
             this.phone = phone;
             this.publicDescription=publicDescription;
             this.isPrivate = isPrivate;

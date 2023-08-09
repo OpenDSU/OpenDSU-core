@@ -1,10 +1,12 @@
 const UserProfileSVD = require("../UserProfileSVD");
 let fsSVDStorage;
-
+let SVDTransaction;
 function initSVD() {
     const fastSVD = require("opendsu").loadApi("svd");
     fsSVDStorage = fastSVD.createFsSVDStorage("./SVDS/");
     fsSVDStorage.registerType("user", UserProfileSVD);
+
+
 }
 function helloWorld (...args) {
     const callback = args.pop();
@@ -16,23 +18,39 @@ function helloWorldWithAudit (...args) {
     this.audit(...args);
     callback(undefined, args);
 }
-function addShadowUser(callback){
-    const userSvdUid = "svd:user:user" + Math.floor(Math.random() * 100000);
+function addNewUser(shadowUserId, name, email, phone, publicDescription, isPrivate, callback){
     const self = this;
-    fsSVDStorage.createTransaction(function (err, transaction){
-        let user = transaction.create(userSvdUid, userSvdUid);
-        self.insertRecord("", "users", userSvdUid, { user: user.read() }, (err, res) => {
-            if (!err) {
+    if(email){
+        fsSVDStorage.createTransaction(function (err, transaction){
+            transaction.lookup(shadowUserId, (err, shadowUser) => {
+                if(err){
+                    return callback(err);
+                }
+                shadowUser.update(email, name, email, phone, publicDescription, isPrivate);
                 transaction.commit((commitError) => {
                     console.log("@@Commit error", commitError);
-                    callback(commitError, res);
-                })
-            }
-            else {
-                callback(err);
-            }
+                    return callback(commitError);
+                });
+            });
+
         });
-    });
+    }else {
+        const userSvdUid = "svd:user:user" + Math.floor(Math.random() * 100000);
+        fsSVDStorage.createTransaction(function (err, transaction){
+            let user = transaction.create(userSvdUid, userSvdUid, "", "", "", "", "");
+            self.insertRecord("", "users", userSvdUid, { user: user.read() }, (err, res) => {
+                if (!err) {
+                    transaction.commit((commitError) => {
+                        console.log("@@Commit error", commitError);
+                        callback(commitError, res);
+                    })
+                }
+                else {
+                    callback(err);
+                }
+            });
+        });
+    }
 }
 
 function addBrandToFollowed(brandId, userId, callback) {
@@ -50,31 +68,13 @@ function removeBrandFromFollowed(brandId, userId, callback){
         user.removeBrandFromFollowed(brandId);
     }
 }
-function addNewUser(userId, name, email, phone, publicDescription, callback) {
-    const self = this;
-    try{
-        const shadowUser=self.getRecord("","users", userId, (err) => {
-            if(err){
-                console.log(err);
-            }
-        });
-        if(shadowUser){
-            const isPrivate=false;
-            shadowUser.update(name, email, phone, publicDescription, isPrivate);
-        }
-    }
-    catch (err)
-    {
-        console.log(err)
-    }
-}
+
 module.exports = {
     registerLambdas: async (remoteEnclaveServer) => {
         initSVD();
         remoteEnclaveServer.addEnclaveMethod("helloWorld", helloWorld, "read");
         remoteEnclaveServer.addEnclaveMethod("helloWorldWithAudit", helloWorldWithAudit, "read");
         remoteEnclaveServer.addEnclaveMethod("addNewUser", addNewUser, "write");
-        remoteEnclaveServer.addEnclaveMethod("addShadowUser", addShadowUser, "read");
         remoteEnclaveServer.addEnclaveMethod("addBrandToFollowed", addBrandToFollowed, "write");
         remoteEnclaveServer.addEnclaveMethod("removeBrandFromFollowed", removeBrandFromFollowed, "write");
     }
