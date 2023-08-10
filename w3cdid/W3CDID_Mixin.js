@@ -187,7 +187,7 @@ function W3CDID_Mixin(target, enclave) {
             try {
                 message = JSON.parse(encryptedMessage.message);
             } catch (e) {
-                return callback(createOpenDSUErrorWrapper(`Failed to parse received message`, err));
+                return callback(createOpenDSUErrorWrapper(`Failed to parse received message`, e));
             }
 
             target.decryptMessage(message, callback);

@@ -22,23 +22,15 @@ function ProxyMixin(target) {
     }
 
     target.hasWriteAccess = (forDID, callback) => {
-        target.__putCommandObject(commandNames.HAS_WRITE_ACCESS, forDID, (err, hasWriteAccess) => {
-            if (err) {
-                return callback(createOpenDSUErrorWrapper(`Failed to check if user with DID ${forDID} has write access`, err));
-            }
-
-            callback(undefined, hasWriteAccess === "true");
-        })
+        target.__putCommandObject(commandNames.HAS_WRITE_ACCESS, forDID, callback);
     }
 
     target.hasReadAccess = (forDID, callback) => {
-        target.__putCommandObject(commandNames.HAS_READ_ACCESS, forDID, (err, hasReadAccess) => {
-            if (err) {
-                return callback(createOpenDSUErrorWrapper(`Failed to check if user with DID ${forDID} has read access`, err));
-            }
+        target.__putCommandObject(commandNames.HAS_READ_ACCESS, forDID, callback);
+    }
 
-            callback(undefined, hasReadAccess === "true");
-        });
+    target.getCollections = (callback) => {
+        target.__putCommandObject(commandNames.GET_COLLECTIONS, callback);
     }
 
     target.insertRecord = (forDID, table, pk, plainRecord, encryptedRecord, callback) => {
@@ -66,19 +58,7 @@ function ProxyMixin(target) {
     }
 
     target.getRecord = (forDID, table, pk, callback) => {
-        target.__putCommandObject(commandNames.GET_RECORD, forDID, table, pk, (err, record) => {
-            if (err) {
-                return callback(createOpenDSUErrorWrapper(`Failed to get record with pk ${pk}`, err));
-            }
-
-            try {
-                record = JSON.parse(record);
-            } catch (e) {
-                return callback(createOpenDSUErrorWrapper(`Failed to parse record with pk ${pk}`, e));
-            }
-
-            callback(undefined, record);
-        });
+        target.__putCommandObject(commandNames.GET_RECORD, forDID, table, pk, callback);
     };
 
     target.filter = (forDID, table, filter, sort, limit, callback) => {
@@ -104,10 +84,12 @@ function ProxyMixin(target) {
                 return callback(createOpenDSUErrorWrapper(`Failed to filter records in table ${table}`, err));
             }
 
-            try {
-                records = JSON.parse(records);
-            } catch (e) {
-                return callback(createOpenDSUErrorWrapper(`Failed to parse record `, e));
+            if(typeof records === "string") {
+                try {
+                    records = JSON.parse(records);
+                } catch (e) {
+                    return callback(createOpenDSUErrorWrapper(`Failed to parse record `, e));
+                }
             }
 
             callback(undefined, records);
@@ -115,34 +97,35 @@ function ProxyMixin(target) {
     }
 
     target.getAllRecords = (forDID, table, callback) => {
-        target.__putCommandObject(commandNames.GET_ALL_RECORDS, forDID, table, (err, records) => {
-            if (err) {
-                return callback(err);
-            }
-
-            try {
-                records = JSON.parse(records);
-            } catch (e) {
-                return callback(createOpenDSUErrorWrapper(`Failed to parse record`, e));
-            }
-
-            callback(undefined, records);
-        });
+        target.__putCommandObject(commandNames.GET_ALL_RECORDS, forDID, table, callback);
     }
 
     target.deleteRecord = (forDID, table, pk, callback) => {
         target.__putCommandObject(commandNames.DELETE_RECORD, forDID, table, pk, callback);
     }
 
-    target.addInQueue = (forDID, queueName, encryptedObject, callback) => {
-        target.__putCommandObject(commandNames.ADD_IN_QUEUE, forDID, queueName, encryptedObject, callback);
-    }
+    target.addInQueue = (forDID, queueName, encryptedObject, ensureUniqueness, callback) => {
+        if (typeof ensureUniqueness === "function") {
+            callback = ensureUniqueness;
+            ensureUniqueness = false;
+        }
+        target.__putCommandObject(commandNames.ADD_IN_QUEUE, forDID, queueName, encryptedObject, ensureUniqueness, callback);
+    };
 
     target.queueSize = (forDID, queueName, callback) => {
         target.__putCommandObject(commandNames.QUEUE_SIZE, forDID, queueName, callback);
     }
 
     target.listQueue = (forDID, queueName, sortAfterInsertTime, onlyFirstN, callback) => {
+        if (typeof sortAfterInsertTime === "function") {
+            callback = sortAfterInsertTime;
+            sortAfterInsertTime = "asc";
+            onlyFirstN = undefined
+        }
+        if (typeof onlyFirstN === "function") {
+            callback = onlyFirstN;
+            onlyFirstN = undefined;
+        }
         target.__putCommandObject(commandNames.LIST_QUEUE, forDID, queueName, sortAfterInsertTime, onlyFirstN, callback);
     };
 

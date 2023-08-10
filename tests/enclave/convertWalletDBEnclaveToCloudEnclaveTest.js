@@ -32,7 +32,6 @@ assert.callback('Convert WalletDBEnclave to CloudEnclave test', (testFinished) =
                 const addedRecord = {data: 1};
                 await $$.promisify(walletDBEnclave.insertRecord)("some_did", TABLE, "pk1", addedRecord);
                 const record = await $$.promisify(walletDBEnclave.getRecord)("some_did", TABLE, "pk1");
-                const tables = await $$.promisify(walletDBEnclave.getAllTableNames)("some_did");
                 assert.objectsAreEqual(record, addedRecord, "Records do not match");
                 let error;
                 let cloudEnclave;

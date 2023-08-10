@@ -29,5 +29,6 @@ module.exports = {
     VERIFY_FOR_DID: "verifyForDID",
     ENCRYPT_MESSAGE: "encryptMessage",
     DECRYPT_MESSAGE: "decryptMessage",
-    GET_PRIVATE_INFO_FOR_DID:"getPrivateInfoForDID"
+    GET_PRIVATE_INFO_FOR_DID:"getPrivateInfoForDID",
+    GET_COLLECTIONS: "getCollections"
 }

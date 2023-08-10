@@ -3,7 +3,9 @@ require("../../../../builds/output/testsRuntime");
 const dc = require("double-check");
 const assert = dc.assert;
 
-const openDSU = require("opendsu");
+const openDSU = require("../../index");
+$$.__registerModule("opendsu", openDSU);
+
 const workers = openDSU.loadAPI("workers");
 
 const pool = workers.createPool();
