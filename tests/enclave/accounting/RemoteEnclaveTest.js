@@ -39,12 +39,12 @@ assert.callback('Remote enclave test', (testFinished) => {
                 cloudEnclave.on("initialised", async () => {
                     try {
                         const result = await $$.promisify(cloudEnclave.callLambda)("addNewUser", "","", "", "", "");
-                        const user2 = await $$.promisify(cloudEnclave.getRecord)("",TABLE, JSON.parse(result).pk);
-                        assert.equal(result,JSON.stringify(user2),"user input values differ from user output values");
+                        const user = await $$.promisify(cloudEnclave.getRecord)("",TABLE, JSON.parse(result).pk);
+                        assert.equal(result,JSON.stringify(user),"user input values differ from user output values");
 
                         const result2= await $$.promisify(cloudEnclave.callLambda)("addNewUser", JSON.parse(result).pk, "name1", "email1", "phone1", "publicDescription1", "");
-                        const user = await $$.promisify(cloudEnclave.getRecord)("",TABLE, JSON.parse(result2).pk);
-                        assert.equal(result2,JSON.stringify(user),"user input values differ from user output values");
+                        const user2 = await $$.promisify(cloudEnclave.getRecord)("",TABLE, JSON.parse(result2).pk);
+                        assert.equal(result2,JSON.stringify(user2),"user input values differ from user output values");
 
                         //assert.objectsAreEqual(record, addedRecord, "Records do not match");
                         //const allRecords = await $$.promisify(cloudEnclave.getAllRecords)("some_did", TABLE);

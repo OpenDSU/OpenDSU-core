@@ -1,6 +1,5 @@
 const UserProfileSVD = require("../UserProfileSVD");
 let fsSVDStorage;
-let SVDTransaction;
 function initSVD() {
     const fastSVD = require("opendsu").loadApi("svd");
     fsSVDStorage = fastSVD.createFsSVDStorage("./SVDS/");
