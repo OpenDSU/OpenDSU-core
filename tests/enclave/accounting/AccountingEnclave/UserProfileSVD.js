@@ -11,10 +11,8 @@ module.exports = {
         this.followedBrands= [];
         /* the email and phone are private by default */
         this.isPrivate = true;
+        //this.secretToken=secretToken;
         this.friends = [];
-    },
-    read: function (){
-        return this.getState();
     },
     actions: {
         update: function (userId, name, email, phone, publicDescription, isPrivate) {

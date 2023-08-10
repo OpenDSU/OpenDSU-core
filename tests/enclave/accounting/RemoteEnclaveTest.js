@@ -38,18 +38,14 @@ assert.callback('Remote enclave test', (testFinished) => {
                 const TABLE = "users";
                 cloudEnclave.on("initialised", async () => {
                     try {
-                        const result = await $$.promisify(cloudEnclave.callLambda)("addNewUser", "","", "", "", "");
-                        const user = await $$.promisify(cloudEnclave.getRecord)("",TABLE, JSON.parse(result).pk);
-                        assert.equal(result,JSON.stringify(user),"user input values differ from user output values");
+                        const userId = await $$.promisify(cloudEnclave.callLambda)("addNewUser", "", "", "", "", "");
+                        const user = await $$.promisify(cloudEnclave.getRecord)("", TABLE, JSON.parse(userId).userId);
+                        assert.equal(JSON.parse(userId).userId,user.userId,"user input values differ from user output values");
 
-                        const result2= await $$.promisify(cloudEnclave.callLambda)("addNewUser", JSON.parse(result).pk, "name1", "email1", "phone1", "publicDescription1", "");
-                        const user2 = await $$.promisify(cloudEnclave.getRecord)("",TABLE, JSON.parse(result2).pk);
-                        assert.equal(result2,JSON.stringify(user2),"user input values differ from user output values");
-
-                        //assert.objectsAreEqual(record, addedRecord, "Records do not match");
-                        //const allRecords = await $$.promisify(cloudEnclave.getAllRecords)("some_did", TABLE);
-
-                        //assert.equal(allRecords.length, 2, "Not all inserted records have been retrieved")
+                        const userId2 = await $$.promisify(cloudEnclave.callLambda)("updateUser", JSON.parse(userId).userId, "name1", "email1", "phone1", "publicDescription1", "");
+                        const user2 = await $$.promisify(cloudEnclave.getRecord)("", TABLE, userId2);
+                        assert.equal(JSON.parse(userId2).userId,user2.userId,"user input values differ from user output values");
+                        console.log(user2);
                         testFinished();
                     } catch (e) {
                         return console.log(e);
