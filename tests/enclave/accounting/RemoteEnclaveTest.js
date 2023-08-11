@@ -43,7 +43,7 @@ assert.callback('Remote enclave test', (testFinished) => {
                         assert.equal(JSON.parse(userId).userId,user.userId,"user input values differ from user output values");
 
                         const userId2 = await $$.promisify(cloudEnclave.callLambda)("updateUser", JSON.parse(userId).userId, "name1", "email1", "phone1", "publicDescription1", "");
-                        const user2 = await $$.promisify(cloudEnclave.getRecord)("", TABLE, userId2);
+                        const user2 = await $$.promisify(cloudEnclave.getRecord)("", TABLE, JSON.parse(userId2).userId);
                         assert.equal(JSON.parse(userId2).userId,user2.userId,"user input values differ from user output values");
                         console.log(user2);
                         testFinished();
