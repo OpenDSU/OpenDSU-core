@@ -13,28 +13,37 @@ function LightDBEnclaveClient(dbName) {
     }
 
     this.__putCommandObject = (commandName, ...args) => {
-        if (typeof args[args.length-1] !== "function") {
-            console.log("###############################################################################################################")
-            console.log(commandName, args)
-            console.log("###############################################################################################################")
-        }
         const callback = args.pop();
         const url = `${system.getBaseURL()}/lightDB/executeCommand/${dbName}`;
-        const command = createCommandObject(commandName, ...args);
+        let command = createCommandObject(commandName, ...args);
+        let didDocument = args[0];
+        if (didDocument === $$.SYSTEM_IDENTIFIER) {
+            didDocument = $$.SYSTEM_DID_DOCUMENT;
+        }
 
-        http.doPut(url, JSON.stringify(command), (err, response) => {
+        command = JSON.stringify(command);
+        didDocument.sign(command, (err, signature) => {
             if (err) {
                 return callback(err);
             }
 
-            try {
-                response = JSON.parse(response);
-            } catch (e) {
-                return callback(e);
-            }
+            let signedCommand = {};
+            signedCommand.command = command;
+            signedCommand.signature = signature.toString("base64");
+            http.doPut(url, JSON.stringify(signedCommand), (err, response) => {
+                if (err) {
+                    return callback(err);
+                }
 
-            callback(undefined, response);
-        });
+                try {
+                    response = JSON.parse(response);
+                } catch (e) {
+                    return callback(e);
+                }
+
+                callback(undefined, response);
+            });
+        })
     }
 
     this.createDatabase = (dbName, callback) => {

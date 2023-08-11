@@ -11,7 +11,7 @@ function KeyDID_Method() {
         if (typeof privateKey === "function") {
             callback = privateKey;
             privateKey = undefined;
-            secret = undefined;
+            secret = publicKey;
         }
 
         if (typeof secret === "function") {
