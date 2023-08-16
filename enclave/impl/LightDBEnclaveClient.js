@@ -38,7 +38,7 @@ function LightDBEnclaveClient(dbName) {
                 try {
                     response = JSON.parse(response);
                 } catch (e) {
-                    console.log("Failed to parse response", response);
+                    console.log("#########################", response, commandName);
                     console.error(e);
                     return callback(e);
                 }
