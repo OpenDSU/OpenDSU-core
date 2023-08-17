@@ -1,9 +1,10 @@
 const {createCommandObject} = require("./lib/createCommandObject");
 
-function LightDBEnclaveClient(dbName) {
+function LightDBEnclaveClient(dbName, serverAddress) {
     const openDSU = require("opendsu");
     const http = openDSU.loadAPI("http");
     const system = openDSU.loadAPI("system");
+    serverAddress = serverAddress || process.env.LIGHT_DB_SERVER_ADDRESS || `${system.getBaseURL()}/lightDB`;
     let initialised = false;
     const ProxyMixin = require("./ProxyMixin");
     ProxyMixin(this);
@@ -14,7 +15,7 @@ function LightDBEnclaveClient(dbName) {
 
     this.__putCommandObject = (commandName, ...args) => {
         const callback = args.pop();
-        const url = `${system.getBaseURL()}/lightDB/executeCommand/${dbName}`;
+        const url = `${serverAddress}/executeCommand/${dbName}`;
         let command = createCommandObject(commandName, ...args);
         let didDocument = args[0];
         if (didDocument === $$.SYSTEM_IDENTIFIER) {
@@ -38,9 +39,6 @@ function LightDBEnclaveClient(dbName) {
                 try {
                     response = JSON.parse(response);
                 } catch (e) {
-                    console.log("#########################", response, typeof response, commandName);
-                    console.error(e);
-                    console.error(err);
                     return callback(e);
                 }
 
@@ -50,7 +48,7 @@ function LightDBEnclaveClient(dbName) {
     }
 
     this.createDatabase = (dbName, callback) => {
-        const url = `${system.getBaseURL()}/lightDB/createDatabase/${dbName}`;
+        const url = `${serverAddress}/createDatabase/${dbName}`;
         http.doPut(url, "", callback);
     }
 
@@ -80,7 +78,7 @@ function LightDBEnclaveClient(dbName) {
                 return callback(Error("No write access"));
             }
 
-            originalUpdate(forDID, table, pk, encryptedRecord, callback);
+            originalUpdate(forDID, table, pk, plainRecord, encryptedRecord, callback);
         });
     }
 
