@@ -31,8 +31,9 @@ assert.callback('Remote enclave test', (testFinished) => {
                 const addedRecord = {data: 1};
                 try {
                     await $$.promisify(lokiAdapterClient.createDatabase)(DB_NAME);
-                    await $$.promisify(lokiAdapterClient.insertRecord)("some_did", TABLE, "pk1", addedRecord, addedRecord);
-                    await $$.promisify(lokiAdapterClient.insertRecord)("some_did", TABLE, "pk2", addedRecord, addedRecord);
+                    await $$.promisify(lokiAdapterClient.grantWriteAccess)("some_did");
+                    await $$.promisify(lokiAdapterClient.insertRecord)("some_did", TABLE, "pk1", addedRecord);
+                    await $$.promisify(lokiAdapterClient.insertRecord)("some_did", TABLE, "pk2", addedRecord);
                     const record = await $$.promisify(lokiAdapterClient.getRecord)("some_did", TABLE, "pk1");
                     assert.objectsAreEqual(record, addedRecord, "Records do not match");
                     const allRecords = await $$.promisify(lokiAdapterClient.getAllRecords)("some_did", TABLE);

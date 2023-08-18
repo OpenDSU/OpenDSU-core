@@ -2,6 +2,7 @@ const {getCookie, setCookie} = require("../util/cookies.js");
 const opendsu = require("opendsu");
 const keyssi = opendsu.loadApi("keyssi");
 const resolver = opendsu.loadApi("resolver");
+const http = opendsu.loadApi("http");
 const swarmUtils = require("swarmutils");
 const cookieName = "VERSIONLESS_WALLET";
 let walletSSI = getCookie(cookieName);
@@ -11,13 +12,13 @@ if(!walletSSI){
     const path = `/${swarmUtils.generateUid(32).toString('hex')}`;
     let versionLessSSI = keyssi.createVersionlessSSI(domain, path);
     setCookie(cookieName, versionLessSSI.getIdentifier());
-    resolver.createDSUForExistingSSI(versionLessSSI, (err, wallet)=>{
+    resolver.createDSUForExistingSSI(versionLessSSI, async (err, wallet)=>{
         if(err){
             alert(`Not able to create Wallet using the VersionLess DSU. ${err.message}`);
             return;
         }
         window.rawDossier = wallet;
-
+        let environment = await http.fetch(window.location.origin+"/environment.json");
         const enclavePath = `/${swarmUtils.generateUid(32).toString('hex')}`;
         environment.enclaveKeySSI = keyssi.createVersionlessSSI(domain, enclavePath);
         wallet.writeFile("/environment.json", JSON.stringify(environment), (err)=>{

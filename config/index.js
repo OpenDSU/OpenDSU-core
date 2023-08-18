@@ -38,9 +38,13 @@ function setEnv(key, value, callback) {
         if (err) {
             return callback(createOpenDSUErrorWrapper(`Failed to read env file`, err));
         }
-        env[key] = value;
         const scAPI = require("opendsu").loadAPI("sc");
-        scAPI.configEnvironment(env, callback);
+        if(env[key] !== value){
+            env[key] = value;
+            scAPI.configEnvironment(env, callback);
+            return;
+        }
+        callback(undefined, scAPI.getSecurityContext());
     });
 }
 
