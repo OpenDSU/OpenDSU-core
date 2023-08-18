@@ -22,7 +22,7 @@ assert.callback('Remote enclave test', (testFinished) => {
 
         const domain = "mqtestdomain";
         process.env.CLOUD_ENCLAVE_SECRET = "some secret";
-        await tir.launchConfigurableApiHubTestNodeAsync({domains: [{name: domain, config: vaultDomainConfig}]});
+        await tir.launchConfigurableApiHubTestNodeAsync({domains: [{name: domain, config: vaultDomainConfig}], rootFolder: folder});
         const serverDID = await tir.launchConfigurableCloudEnclaveTestNodeAsync({
             rootFolder: folder,
             domain,
@@ -38,13 +38,23 @@ assert.callback('Remote enclave test', (testFinished) => {
                 const TABLE = "users";
                 cloudEnclave.on("initialised", async () => {
                     try {
-                        const userId = await $$.promisify(cloudEnclave.callLambda)("addNewUser", "", "", "", "", "");
-                        const user = await $$.promisify(cloudEnclave.getRecord)("", TABLE, JSON.parse(userId).userId);
-                        assert.equal(JSON.parse(userId).userId,user.userId,"user input values differ from user output values");
+                        const userId = await $$.promisify(cloudEnclave.callLambda)("addNewUser", "", "", "", "", "", "", '');
+                        const user = await $$.promisify(cloudEnclave.getRecord)("", TABLE, userId.userId);
+                        assert.equal(userId.userId,user.userId,"user input values differ from user output values");
 
-                        const userId2 = await $$.promisify(cloudEnclave.callLambda)("updateUser", JSON.parse(userId).userId, "name1", "email1", "phone1", "publicDescription1", "");
-                        const user2 = await $$.promisify(cloudEnclave.getRecord)("", TABLE, JSON.parse(userId2).userId);
-                        assert.equal(JSON.parse(userId2).userId,user2.userId,"user input values differ from user output values");
+                        const password = "12345678";
+                        const crypto = require("opendsu").loadApi("crypto");
+                        const randomNr = crypto.generateRandom(32);
+                        const secretToken = crypto.encrypt(randomNr,crypto.deriveEncryptionKey(password));
+
+                        // const userDIDPublicKey = crypto.getPublicKeyFromPrivateKey(randomNr);
+                        // const userDID = crypto.generateRandom(32).toString("hex");
+                        // const userDIDEncrypted = crypto.encrypt(userDID,userDIDPublicKey);
+                        // assert.equal(crypto.decrypt(userDIDEncrypted,randomNr),userDID);
+
+                        const userId2 = await $$.promisify(cloudEnclave.callLambda)("updateUser", userId.userId, "name1", "email1", "phone1", "publicDescription1", secretToken, "userDID", "");
+                        const user2 = await $$.promisify(cloudEnclave.getRecord)("", TABLE, userId2.userId);
+                        assert.equal(userId2.userId,user2.userId,"user input values differ from user output values");
                         console.log(user2);
                         testFinished();
                     } catch (e) {

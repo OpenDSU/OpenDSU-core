@@ -16,7 +16,7 @@ function helloWorldWithAudit (...args) {
     this.audit(...args);
     callback(undefined, args);
 }
-function updateUser(userId, name, email, phone, publicDescription, isPrivate, callback){
+function updateUser(userId, name, email, phone, publicDescription, secretToken, userDID, isPrivate, callback){
     const self = this;
 
     fsSVDStorage.createTransaction(function (err, transaction){
@@ -29,43 +29,43 @@ function updateUser(userId, name, email, phone, publicDescription, isPrivate, ca
                if(err){
                    return callback(err);
                }
-               userSVD.update(email, name, email, phone, publicDescription, isPrivate);
+               userSVD.update(email, name, email, phone, publicDescription, secretToken, userDID, isPrivate);
                if(userSVD.email!==email){
                    self.deleteRecord("", "users", userId, (err) => {
                        if (err) {
                            return callback(err);
                        }
-                       const userSvdUid = "svd:user:" + crypto.generateRandom(32);
+                       const userSvdUid = "svd:user:" + crypto.generateRandom(32).toString("hex");
                        self.insertRecord("", "users", userSvdUid, { user: email }, (err) => {
                            if (err) {
                                return callback(err);
                            }
                            transaction.commit((commitError) => {
                                console.log("@@Commit error", commitError);
-                               callback(commitError, userSvdUid);
+                               callback(commitError, {userId:userSvdUid, secretToken:secretToken});
                            });
                        });
                    });
                }else {
                    transaction.commit((commitError) => {
                        console.log("@@Commit error", commitError);
-                       callback(commitError, {userId:userId});
+                       callback(commitError, {userId:userId, secretToken:secretToken});
                    });
                }
         });
     });
 }
-function addNewUser(name, email, phone, publicDescription, isPrivate, callback){
+function addNewUser(name, email, phone, publicDescription, secretToken, userDID, isPrivate, callback){
     const self = this;
     const crypto = require("opendsu").loadApi("crypto");
     const userSvdUid = "svd:user:" + crypto.generateRandom(32).toString("hex");
     fsSVDStorage.createTransaction(function (err, transaction){
-        let user = transaction.create(userSvdUid, userSvdUid, name, email, phone, publicDescription, isPrivate);
+        let user = transaction.create(userSvdUid, userSvdUid, name, email, phone, publicDescription, userDID, isPrivate, secretToken);
         self.insertRecord("", "users", userSvdUid, { userId: userSvdUid }, (err) => {
             if (!err) {
                 transaction.commit((commitError) => {
                     console.log("@@Commit error", commitError);
-                    callback(commitError, {userId:userSvdUid});
+                    callback(commitError, {userId:userSvdUid, secretToken:secretToken});
                 })
             }
             else {
