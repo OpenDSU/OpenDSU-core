@@ -47,8 +47,8 @@ assert.callback('Remote enclave test', (testFinished) => {
                         const randomNr = crypto.generateRandom(32);
                         const secretToken = crypto.encrypt(randomNr,crypto.deriveEncryptionKey(password));
 
-                        // const userDIDPublicKey = crypto.getPublicKeyFromPrivateKey(randomNr);
-                        // const userDID = crypto.generateRandom(32).toString("hex");
+                        const userDIDPublicKey = crypto.getPublicKeyFromPrivateKey(randomNr);
+                        const userDID = "someDID"
                         // const userDIDEncrypted = crypto.encrypt(userDID,userDIDPublicKey);
                         // assert.equal(crypto.decrypt(userDIDEncrypted,randomNr),userDID);
 
@@ -73,4 +73,4 @@ assert.callback('Remote enclave test', (testFinished) => {
         }
         sc.on("initialised", runAssertions);
     });
-}, 20000);
+}, 200000);

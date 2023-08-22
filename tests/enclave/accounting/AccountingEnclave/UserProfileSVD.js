@@ -27,7 +27,7 @@ module.exports = {
             this.userDID = userDID;
             this.isPrivate = isPrivate;
         },
-        set temporarySecretToken(temporarySecretToken){
+        setTemporarySecretToken(temporarySecretToken){
           this.temporarySecretToken=temporarySecretToken;
         },
         registeredAsValidatedUser: function () {

@@ -35,7 +35,7 @@ function updateUser(userId, name, email, phone, publicDescription, secretToken, 
                        if (err) {
                            return callback(err);
                        }
-                       const userSvdUid = "svd:user:" + crypto.generateRandom(32).toString("hex");
+                       const userSvdUid = "svd:user:" + crypto.getRandomSecret(32);
                        self.insertRecord("", "users", userSvdUid, { user: email }, (err) => {
                            if (err) {
                                return callback(err);
@@ -58,7 +58,7 @@ function updateUser(userId, name, email, phone, publicDescription, secretToken, 
 function addNewUser(name, email, phone, publicDescription, secretToken, userDID, isPrivate, callback){
     const self = this;
     const crypto = require("opendsu").loadApi("crypto");
-    const userSvdUid = "svd:user:" + crypto.generateRandom(32).toString("hex");
+    const userSvdUid = "svd:user:" + crypto.getRandomSecret(32);
     fsSVDStorage.createTransaction(function (err, transaction){
         let user = transaction.create(userSvdUid, userSvdUid, name, email, phone, publicDescription, userDID, isPrivate, secretToken);
         self.insertRecord("", "users", userSvdUid, { userId: userSvdUid }, (err) => {
