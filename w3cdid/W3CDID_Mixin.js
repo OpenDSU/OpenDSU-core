@@ -190,7 +190,17 @@ function W3CDID_Mixin(target, enclave) {
                 return callback(createOpenDSUErrorWrapper(`Failed to parse received message`, e));
             }
 
-            target.decryptMessage(message, callback);
+            target.decryptMessage(message, (decryptError, decryptedMessage)=>{
+                if(err){
+                    return mqHandler.deleteMessage(encryptedMessage.messageId, (err) => {
+                        if(err){
+                            //if we fail to auto delete the message that failed to decrypt we call the callback with the original decrypt error
+                            return callback(decryptError);
+                        }
+                    });
+                }
+                callback(undefined, decryptedMessage);
+            });
             return target.stopWaitingForMessages;
         }
         mqHandler.waitForMessages(target.onCallback);
