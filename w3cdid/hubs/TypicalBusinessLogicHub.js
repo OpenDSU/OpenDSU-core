@@ -78,6 +78,14 @@ function TypicalBusinessLogicHub() {
         commHub.stop(hubContext.appMainDID);
     }
 
+    this.registerErrorHandler = (handler) => {
+        commHub.registerErrorHandler(hubContext.appMainDID, handler);
+    }
+
+    this.unRegisterErrorHandler = (handler) => {
+        commHub.unRegisterErrorHandler(hubContext.appMainDID, handler);
+    }
+
     utilsAPI.bindParallelAutoPendingFunctions(this, ["mainDIDCreated", "setMainDID", "sharedEnclaveIsSet", "setSharedEnclave"]);
 }
 

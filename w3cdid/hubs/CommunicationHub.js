@@ -5,6 +5,7 @@ function CommunicationHub() {
     const didAPI = require("opendsu").loadAPI("w3cdid");
     const connectedToMQ = {};
     let strongPubSub;
+    const ERROR_CHANNEL = "errorChannel";
     const getChannelName = (did, messageType) => {
         return `${did.getIdentifier()}/${messageType}`;
     }
@@ -38,6 +39,7 @@ function CommunicationHub() {
                 connectedToMQ[did.getIdentifier()] = true;
                 did.waitForMessages((err, message) => {
                     if (err) {
+                        pubSub.publish(getChannelName(did, ERROR_CHANNEL), {err});
                         console.error(err);
                         return;
                     }
@@ -45,6 +47,7 @@ function CommunicationHub() {
                     try {
                         message = JSON.parse(message);
                     } catch (e) {
+                        pubSub.publish(getChannelName(did, ERROR_CHANNEL), {err:e, message});
                         console.error(e);
                         return;
                     }
@@ -175,6 +178,18 @@ function CommunicationHub() {
     this.stop = (did)=>{
         ensureDIDDocumentIsLoadedThenExecute(did, (err, didDocument)=>{
                 didDocument.stopWaitingForMessages();
+        });
+    }
+
+    this.registerErrorHandler = (did, handler)=>{
+        ensureDIDDocumentIsLoadedThenExecute(did, (err, didDocument)=>{
+            pubSub.subscribe(getChannelName(didDocument, ERROR_CHANNEL), handler);
+        });
+    }
+
+    this.unRegisterErrorHandler = (did, handler) => {
+        ensureDIDDocumentIsLoadedThenExecute(did, (err, didDocument)=>{
+            pubSub.unsubscribe(getChannelName(didDocument, ERROR_CHANNEL), handler);
         });
     }
 }
