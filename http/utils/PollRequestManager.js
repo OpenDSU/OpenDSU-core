@@ -164,6 +164,14 @@ function PollRequestManager(fetchFunction,  connectionTimeout = 10000, pollingTi
 						request.reject(Error("Token expired"));
 						return
 					}
+
+					if (response.status === 503){
+						let err = Error(response.statusText || "Service unavailable");
+						err.code = 503;
+						throw err;
+						return;
+					}
+
 					return beginSafePeriod();
 				}
 
