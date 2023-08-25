@@ -28,7 +28,7 @@ module.exports = {
             this.isPrivate = isPrivate;
         },
         setTemporarySecretToken(temporarySecretToken){
-          this.temporarySecretToken=temporarySecretToken;
+            this.temporarySecretToken=temporarySecretToken;
         },
         registeredAsValidatedUser: function () {
             this.availableInvitesCounter += 10;
@@ -46,17 +46,17 @@ module.exports = {
         },
         addBrandToFollowed(brandId)
         {
-          this.followedBrands.push(brandId);
+            this.followedBrands.push(brandId);
         },
         removeBrandFromFollowed(brandId){
-         const index = this.followedBrands.indexOf(brandId);
-         if(index>-1)
-         {
-             this.followedBrands.splice(index, 1);
-         }
-         else {
-             console.error(`Error: not found; Failed to remove brandId ${brandId} from user's followedBrands`);
-         }
+            const index = this.followedBrands.indexOf(brandId);
+            if(index>-1)
+            {
+                this.followedBrands.splice(index, 1);
+            }
+            else {
+                console.error(`Error: not found; Failed to remove brandId ${brandId} from user's followedBrands`);
+            }
         }
     }
 }
