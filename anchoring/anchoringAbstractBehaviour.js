@@ -87,6 +87,13 @@ function AnchoringAbstractBehaviour(persistenceStrategy) {
                             return callback(`Cannot update non existing anchor ${anchorId}`);
                         }
                         const lastSignedHashLinkKeySSI = keySSISpace.parse(data[data.length - 1]);
+                        if(anchorValueSSIKeySSI.getTimestamp()<lastSignedHashLinkKeySSI.getTimestamp()) {
+                            return callback({
+                                statusCode: 409,
+                                code: 409,
+                                message: "Anchor value timestamp is older than the last signed hashlink timestamp"
+                            });
+                        }
                         const dataToVerify = anchorValueSSIKeySSI.getDataToSign(anchorIdKeySSI, lastSignedHashLinkKeySSI);
                         if (!signer.verify(dataToVerify, signature)) {
                             return callback({statusCode: 428, code: 428, message: "Versions out of sync"});
