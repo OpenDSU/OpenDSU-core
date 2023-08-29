@@ -14,7 +14,8 @@ function MappingEngine(storageService, options) {
     || typeof storageService.commitBatch !== "function"
     || typeof storageService.cancelBatch !== "function"
     || typeof storageService.getUniqueIdAsync !== "function"
-    || typeof storageService.refresh !== "function") {
+    || typeof storageService.refresh !== "function"
+    || typeof storageService.batchInProgress !== "function") {
     throw Error("The MappingEngine requires a storage service that exposes beginBatch, commitBatch, cancelBatch, getUniqueIdAsync, refresh apis!");
   }
 
@@ -188,10 +189,11 @@ function MappingEngine(storageService, options) {
     }
 
     async function finish() {
+      if(!storageService.batchInProgress()){
+        return;
+      }
+
       const commitBatch = $$.promisify(storageService.commitBatch);
-      // const conflictResolutionFn = function (...args) {
-      //   console.log("merge conflicts", ...args);
-      // }
       await commitBatch();
     }
 
