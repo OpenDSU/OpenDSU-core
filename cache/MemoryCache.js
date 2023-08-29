@@ -34,6 +34,11 @@ function MemoryCache(useWeakRef) {
     }
 
     self.set = self.put;
+
+    self.clear = function(callback){
+        storage = {};
+        callback(undefined);
+    }
 }
 
 

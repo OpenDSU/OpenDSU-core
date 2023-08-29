@@ -114,6 +114,34 @@ function IndexedDBCache(storeName, lifetime) {
                 }
             });
     }
+
+    self.clear = (callback)=>{
+        self.addSerialPendingCall((next) => {
+            let transaction;
+            let store;
+            try {
+                transaction = db.transaction(storeName, "readwrite");
+                store = transaction.objectStore(storeName);
+            }catch (e) {
+                callback(e);
+                next();
+                return;
+            }
+            let req = store.clear();
+            transaction.oncomplete = () => {
+                if (typeof callback === "function") {
+                    callback(undefined);
+                }
+                next();
+            }
+            transaction.onabort = function() {
+                console.log("Error", transaction.error);
+            };
+            req.onerror = function (event){
+                next();
+            }
+        });
+    }
 }
 
 
