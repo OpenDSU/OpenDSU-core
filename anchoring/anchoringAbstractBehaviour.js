@@ -1,4 +1,5 @@
 const {createOpenDSUErrorWrapper} = require("../error");
+const {parse} = require("../keyssi");
 const fakeHistory = {};
 const fakeLastVersion = {};
 
@@ -87,7 +88,7 @@ function AnchoringAbstractBehaviour(persistenceStrategy) {
                             return callback(`Cannot update non existing anchor ${anchorId}`);
                         }
                         const lastSignedHashLinkKeySSI = keySSISpace.parse(data[data.length - 1]);
-                        if(anchorValueSSIKeySSI.getTimestamp()<lastSignedHashLinkKeySSI.getTimestamp()) {
+                        if (parseInt(anchorValueSSIKeySSI.getTimestamp()) < parseInt(lastSignedHashLinkKeySSI.getTimestamp())) {
                             return callback({
                                 statusCode: 409,
                                 code: 409,
