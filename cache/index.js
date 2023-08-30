@@ -15,11 +15,6 @@ if($$){
 }
 
 function getCacheForVault(storeName, lifetime) {
-    if(memoryCache){
-        stores[storeName] = new MemoryCache(storeName, lifetime);
-        return stores[storeName];
-    }
-
     if (typeof stores[storeName] === "undefined") {
         switch (config.get(constants.CACHE.VAULT_TYPE)) {
             case constants.CACHE.INDEXED_DB:
@@ -29,7 +24,7 @@ function getCacheForVault(storeName, lifetime) {
                 stores[storeName] = new FSCache(storeName, lifetime);
                 break;
             case constants.CACHE.MEMORY:
-                stores[storeName] = new MemoryCache(storeName, lifetime);
+                stores[storeName] = new MemoryCache(true);
                 break;
             case constants.CACHE.NO_CACHE:
                 break;
