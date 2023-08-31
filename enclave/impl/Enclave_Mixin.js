@@ -179,28 +179,36 @@ function Enclave_Mixin(target, did, keySSI) {
         target.storageDB.beginBatch();
     }
 
-    target.safeBeginBatch = (forDID, wait, callback) => {
-        target.storageDB.safeBeginBatch(wait, callback);
+    target.safeBeginBatch = (forDID, ...args) => {
+        target.storageDB.safeBeginBatch(...args);
     }
 
-    target.safeBeginBatchAsync = async (forDID, wait) => {
-        return await target.storageDB.safeBeginBatchAsync(wait);
+    target.safeBeginBatchAsync = async (forDID, ...args) => {
+        return await target.storageDB.safeBeginBatchAsync(...args);
     }
 
-    target.commitBatch = (forDID, callback) => {
-        target.storageDB.commitBatch(callback);
+    target.startOrAttachBatch = (...args) => {
+        target.storageDB.startOrAttachBatch(...args);
     }
 
-    target.commitBatchAsync = async (forDID) => {
-        return await target.storageDB.commitBatchAsync();
+    target.startOrAttachBatchAsync = async (...args) => {
+        return await target.storageDB.startOrAttachBatchAsync(...args);
     }
 
-    target.cancelBatch = (forDID, callback) => {
-        target.storageDB.cancelBatch(callback);
+    target.commitBatch = (forDID, ...args) => {
+        target.storageDB.commitBatch(...args);
     }
 
-    target.cancelBatchAsync = async (forDID) => {
-        return await target.storageDB.cancelBatchAsync();
+    target.commitBatchAsync = async (forDID, ...args) => {
+        return await target.storageDB.commitBatchAsync(...args);
+    }
+
+    target.cancelBatch = (forDID, ...args) => {
+        target.storageDB.cancelBatch(...args);
+    }
+
+    target.cancelBatchAsync = async (forDID, ...args) => {
+        return await target.storageDB.cancelBatchAsync(...args);
     }
 
     target.batchInProgress = (forDID) => {
@@ -275,21 +283,19 @@ function Enclave_Mixin(target, did, keySSI) {
             }
 
             const sReadSSIIdentifier = sReadSSI.getIdentifier();
-            target.storageDB.safeBeginBatch((err) => {
+            target.storageDB.startOrAttachBatch((err, batchId) => {
                 if (err) {
                     return callback(err);
                 }
                 return registerDerivedKeySSIs(seedSSI, sReadSSIIdentifier, (err) => {
                     if (err) {
-                        return target.storageDB.cancelBatch((err) => {
-                            if (err) {
-                                return callback(err);
-                            }
+                        return target.storageDB.cancelBatch(batchId, (error) => {
+                            console.log("Failed to cancel batch after fail of registering derived key.", error);
                             callback(err);
                         });
                     }
 
-                    target.storageDB.commitBatch(callback);
+                    target.storageDB.commitBatch(batchId, callback);
                 });
             });
         })
@@ -326,13 +332,13 @@ function Enclave_Mixin(target, did, keySSI) {
 
         if (keySSI.getFamilyName() === openDSU.constants.KEY_SSI_FAMILIES.SEED_SSI_FAMILY) {
             const keySSIIdentifier = keySSI.getIdentifier();
-            target.storageDB.safeBeginBatch((err) => {
+            target.storageDB.startOrAttachBatch((err, batchId) => {
                 if (err) {
                     return callback(err);
                 }
                 target.storageDB.insertRecord(constants.TABLE_NAMES.KEY_SSIS, keySSIIdentifier, {keySSI: keySSIIdentifier}, (err) => {
                     if (err) {
-                        return target.storageDB.cancelBatch((err) => {
+                        return target.storageDB.cancelBatch(batchId,(err) => {
                             if (err) {
                                 return callback(err);
                             }
@@ -340,7 +346,7 @@ function Enclave_Mixin(target, did, keySSI) {
                         });
                     }
 
-                    target.storageDB.commitBatch(callback);
+                    target.storageDB.commitBatch(batchId, callback);
                 });
             })
         } else {
@@ -365,21 +371,19 @@ function Enclave_Mixin(target, did, keySSI) {
             }
         }
         const keySSIIdentifier = sReadSSI.getIdentifier();
-        target.storageDB.safeBeginBatch((err) => {
+        target.storageDB.startOrAttachBatch((err, batchId) => {
             if (err) {
                 return callback(err);
             }
             target.storageDB.insertRecord(constants.TABLE_NAMES.SREAD_SSIS, aliasSSI.getIdentifier(), {sReadSSI: keySSIIdentifier}, (err) => {
                 if (err) {
-                    return target.storageDB.cancelBatch((err) => {
-                        if (err) {
-                            return callback(err);
-                        }
+                    return target.storageDB.cancelBatch(batchId, (error) => {
+                        console.log("Failed to cancel batch after fail to store sread.", error);
                         callback(err);
                     });
                 }
 
-                target.storageDB.commitBatch(callback);
+                target.storageDB.commitBatch(batchId, callback);
             });
         })
     }
@@ -438,13 +442,13 @@ function Enclave_Mixin(target, did, keySSI) {
 
         target.storageDB.getRecord(constants.TABLE_NAMES.DIDS_PRIVATE_KEYS, storedDID.getIdentifier(), (err, res) => {
             if (err || !res) {
-                return target.storageDB.safeBeginBatch((err) => {
+                return target.storageDB.startOrAttachBatch((err, batchId) => {
                     if (err) {
                         return callback(err);
                     }
                     target.storageDB.insertRecord(constants.TABLE_NAMES.DIDS_PRIVATE_KEYS, storedDID.getIdentifier(), {privateKeys: privateKeys}, (err, rec) => {
                         if (err) {
-                            return target.storageDB.cancelBatch((err) => {
+                            return target.storageDB.cancelBatch(batchId, (err) => {
                                 if (err) {
                                     return callback(err);
                                 }
@@ -452,7 +456,7 @@ function Enclave_Mixin(target, did, keySSI) {
                             });
                         }
 
-                        target.storageDB.commitBatch(err => callback(err, rec));
+                        target.storageDB.commitBatch(batchId, err => callback(err, rec));
                     });
                 })
             }
@@ -460,13 +464,13 @@ function Enclave_Mixin(target, did, keySSI) {
             privateKeys.forEach(privateKey => {
                 res.privateKeys.push(privateKey);
             })
-            target.storageDB.safeBeginBatch((err) => {
+            target.storageDB.startOrAttachBatch((err, batchId) => {
                 if (err) {
                     return callback(err);
                 }
                 target.storageDB.updateRecord(constants.TABLE_NAMES.DIDS_PRIVATE_KEYS, storedDID.getIdentifier(), res, (err) => {
                     if (err) {
-                        return target.storageDB.cancelBatch((err) => {
+                        return target.storageDB.cancelBatch(batchId, (err) => {
                             if (err) {
                                 return callback(err);
                             }
@@ -474,7 +478,7 @@ function Enclave_Mixin(target, did, keySSI) {
                         });
                     }
 
-                    target.storageDB.commitBatch(callback);
+                    target.storageDB.commitBatch(batchId, callback);
                 });
             })
         });
@@ -484,21 +488,19 @@ function Enclave_Mixin(target, did, keySSI) {
         const privateKeyObj = {privateKeys: [privateKey]}
         target.storageDB.getRecord(constants.TABLE_NAMES.DIDS_PRIVATE_KEYS, didDocument.getIdentifier(), (err, res) => {
             if (err || !res) {
-                return target.storageDB.safeBeginBatch((err) => {
+                return target.storageDB.startOrAttachBatch((err, batchId) => {
                     if (err) {
                         return callback(err);
                     }
                     return target.storageDB.insertRecord(constants.TABLE_NAMES.DIDS_PRIVATE_KEYS, didDocument.getIdentifier(), privateKeyObj, (err) => {
                         if (err) {
-                            return target.storageDB.cancelBatch((err) => {
-                                if (err) {
-                                    return callback(err);
-                                }
+                            return target.storageDB.cancelBatch(batchId, (error) => {
+                                console.log("Failed to cancel batch after failed insert of private key", error);
                                 callback(err);
                             });
                         }
 
-                        target.storageDB.commitBatch(callback);
+                        target.storageDB.commitBatch(batchId, callback);
                     });
                 })
             }

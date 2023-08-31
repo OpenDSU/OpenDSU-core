@@ -28,32 +28,40 @@ function SingleDSUStorageStrategy(recordStorageStrategy) {
         }
     }
 
-    this.safeBeginBatch = (wait, callback) => {
-        storageDSU.safeBeginBatch(wait, callback);
+    this.safeBeginBatch = (...args) => {
+        storageDSU.safeBeginBatch(...args);
     }
 
-    this.safeBeginBatchAsync = async (wait) => {
-        return await storageDSU.safeBeginBatchAsync(wait);
+    this.safeBeginBatchAsync = async (...args) => {
+        return await storageDSU.safeBeginBatchAsync(...args);
     }
 
-    this.cancelBatch = (callback) => {
-        storageDSU.cancelBatch(callback);
+    this.startOrAttachBatch = (...args) => {
+        storageDSU.startOrAttachBatch(...args);
     }
 
-    this.cancelBatchAsync = async () => {
-        return await storageDSU.cancelBatchAsync();
+    this.startOrAttachBatchAsync = async (...args) => {
+        return await storageDSU.startOrAttachBatchAsync(...args);
     }
 
-    this.commitBatch = (callback) => {
-        storageDSU.commitBatch(callback);
+    this.cancelBatch = (...args) => {
+        storageDSU.cancelBatch(...args);
     }
 
-    this.commitBatchAsync = async () => {
-        return await storageDSU.commitBatchAsync();
+    this.cancelBatchAsync = async (...args) => {
+        return await storageDSU.cancelBatchAsync(...args);
     }
 
-    this.batchInProgress = () => {
-        return storageDSU.batchInProgress();
+    this.commitBatch = (...args) => {
+        storageDSU.commitBatch(...args);
+    }
+
+    this.commitBatchAsync = async (...args) => {
+        return await storageDSU.commitBatchAsync(...args);
+    }
+
+    this.batchInProgress = (...args) => {
+        return storageDSU.batchInProgress(...args);
     }
 
     this.getAllRecords = (tableName, callback) => {

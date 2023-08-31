@@ -27,7 +27,7 @@ function WalletDBEnclaveHandler(walletDBEnclaveDSU, config) {
         }
         const __storePathKeySSI = () => {
             const filePath = pathModule.join(constants.PATHS.SCATTERED_PATH_KEYS, pathKeySSI.getSpecificString(), pathKeySSI.getIdentifier());
-            walletDBEnclaveDSU.safeBeginBatch(err => {
+            walletDBEnclaveDSU.startOrAttachBatch((err, batchId) => {
                 if (err) {
                     return callback(err);
                 }
@@ -36,7 +36,7 @@ function WalletDBEnclaveHandler(walletDBEnclaveDSU, config) {
                     if (err) {
                         const writeFileError = createOpenDSUErrorWrapper(`Failed to store path key SSI <${pathKeySSI.getIdentifier()}>`, err);
                         try {
-                            await walletDBEnclaveDSU.cancelBatchAsync();
+                            await walletDBEnclaveDSU.cancelBatchAsync(batchId);
                         } catch (e) {
                             return callback(createOpenDSUErrorWrapper(`Failed to cancel batch`, e, writeFileError));
                         }
@@ -61,14 +61,14 @@ function WalletDBEnclaveHandler(walletDBEnclaveDSU, config) {
                     } catch (e) {
                         const listFilesError = createOpenDSUErrorWrapper(`Failed to list files`, e);
                         try {
-                            await walletDBEnclaveDSU.cancelBatchAsync();
+                            await walletDBEnclaveDSU.cancelBatchAsync(batchId);
                         } catch (error) {
                             return callback(createOpenDSUErrorWrapper(`Failed to cancel batch`, error, listFilesError));
                         }
                         return callback(listFilesError);
                     }
 
-                    walletDBEnclaveDSU.commitBatch(callback);
+                    walletDBEnclaveDSU.commitBatch(batchId, callback);
                 })
             })
         };
