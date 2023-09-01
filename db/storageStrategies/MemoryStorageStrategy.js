@@ -203,10 +203,10 @@ function MemoryStorageStrategy() {
 
     }
 
-    this.commitBatch = (batchId, callback) => {
+    this.commitBatch = (onConflict, callback) => {
         if(typeof callback === "undefined"){
-            callback = batchId;
-            batchId = undefined;
+            callback = onConflict;
+            onConflict = undefined;
         }
         callback(undefined);
     }

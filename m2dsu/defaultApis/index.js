@@ -98,7 +98,7 @@ registry.defineApi("registerDSU", async function (dsu) {
             let anchorId = await $$.promisify(dsu.getAnchorId, dsu)();
             this.groupInstance.dsuInstancesCache[anchorId] = dsu;
         }
-        dsu.safeBeginBatchAsync();
+        await dsu.safeBeginBatchAsync();
     }
 
     return promisifyDSUAPIs(dsu);
