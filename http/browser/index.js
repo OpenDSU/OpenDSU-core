@@ -86,13 +86,21 @@ function customFetch(...args){
 function doGet(url, options, callback){
 	if (typeof options === "function") {
 		callback = options;
-		options = undefined;
+		options = {};
 	}
 
-	customFetch(url, options)
-		.then(response => response.text())
-		.then(data => callback(undefined, data))
-		.catch(err => callback(err));
+	if(!options){
+		options = {};
+	}
+
+	if (!options.credential) {
+		options.credential = "include";
+	}
+
+    customFetch(url, options)
+	.then(response => response.text())
+	.then(data => callback(undefined, data))
+	.catch(err => callback(err));
 }
 
 module.exports = {
