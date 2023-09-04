@@ -47,15 +47,13 @@ assert.callback('Remote enclave test', (testFinished) => {
                         const randomNr = crypto.generateRandom(32);
                         const secretToken = crypto.encrypt(randomNr,crypto.deriveEncryptionKey(password));
 
-                        const domain = "default";
-                        const seedSSI = await $$.promisify(keySSI.createSeedSSI)(domain);
-                        const didDocument = await $$.promisify(w3cDID.createIdentity)("ssi:key", seedSSI);
-
+                        const didDocument = await $$.promisify(w3cDID.createIdentity)("key", undefined, randomNr);
                         const dataToSign = "someData";
                         const signature = await $$.promisify(didDocument.sign)(dataToSign);
-                        const resolvedDIDDocument = await $$.promisify(w3cDID.resolveDID)(didDocument.getIdentifier());
-                        const verificationResult = await $$.promisify(resolvedDIDDocument.verify)(dataToSign, signature);
+                        const verificationResult = await $$.promisify(didDocument.verify)(dataToSign, signature);
                         assert.true(verificationResult, "Failed to verify signature");
+
+
 
                         const userId2 = await $$.promisify(cloudEnclave.callLambda)("updateUser", userId.userId, "name1", "email1", "phone1", "publicDescription1", secretToken, "userDID", "");
                         const user2 = await $$.promisify(cloudEnclave.getRecord)("", TABLE, userId2.userId);
