@@ -7,6 +7,13 @@ const IndexedDBCache = require("./IndexeDBCache").IndexedDBCache;
 const FSCache        = require("./FSCache").FSCache;
 const MemoryCache    = require("./MemoryCache").MemoryCache;
 
+let memoryCache = true;
+if($$){
+    $$.enableClassicVaultCache = function(){
+        memoryCache = false;
+    }
+}
+
 function getCacheForVault(storeName, lifetime) {
     if (typeof stores[storeName] === "undefined") {
         switch (config.get(constants.CACHE.VAULT_TYPE)) {
@@ -17,7 +24,7 @@ function getCacheForVault(storeName, lifetime) {
                 stores[storeName] = new FSCache(storeName, lifetime);
                 break;
             case constants.CACHE.MEMORY:
-                stores[storeName] = new MemoryCache(storeName, lifetime);
+                stores[storeName] = new MemoryCache(true);
                 break;
             case constants.CACHE.NO_CACHE:
                 break;

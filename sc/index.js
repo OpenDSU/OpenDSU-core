@@ -95,7 +95,7 @@ const configEnvironment = (config, refreshSC, callback) => {
             return callback(undefined, getSecurityContext());
         }
 
-        mainDSU.safeBeginBatch(err => {
+        mainDSU.safeBeginBatch(true, (err) => {
             if (err) {
                 return callback(createOpenDSUErrorWrapper("Failed to begin batch", err));
             }

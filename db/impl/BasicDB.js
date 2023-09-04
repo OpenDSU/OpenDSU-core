@@ -253,28 +253,36 @@ function BasicDB(storageStrategy, conflictSolvingStrategy, options) {
         storageStrategy.beginBatch()
     }
 
-    this.safeBeginBatch = (wait, callback) => {
-        storageStrategy.safeBeginBatch(wait, callback);
+    this.safeBeginBatch = (...args) => {
+        storageStrategy.safeBeginBatch(...args);
     }
 
-    this.safeBeginBatchAsync = async (wait) => {
-        return await storageStrategy.safeBeginBatchAsync(wait);
+    this.safeBeginBatchAsync = async (...args) => {
+        return await storageStrategy.safeBeginBatchAsync(...args);
     }
 
-    this.cancelBatch = (callback) => {
-        storageStrategy.cancelBatch(callback)
+    this.startOrAttachBatch = (...args) => {
+        storageStrategy.startOrAttachBatch(...args);
     }
 
-    this.cancelBatchAsync = async () => {
-        return await storageStrategy.cancelBatchAsync();
+    this.startOrAttachBatchAsync = async (...args) => {
+        return await storageStrategy.startOrAttachBatchAsync(...args);
     }
 
-    this.commitBatch = (callback) => {
-        storageStrategy.commitBatch(callback)
+    this.cancelBatch = (...args) => {
+        storageStrategy.cancelBatch(...args);
     }
 
-    this.commitBatchAsync = async () => {
-        return await storageStrategy.commitBatchAsync();
+    this.cancelBatchAsync = async (...args) => {
+        return await storageStrategy.cancelBatchAsync(...args);
+    }
+
+    this.commitBatch = (...args) => {
+        storageStrategy.commitBatch(...args);
+    }
+
+    this.commitBatchAsync = async (...args) => {
+        return await storageStrategy.commitBatchAsync(...args);
     }
 
     this.batchInProgress = () => {

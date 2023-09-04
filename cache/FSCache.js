@@ -72,6 +72,29 @@ function FSCache(folderName) {
     }
 
     self.set = self.put;
+
+    self.clear = function(callback){
+        fs.readdir(folderPath, function (err, files) {
+            if (err) {
+                return callback(err);
+            }
+
+            function deleteFile(){
+                if(!files.length){
+                    return callback(undefined);
+                }
+                let file = files.pop();
+                fs.unlink(file, function(err){
+                    if(err){
+                        return callback(err);
+                    }
+                    deleteFile();
+                });
+            }
+
+            deleteFile();
+        });
+    }
 }
 
 

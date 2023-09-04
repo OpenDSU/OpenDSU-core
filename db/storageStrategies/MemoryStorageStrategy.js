@@ -195,7 +195,19 @@ function MemoryStorageStrategy() {
 
     }
 
-    this.commitBatch = (callback) => {
+    this.startOrAttachBatch = (callback) => {
+        callback(undefined);
+    }
+
+    this.startOrAttachBatchAsync = () =>{
+
+    }
+
+    this.commitBatch = (onConflict, callback) => {
+        if(typeof callback === "undefined"){
+            callback = onConflict;
+            onConflict = undefined;
+        }
         callback(undefined);
     }
 
@@ -203,7 +215,11 @@ function MemoryStorageStrategy() {
 
     }
 
-    this.cancelBatch = (callback) => {
+    this.cancelBatch = (batchId, callback) => {
+        if(typeof callback === "undefined"){
+            callback = batchId;
+            batchId = undefined;
+        }
         callback(undefined);
     }
 

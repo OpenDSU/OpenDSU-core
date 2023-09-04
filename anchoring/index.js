@@ -293,7 +293,7 @@ async function getNextVersionNumberAsync(keySSI){
         throw err;
     }
 
-    return nextVersion;
+    return nextVersion+1;
 }
 
 module.exports = {

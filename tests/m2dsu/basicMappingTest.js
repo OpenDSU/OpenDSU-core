@@ -15,7 +15,7 @@ assert.callback('basicMappingTest', (testFinished) => {
             const persistenceDSU = await $$.promisify(require("opendsu").loadApi("resolver").createSeedDSU)("default");
             //persistenceDSU should be an instance of storageService which uses a DB
             const mappingEngine = m2dsu.getMappingEngine(persistenceDSU);
-            await persistenceDSU.safeBeginBatchAsync();
+
             //this function tell if the mapping function can be applied
             const decisionFN = (message) => {
                 return true;

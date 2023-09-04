@@ -38,7 +38,6 @@ function promisifyDSUAPIs(dsu) {
         "beginBatch",
         "cancelBatch",
         "cloneFolder",
-        "commitBatch",
         "createFolder",
         "delete",
         "dsuLog",
@@ -88,10 +87,18 @@ registry.defineApi("registerDSU", async function (dsu) {
         this.registeredDSUs = [];
     }
 
+    if (this.groupInstance && typeof this.groupInstance.dsuInstancesCache === "undefined") {
+        this.groupInstance.dsuInstancesCache = {};
+    }
+
     //TODO: temporary fix, this apiRegistry is now instantiated for each mapping message
     if (!dsu.batchInProgress()) {
         this.registeredDSUs.push(dsu);
-        dsu.safeBeginBatchAsync();
+        if(this.groupInstance){
+            let anchorId = await $$.promisify(dsu.getAnchorId, dsu)();
+            this.groupInstance.dsuInstancesCache[anchorId] = dsu;
+        }
+        await dsu.safeBeginBatchAsync();
     }
 
     return promisifyDSUAPIs(dsu);
@@ -200,12 +207,24 @@ registry.defineApi("createPathSSIDSU", async function (domain, path, options) {
     if(await $$.promisify(this.testIfDSUExists)(seedSSI)){
         throw createOpenDSUErrorWrapper("PathSSIDSU already exists");
     }
+    if(!options){
+        options = {};
+    }
+    options.addLog = false;
     let dsu = await resolver.createDSUForExistingSSI(seedSSI, options);
     //take note that this.registerDSU returns a Proxy Object over the DSU and this Proxy we need to return also
     return await this.registerDSU(dsu);
 });
 
 registry.defineApi("loadDSU", async function (keySSI, options) {
+    if(this.groupInstance && this.groupInstance.dsuInstancesCache){
+        let anchorID = await $$.promisify(keySSI.getAnchorId, keySSI)();
+        let cachedDSU = this.groupInstance.dsuInstancesCache[anchorID];
+        if(cachedDSU){
+            return await this.registerDSU(cachedDSU);
+        }
+    }
+
     let resolver = await this.getResolver();
     let dsu = await resolver.loadDSU(keySSI, options);
     if (!dsu) {

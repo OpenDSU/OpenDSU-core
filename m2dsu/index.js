@@ -14,7 +14,8 @@ function MappingEngine(storageService, options) {
     || typeof storageService.commitBatch !== "function"
     || typeof storageService.cancelBatch !== "function"
     || typeof storageService.getUniqueIdAsync !== "function"
-    || typeof storageService.refresh !== "function") {
+    || typeof storageService.refresh !== "function"
+    || typeof storageService.batchInProgress !== "function") {
     throw Error("The MappingEngine requires a storage service that exposes beginBatch, commitBatch, cancelBatch, getUniqueIdAsync, refresh apis!");
   }
 
@@ -96,12 +97,13 @@ function MappingEngine(storageService, options) {
     });
   }
 
-  function executeMappingFor(message) {
+  function executeMappingFor(message, groupInstance) {
     return new Promise(async (resolve, reject) => {
 
       const mappingFnc = await getMappingFunction(message);
       if (mappingFnc) {
         const instance = buildMappingInstance();
+        instance.groupInstance = groupInstance;
         try {
           instance.setRecovery(message.force);
           await mappingFnc.call(instance, message);
@@ -188,10 +190,11 @@ function MappingEngine(storageService, options) {
     }
 
     async function finish() {
+      if(!storageService.batchInProgress()){
+        return;
+      }
+
       const commitBatch = $$.promisify(storageService.commitBatch);
-      // const conflictResolutionFn = function (...args) {
-      //   console.log("merge conflicts", ...args);
-      // }
       await commitBatch();
     }
 
@@ -225,7 +228,7 @@ function MappingEngine(storageService, options) {
             return reject(Error(`Failed to acquire lock`));
           }
 
-          // await storageService.safeBeginBatchAsync();
+          await storageService.safeBeginBatchAsync();
 
           //commitPromisses will contain promises for each of message
           let commitPromisses = [];
@@ -239,6 +242,7 @@ function MappingEngine(storageService, options) {
             reject(err);
           }
 
+          let groupInstance = {};
           for (let i = 0; i < messages.length; i++) {
             let message = messages[i];
             if (typeof message !== "object") {
@@ -254,7 +258,7 @@ function MappingEngine(storageService, options) {
             }
 
             try {
-              let mappingInstance = await executeMappingFor(message);
+              let mappingInstance = await executeMappingFor(message, groupInstance);
               mappingsInstances.push(mappingInstance);
             } catch (err) {
               //this .mappingInstance prop is artificial injected from the executeMappingFor function in case of an error during mapping execution
