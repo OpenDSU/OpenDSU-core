@@ -283,7 +283,21 @@ registry.defineApi("recoverDSU", function (ssi, recoveryFnc, callback) {
         return callback(new Error("Not able to run recovery mode due to misconfiguration of mapping engine."));
     }
 
-    this.storageService.loadDSURecoveryMode(ssi, recoveryFnc, async (err, dsu)=>{
+    this.storageService.loadDSURecoveryMode(ssi, async (dsu, callback)=>{
+        //because in the recoveryFnc the content get "recovered" we need to control the batch for those operations
+        let batchId = await dsu.startOrAttachBatchAsync();
+        recoveryFnc(dsu, async(err, dsu)=>{
+            if(err) {
+                return callback(err);
+            }
+            dsu.commitBatch(batchId, (err)=>{
+                if(err){
+                    return callback(err);
+                }
+                return callback(err, dsu);
+            });
+        });
+    }, async (err, dsu)=>{
         if(err){
             return callback(err);
         }
