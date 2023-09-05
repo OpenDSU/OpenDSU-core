@@ -195,7 +195,10 @@ function MappingEngine(storageService, options) {
       }
 
       const commitBatch = $$.promisify(storageService.commitBatch);
-      await commitBatch();
+      await commitBatch(messages.batchId);
+      //we clean after our self
+      messages.safeBatchId = undefined;
+      delete messages.safeBatchId;
     }
 
     return new Promise(async (resolve, reject) => {
@@ -228,7 +231,8 @@ function MappingEngine(storageService, options) {
             return reject(Error(`Failed to acquire lock`));
           }
 
-          await storageService.safeBeginBatchAsync();
+          //we store, on purpose, tbe batchId on the messages array instance which is currently digested
+          messages.safeBatchId = await storageService.safeBeginBatchAsync();
 
           //commitPromisses will contain promises for each of message
           let commitPromisses = [];
