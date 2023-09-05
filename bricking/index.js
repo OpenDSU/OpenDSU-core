@@ -13,6 +13,47 @@ const isValidBrickHash = (hashLinkSSI, brickData) => {
     return actualHash === expectedHash;
 }
 
+const brickExistsOnServer = (hashLinkSSI, callback) => {
+    const dlDomain = hashLinkSSI.getDLDomain();
+    const brickHash = hashLinkSSI.getHash();
+    const bdns = openDSU.loadApi("bdns");
+    bdns.getBrickStorages(dlDomain, (err, brickStorageArray) => {
+        if (err) {
+            return OpenDSUSafeCallback(callback)(createOpenDSUErrorWrapper(`Failed to get brick storage services from bdns`, err));
+        }
+
+        if (!brickStorageArray.length) {
+            return callback('No storage provided');
+        }
+
+        const fetchBrick = (storage) => {
+            let smartUrl = new SmartUrl(storage);
+            smartUrl = smartUrl.concatWith(`/bricking/${dlDomain}/brick-exists/${brickHash}`);
+            return smartUrl.fetch().then(async (response) => {
+                const exists = await response.text();
+                if (exists === "true") {
+                    return true;
+                }
+
+                if(exists === "false"){
+                    return false;
+                }
+
+                throw Error(`Failed to check brick <${brickHash}>`);
+            });
+        };
+
+        const runnerCallback = (error, result) => {
+            if (error) {
+                return OpenDSUSafeCallback(callback)(createOpenDSUErrorWrapper(`Failed to get brick <${brickHash}> from brick storage`, error));
+            }
+
+            callback(null, result);
+        }
+
+        promiseRunner.runOneSuccessful(brickStorageArray, fetchBrick, runnerCallback, "get brick");
+    });
+}
 /**
  * Get brick
  * @param {hashLinkSSI} hashLinkSSI
@@ -104,7 +145,7 @@ const getMultipleBricks = (hashLinkSSIList, authToken, callback) => {
             }
 
             resultsArr[taskNumber] = brickData;
-            setTimeout(()=>{
+            setTimeout(() => {
                 attemptCallback();
             })
         });
@@ -222,4 +263,10 @@ const constructBricksFromData = (keySSI, data, options, callback) => {
     });
 }
 
-module.exports = {getBrick, putBrick, getMultipleBricks, constructBricksFromData};
+module.exports = {
+    getBrick,
+    putBrick,
+    getMultipleBricks,
+    constructBricksFromData,
+    brickExistsOnServer
+};
