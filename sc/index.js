@@ -95,7 +95,7 @@ const configEnvironment = (config, refreshSC, callback) => {
             return callback(undefined, getSecurityContext());
         }
 
-        mainDSU.safeBeginBatch(true, (err) => {
+        mainDSU.startOrAttachBatch((err, batchId) => {
             if (err) {
                 return callback(createOpenDSUErrorWrapper("Failed to begin batch", err));
             }
@@ -103,14 +103,16 @@ const configEnvironment = (config, refreshSC, callback) => {
                 if (err) {
                     const writeFileError = createOpenDSUErrorWrapper("Failed to write env", err);
                     try {
-                        await mainDSU.cancelBatchAsync();
+                        await mainDSU.cancelBatchAsync(batchId);
                     }catch (e) {
-                        return callback(createOpenDSUErrorWrapper("Failed to cancel batch", e, writeFileError));
+                        //not that important
+                        //return callback(createOpenDSUErrorWrapper("Failed to cancel batch", e, writeFileError));
+                        console.log(e);
                     }
                     return callback(writeFileError);
                 }
 
-                mainDSU.commitBatch(err => {
+                mainDSU.commitBatch(batchId, (err) => {
                     if (err) {
                         return callback(createOpenDSUErrorWrapper("Failed to commit batch", err));
                     }

@@ -156,7 +156,7 @@ function ConstDID_Document_Mixin(target, enclave, domain, name, isInitialisation
     };
 
     target.addPublicKey = (publicKey, callback) => {
-        target.dsu.safeBeginBatch((err) => {
+        target.dsu.startOrAttachBatch((err, batchId) => {
             if (err) {
                 return callback(createOpenDSUErrorWrapper(`Failed to begin batch`, err));
             }
@@ -165,14 +165,16 @@ function ConstDID_Document_Mixin(target, enclave, domain, name, isInitialisation
                 if (err) {
                     const writeError = createOpenDSUErrorWrapper(`Failed to add public key for did ${target.getIdentifier()}`, err);
                     try {
-                        await target.dsu.cancelBatchAsync();
+                        await target.dsu.cancelBatchAsync(batchId);
                     }catch (e) {
-                        return callback(createOpenDSUErrorWrapper(`Failed to cancel batch`, e, writeError));
+                        //not that relevant
+                        //return callback(createOpenDSUErrorWrapper(`Failed to cancel batch`, e, writeError));
+                        console.log(e);
                     }
                     return callback(writeError);
                 }
 
-                target.dsu.commitBatch(callback);
+                target.dsu.commitBatch(batchId, callback);
             });
         });
     }

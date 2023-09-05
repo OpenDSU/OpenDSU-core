@@ -506,21 +506,22 @@ function Enclave_Mixin(target, did, keySSI) {
             }
 
             res.privateKeys.push(privateKey);
-            target.storageDB.safeBeginBatch((err) => {
+            target.storageDB.startOrAttachBatch((err, batchId) => {
                 if (err) {
                     return callback(err);
                 }
                 target.storageDB.updateRecord(constants.TABLE_NAMES.DIDS_PRIVATE_KEYS, didDocument.getIdentifier(), res, (err) => {
                     if (err) {
-                        return target.storageDB.cancelBatch((err) => {
-                            if (err) {
-                                return callback(err);
+                        return target.storageDB.cancelBatch(batchId,(e) => {
+                            if(e){
+                                //this error is not that relevant... the updateRecord is more important...
+                                console.log(e);
                             }
                             callback(err);
                         });
                     }
 
-                    target.storageDB.commitBatch(callback);
+                    target.storageDB.commitBatch(batchId, callback);
                 });
             })
         });
@@ -542,7 +543,7 @@ function Enclave_Mixin(target, did, keySSI) {
             alias = generateUid(10).toString("hex");
         }
 
-        target.storageDB.safeBeginBatch((err) => {
+        target.storageDB.startOrAttachBatch((err, batchId) => {
             if (err) {
                 return callback(err);
             }
@@ -551,15 +552,16 @@ function Enclave_Mixin(target, did, keySSI) {
                 type: type
             }, (err, rec) => {
                 if (err) {
-                    return target.storageDB.cancelBatch((err) => {
-                        if (err) {
-                            return callback(err);
+                    return target.storageDB.cancelBatch(batchId, (e) => {
+                        if (e) {
+                            //this e error is not that relevant... insert record err is important
+                            console.log(e);
                         }
                         callback(err);
                     });
                 }
 
-                target.storageDB.commitBatch(err => callback(err, rec));
+                target.storageDB.commitBatch(batchId, (err) => callback(err, rec));
             });
         });
     }
@@ -575,21 +577,22 @@ function Enclave_Mixin(target, did, keySSI) {
             alias = generateUid(10).toString("hex");
         }
 
-        target.storageDB.safeBeginBatch((err) => {
+        target.storageDB.startOrAttachBatch((err, batchId) => {
             if (err) {
                 return callback(err);
             }
             target.storageDB.insertRecord(constants.TABLE_NAMES.SECRET_KEYS, alias, {secretKey: secretKey}, (err, res) => {
                 if (err) {
-                    return target.storageDB.cancelBatch((err) => {
-                        if (err) {
-                            return callback(err);
+                    return target.storageDB.cancelBatch(batchId, (e) => {
+                        if (e) {
+                            //this error is not that relevant
+                            console.log(e);
                         }
                         callback(err);
                     });
                 }
 
-                target.storageDB.commitBatch(err => callback(err, res));
+                target.storageDB.commitBatch(batchId, (err) => callback(err, res));
             })
         })
     };

@@ -75,16 +75,28 @@ function InMemoryMainDSU() {
         callback();
     }
 
+    this.startOrAttachBatch = (callback) => {
+        return this.safeBeginBatch(true, callback);
+    }
+
+    this.startOrAttachBatchAsync = ()=>{
+        return convertGetFunctionToAsync(this.startOrAttachBatch);
+    }
+
     this.safeBeginBatchAsync = async (wait) => {
         return convertGetFunctionToAsync(this.safeBeginBatch, wait);
     }
 
-    this.commitBatch = (callback) => {
+    this.commitBatch = (batchId, callback) => {
+        if(typeof callback === "undefined"){
+            callback = batchId;
+            batchId = undefined;
+        }
         batchInProgress = false;
         callback();
     }
 
-    this.commitBatchAsync = async () => {
+    this.commitBatchAsync = async (batchId) => {
         convertUpdateFnToAsync(this.commitBatch);
     }
 

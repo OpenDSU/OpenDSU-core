@@ -188,7 +188,7 @@ function GroupDID_Document(enclave, domain, groupName, isInitialisation) {
                     });
                 }
 
-                return this.dsu.safeBeginBatch(err => {
+                return this.dsu.startOrAttachBatch( (err, batchId) => {
                     if (err) {
                         return callback(err);
                     }
@@ -197,14 +197,16 @@ function GroupDID_Document(enclave, domain, groupName, isInitialisation) {
                         if (err) {
                             const writeError = createOpenDSUErrorWrapper(`Failed to write members`, err);
                             try{
-                                await this.dsu.cancelBatchAsync();
+                                await this.dsu.cancelBatchAsync(batchId);
                             }catch (e) {
-                                return callback(createOpenDSUErrorWrapper(`Failed to cancel batch`, e, writeError));
+                                //not that relevant
+                                //return callback(createOpenDSUErrorWrapper(`Failed to cancel batch`, e, writeError));
+                                console.log(e);
                             }
                             return callback(writeError);
                         }
 
-                        this.dsu.commitBatch(callback);
+                        this.dsu.commitBatch(batchId, callback);
                     });
                 })
             } else {

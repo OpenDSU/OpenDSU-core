@@ -68,23 +68,23 @@ function WalletDBEnclave(keySSI, did) {
             } catch (e) {
             }
             if (!privateKey) {
+                let batchId;
                 try{
-                    await this.storageDB.safeBeginBatchAsync();
+                    batchId = await this.storageDB.startOrAttachBatchAsync();
                 } catch (e) {
                     this.dispatchEvent("error", e);
                 }
 
                 try {
                     await $$.promisify(this.storageDB.insertRecord)(constants.TABLE_NAMES.PATH_KEY_SSI_PRIVATE_KEYS, 0, {privateKey: keySSI.getPrivateKey()});
-                    await this.storageDB.commitBatchAsync();
+                    await this.storageDB.commitBatchAsync(batchId);
                 } catch (e) {
                     const insertError = createOpenDSUErrorWrapper(`Failed to insert private key`, e);
                     try {
-                        await this.storageDB.cancelBatchAsync();
+                        await this.storageDB.cancelBatchAsync(batchId);
                     } catch (error) {
-                        const newError = createOpenDSUErrorWrapper(`Failed to cancel batch`, error, insertError);
-                        this.dispatchEvent("error", newError);
-                        return
+                        //not relevant...
+                        console.log(error);
                     }
                     this.dispatchEvent("error", insertError);
                     return

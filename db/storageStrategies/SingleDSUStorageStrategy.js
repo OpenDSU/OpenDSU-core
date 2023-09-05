@@ -319,25 +319,24 @@ function SingleDSUStorageStrategy(recordStorageStrategy) {
         getIndexedFieldsList(tableName, callback);
     };
 
-    function createIndex(tableName, fieldName, callback) {
-        getPrimaryKeys(tableName, (err, primaryKeys) => {
+    let createIndex = (tableName, fieldName, callback) => {
+        getPrimaryKeys(tableName, async (err, primaryKeys) => {
             if (err) {
                 return callback(createOpenDSUErrorWrapper(`Failed to get primary keys for table ${tableName}`, err));
             }
 
             const TaskCounter = require("swarmutils").TaskCounter;
-            let batchInProgress = false;
-            if (storageDSU.batchInProgress()) {
-                batchInProgress = true
-            } else {
-                storageDSU.beginBatch();
+
+            let batchId;
+            try{
+                batchId = await this.startOrAttachBatchAsync();
+            }catch(err){
+                return callback(err);
             }
+
             const taskCounter = new TaskCounter(() => {
-                if (batchInProgress) {
-                    return callback();
-                }
-                storageDSU.commitBatch(callback);
-            })
+               this.commitBatch(batchId, callback);
+            });
 
             if (primaryKeys.length === 0) {
                 return storageDSU.createFolder(getIndexPath(tableName, fieldName), (err) => {
@@ -345,10 +344,7 @@ function SingleDSUStorageStrategy(recordStorageStrategy) {
                         return callback(createOpenDSUErrorWrapper(`Failed to create empty index for field ${fieldName} in table ${tableName}`, err));
                     }
 
-                    if (batchInProgress) {
-                        return callback();
-                    }
-                    storageDSU.commitBatch(callback);
+                    this.commitBatch(batchId, callback);
                 });
             }
 
@@ -367,8 +363,7 @@ function SingleDSUStorageStrategy(recordStorageStrategy) {
                         taskCounter.decrement();
                     });
                 });
-            })
-
+            });
         });
     }
 
@@ -579,13 +574,14 @@ function SingleDSUStorageStrategy(recordStorageStrategy) {
     };
 
     const READ_WRITE_KEY_TABLE = "KeyValueTable";
-    this.writeKey = function (key, value, callback) {
-        let batchInProgress = false;
-        if (storageDSU.batchInProgress()) {
-            batchInProgress = true
-        } else {
-            storageDSU.beginBatch();
+    this.writeKey = async (key, value, callback)=> {
+        let batchId;
+        try{
+            batchId = await this.startOrAttachBatchAsync();
+        }catch(err){
+            return callback(err);
         }
+
         let valueObject = {
             type: typeof value,
             value: value
@@ -606,14 +602,16 @@ function SingleDSUStorageStrategy(recordStorageStrategy) {
         }
 
         const recordPath = getRecordPath(READ_WRITE_KEY_TABLE, key);
-        storageDSU.writeFile(recordPath, JSON.stringify(valueObject), err => {
+        storageDSU.writeFile(recordPath, JSON.stringify(valueObject), async (err) => {
             if (err) {
+                try{
+                    await this.cancelBatch(batchId);
+                }catch(e){
+                    console.log(e);
+                }
                 return callback(err);
             }
-            if (batchInProgress) {
-                return callback(undefined);
-            }
-            storageDSU.commitBatch(callback);
+            this.commitBatch(batchId, callback);
         });
     };
 
