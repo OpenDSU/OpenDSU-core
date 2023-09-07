@@ -22,6 +22,7 @@ let getSharedDB = function (keySSI, dbName, options) {
             return OpenDSUSafeCallback()(createOpenDSUErrorWrapper("Failed to initialise WalletDB_DSU " + dbName, err));
         }
         storageStrategy.initialise(_storageDSU, dbName);
+
         db.getShareableSSI = function () {
             return sharableSSI;
         };

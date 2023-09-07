@@ -138,14 +138,14 @@ function MappingEngine(storageService, options) {
     let noAttempts = attempts;
     while(noAttempts>0){
         noAttempts--;
-        console.log("Preparing to acquire lock on", identifier, "attempt number", noAttempts);
+        console.log("Preparing to Enclave acquire lock on", identifier, "attempt number", noAttempts);
         lockAcquired = await lockApi.lockAsync(identifier, secret, period);
-        console.log("Lock acquiring status", lockAcquired);
+        console.log("Enclave Lock acquiring status", lockAcquired);
         if(!lockAcquired){
           console.log("sleep for", timeout);
           await utils.sleepAsync(timeout);
         }else{
-          console.log("Lock acquired... continue");
+          console.log("Enclave Lock acquired... continue");
           break;
         }
       if(noAttempts === 0){
@@ -168,9 +168,9 @@ function MappingEngine(storageService, options) {
     const lockApi = opendsu.loadApi("lock");
     try{
       await lockApi.unlockAsync(identifier, secret);
-      console.log("Lock released");
+      console.log("Enclave lock released");
     }catch(err){
-      console.error("Failed to release lock", err);
+      console.error("Failed Enclave to release lock", err);
     }
   }
 
@@ -189,12 +189,17 @@ function MappingEngine(storageService, options) {
       }
     }
 
-    async function finish() {
+    async function finish(lockSecret) {
       if(!storageService.batchInProgress()){
         return;
       }
 
       const commitBatch = $$.promisify(storageService.commitBatch);
+      storageService.onCommitBatch(async ()=>{
+        if (lockSecret) {
+          await releaseLock(lockSecret);
+        }
+      });
       await commitBatch(messages.batchId);
       //we clean after our self
       messages.safeBatchId = undefined;
@@ -215,15 +220,11 @@ function MappingEngine(storageService, options) {
 
           resolve = async function (...args) {
             inProgress = false;
-            await releaseLock(lockSecret);
             initialResolve(...args);
           }
 
           reject = async function (...args) {
             inProgress = false;
-            if (lockSecret) {
-              await releaseLock(lockSecret);
-            }
             initialReject(...args);
           }
 
@@ -305,7 +306,7 @@ function MappingEngine(storageService, options) {
               }
             }
 
-            finish().then(async () => {
+            finish(lockSecret).then(async () => {
               //in case that we have failed messages we need to reset touched DSUs of that mapping;
               //the reason being that a DSU can be kept in a local cache and later on this fact that the DSU is in a "batch" state creates a strange situation
               for (let j = 0; j < failedMappingInstances.length; j++) {
