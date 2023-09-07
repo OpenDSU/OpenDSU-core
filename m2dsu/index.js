@@ -74,9 +74,10 @@ function MappingEngine(storageService, options) {
       // const conflictResolutionFn = function (...args) {
       //   console.log("merge conflicts", ...args);
       // }
-      for (let i = 0; i < touchedDSUs.length; i++) {
+      for(let i= touchedDSUs.length-1; i>=0; i--){
         const commitBatch = $$.promisify(touchedDSUs[i].commitBatch);
-        commitPromises.push(commitBatch());
+        commitPromises.push(commitBatch(touchedDSUs[i].secretBatchID));
+        touchedDSUs.splice(i, 1);
       }
 
       Promise.all(commitPromises)
@@ -84,7 +85,7 @@ function MappingEngine(storageService, options) {
             for (let i = 0; i < results.length; i++) {
               let result = results[i];
               if (result && result.status === "rejected") {
-                await $$.promisify(touchedDSUs[i].cancelBatch)();
+                await $$.promisify(touchedDSUs[i].cancelBatch)(touchedDSUs[i].secretBatchID);
                 let getDSUIdentifier = $$.promisify(touchedDSUs[i].getKeySSIAsString);
                 return reject(errorHandler.createOpenDSUErrorWrapper(`Cancel batch on dsu identified with ${await getDSUIdentifier()}`, error));
               }
@@ -200,7 +201,7 @@ function MappingEngine(storageService, options) {
           await releaseLock(lockSecret);
         }
       });
-      await commitBatch(messages.batchId);
+      await commitBatch(messages.safeBatchId);
       //we clean after our self
       messages.safeBatchId = undefined;
       delete messages.safeBatchId;
@@ -315,7 +316,7 @@ function MappingEngine(storageService, options) {
                   for (let i = 0; i < mapInstance.registeredDSUs.length; i++) {
                     let touchedDSU = mapInstance.registeredDSUs[i];
                     try {
-                      await $$.promisify(touchedDSU.cancelBatch, touchedDSU)();
+                      await $$.promisify(touchedDSU.cancelBatch, touchedDSU)(touchedDSU.secretBatchID);
                     } catch (err) {
                       console.log("Failed to cancel batch on registered DSU");
                     }
@@ -333,6 +334,8 @@ function MappingEngine(storageService, options) {
 
           for (let i = 0; i < mappingsInstances.length; i++) {
             commitPromisses.push(commitMapping(mappingsInstances[i]));
+            //deleting the root of the execution cache dsu
+            mappingsInstances[i].groupInstance = undefined;
           }
 
           Promise.allSettled(commitPromisses)

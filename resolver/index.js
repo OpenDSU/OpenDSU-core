@@ -570,7 +570,8 @@ function invalidateDSUCache(dsuKeySSI, callback) {
 }
 
 function addDSUInstanceInCache(dsuInstance, callback) {
-    dsuInstance.getKeySSIAsObject((err, keySSI) => {
+    return callback(undefined, dsuInstance);
+    /*dsuInstance.getKeySSIAsObject((err, keySSI) => {
         if (err) {
             return OpenDSUSafeCallback(callback)(createOpenDSUErrorWrapper(`Failed to retrieve keySSI`, err));
         }
@@ -581,7 +582,7 @@ function addDSUInstanceInCache(dsuInstance, callback) {
             dsuCache.set(cacheKey, dsuInstance);
             callback(undefined, dsuInstance);
         });
-    });
+    });*/
 }
 
 /**
