@@ -91,7 +91,6 @@ registry.defineApi("registerDSU", async function (dsu) {
         this.groupInstance.dsuInstancesCache = {};
     }
 
-    //TODO: temporary fix, this apiRegistry is now instantiated for each mapping message
     if (!dsu.batchInProgress()) {
         this.registeredDSUs.push(dsu);
         if(this.groupInstance){
