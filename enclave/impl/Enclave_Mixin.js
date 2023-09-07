@@ -186,11 +186,11 @@ function Enclave_Mixin(target, did, keySSI) {
         return await target.storageDB.safeBeginBatchAsync(...args);
     }
 
-    target.startOrAttachBatch = (...args) => {
+    target.startOrAttachBatch = (forDID, ...args) => {
         target.storageDB.startOrAttachBatch(...args);
     }
 
-    target.startOrAttachBatchAsync = async (...args) => {
+    target.startOrAttachBatchAsync = async (forDID, ...args) => {
         return await target.storageDB.startOrAttachBatchAsync(...args);
     }
 
