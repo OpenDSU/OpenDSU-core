@@ -60,6 +60,10 @@ function SingleDSUStorageStrategy(recordStorageStrategy) {
         return await storageDSU.commitBatchAsync(...args);
     }
 
+    this.onCommitBatch = (...args)=>{
+        storageDSU.onCommitBatch(...args);
+    }
+
     this.batchInProgress = (...args) => {
         return storageDSU.batchInProgress(...args);
     }

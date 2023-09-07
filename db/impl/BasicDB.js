@@ -285,6 +285,10 @@ function BasicDB(storageStrategy, conflictSolvingStrategy, options) {
         return await storageStrategy.commitBatchAsync(...args);
     }
 
+    this.onCommitBatch = (...args) => {
+        storageStrategy.onCommitBatch(...args);
+    }
+
     this.batchInProgress = () => {
         return storageStrategy.batchInProgress();
     }
