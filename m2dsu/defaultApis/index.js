@@ -94,6 +94,7 @@ async function registerDSU(mappingInstance, dsu) {
 
     let batchId = await dsu.startOrAttachBatchAsync();
     dsu.secretBatchId = batchId;
+    mappingInstance.registeredDSUs.push(dsu);
     return promisifyDSUAPIs(dsu);
 };
 

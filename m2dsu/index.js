@@ -65,6 +65,7 @@ function MappingEngine(storageService, options) {
 
   function commitMapping(mappingInstance) {
     let touchedDSUs = mappingInstance.registeredDSUs;
+    $$.debug.log(`Start commit mapping....`);
     return new Promise((resolve, reject) => {
       if (!touchedDSUs || touchedDSUs.length === 0) {
         return resolve(true);
@@ -82,6 +83,7 @@ function MappingEngine(storageService, options) {
 
       Promise.all(commitPromises)
         .then(async results => {
+          $$.debug.log(`Commit was done, evaluating each commit status....`);
             for (let i = 0; i < results.length; i++) {
               let result = results[i];
               if (result && result.status === "rejected") {
@@ -329,6 +331,9 @@ function MappingEngine(storageService, options) {
               }
 
               //now that we finished with the partial rollback we can return the failed messages
+              if(failedMessages.length){
+                $$.debug.log(`Mapping Engine execution finished, but a no. ${failedMessages.length} failed`);
+              }
               resolve(failedMessages);
             }).catch(async (err) => {
               await rollback();
