@@ -159,6 +159,9 @@ function MappingEngine(storageService, options) {
       secret = undefined;
     }
 
+    if(secret){
+      $$.debug.log('Acquiring Lock on Shared Enclave');
+    }
     return secret;
   }
 
@@ -170,6 +173,7 @@ function MappingEngine(storageService, options) {
     try{
       await lockApi.unlockAsync(identifier, secret);
       console.log("Enclave lock released");
+      $$.debug.log('Releasing Lock on Shared Enclave');
     }catch(err){
       console.error("Failed Enclave to release lock", err);
     }
