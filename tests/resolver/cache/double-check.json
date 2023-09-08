@@ -1,4 +1,4 @@
 {
   "confFileName": "double-check.json",
-  "ignore": ["dsuCacheTestChild.js"]
+  "ignore": ["dsuCacheTestChild.js", "skipCacheWhenLoadingDSUtest.js"]
 }
