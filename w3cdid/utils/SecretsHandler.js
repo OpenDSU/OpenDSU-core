@@ -129,6 +129,11 @@ async function getInstance(currentDID){
     return instance;
   }
 
+  if(!currentDID){
+    //when the app doesn't have a did for us...
+    return new SecretsHandler();
+  }
+
   instance = new SecretsHandler();
   await instance.setDIDDocument(currentDID);
 
