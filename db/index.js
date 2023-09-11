@@ -53,7 +53,7 @@ let getSimpleWalletDB = (dbName, options) => {
         }
 
         db.onCommitBatch = function(callback){
-            db.getStorageDSU.onCommitBatch(callback);
+            db.getStorageDSU().onCommitBatch(callback);
         }
 
         storageStrategy.initialise(_storageDSU, dbName);
