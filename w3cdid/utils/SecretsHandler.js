@@ -11,11 +11,9 @@ function SecretsHandler(){
     return;
   }
 
-  async function base58DID(did){
+  function base58DID(did){
     const crypto = opendsu.loadApi("crypto");
-    let document = await $$.promisify(w3cdid.resolveDID)(did);
-    let identifier = document.getIdentifier();
-    return crypto.encodeBase58(identifier);
+    return crypto.encodeBase58(did);
   }
 
   async function storeSecret(userDID, secret){
@@ -31,7 +29,7 @@ function SecretsHandler(){
     if(typeof request.body !== "string"){
       request.body = JSON.stringify(request.body);
     }
-    let encodedDID = await base58DID(userDID);
+    let encodedDID = base58DID(userDID);
     return await fetch(`${origin}/putDIDSecret/${encodedDID}/credential`, request);
   }
 
@@ -43,7 +41,7 @@ function SecretsHandler(){
         "Content-Type": "application/json"
       }
     }
-    let encodedDID = await base58DID(did);
+    let encodedDID = base58DID(did);
     return await fetch(`${origin}/removeDIDSecret/${encodedDID}/credential`, request);
   }
 
@@ -55,7 +53,7 @@ function SecretsHandler(){
         "Content-Type": "application/json"
       }
     }
-    let encodedDID = await base58DID(did);
+    let encodedDID = base58DID(did);
     return await fetch(`${origin}/getDIDSecret/${encodedDID}/credential`, request).then(result=>{
       if(result.ok){
         return result.json();
@@ -66,7 +64,30 @@ function SecretsHandler(){
     });
   }
 
+  function clean(target){
+    if(target){
+      target.pk = undefined;
+      delete target.pk;
+      target.__timestamp = undefined;
+      delete target.__timestamp;
+      target.__version = undefined;
+      delete target.__version;
+    }
+    return target;
+  }
+
   this.authorizeUser = async (userDID, groupCredential, enclave) => {
+    //starting to clean
+    if(groupCredential && groupCredential.allPossibleGroups){
+      for(let i=0; i < groupCredential.allPossibleGroups.length; i++){
+        let group = groupCredential.allPossibleGroups[i];
+        groupCredential.allPossibleGroups[i] = clean(group);
+      }
+    }
+    groupCredential = clean(groupCredential);
+    enclave = clean(enclave);
+    //done cleaning...
+
     let secret = {groupCredential, enclave};
     let userDidDocument = await $$.promisify(w3cdid.resolveDID)(userDID);
     let encryptedSecret = await $$.promisify(didDocument.encryptMessage)(userDidDocument, JSON.stringify(secret))
