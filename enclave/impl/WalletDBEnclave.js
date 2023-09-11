@@ -126,8 +126,8 @@ function WalletDBEnclave(keySSI, did) {
         return initialised;
     };
 
-    this.onCommitBatch = (forDID, callback)=>{
-        this.storageDB.onCommitBatch(callback, true);
+    this.onCommitBatch = (forDID, callback, once)=>{
+        this.storageDB.onCommitBatch(callback, once);
     }
 
     const bindAutoPendingFunctions = require("../../utils/BindAutoPendingFunctions").bindAutoPendingFunctions;
