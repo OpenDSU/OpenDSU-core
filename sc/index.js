@@ -239,6 +239,7 @@ const getMainDID = (callback) => {
                 return callback(undefined, env[key]);
             }
         }
+        return callback(undefined, undefined);
     });
 }
 
