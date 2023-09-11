@@ -187,6 +187,7 @@ module.exports = {
     resolveNameDID,
     registerNameDIDSecret,
     initSystemDID,
+    getKeyDIDFromSecret,
     CryptographicSkills: require("./CryptographicSkills/CryptographicSkills"),
     W3CDIDMixin: require('./W3CDID_Mixin'),
     W3CCVCMixin: require('./W3CVC_Mixin'),

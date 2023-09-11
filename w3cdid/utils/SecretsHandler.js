@@ -13,10 +13,13 @@ function SecretsHandler(){
 
   function base58DID(did){
     const crypto = opendsu.loadApi("crypto");
+    if(typeof did === "object"){
+      did = did.getIdentifier();
+    }
     return crypto.encodeBase58(did);
   }
 
-  async function storeSecret(userDID, secret){
+  async function storeSecret(userDID, secret, name="credential"){
     let origin = window.top.location.origin;
     let request = {
       method: "PUT",
@@ -30,10 +33,10 @@ function SecretsHandler(){
       request.body = JSON.stringify(request.body);
     }
     let encodedDID = base58DID(userDID);
-    return await fetch(`${origin}/putDIDSecret/${encodedDID}/credential`, request);
+    return await fetch(`${origin}/putDIDSecret/${encodedDID}/${name}`, request);
   }
 
-  async function clearSecret(did){
+  async function clearSecret(did, name="credential"){
     let origin = window.top.location.origin;
     let request = {
       method: "DELETE",
@@ -42,10 +45,10 @@ function SecretsHandler(){
       }
     }
     let encodedDID = base58DID(did);
-    return await fetch(`${origin}/removeDIDSecret/${encodedDID}/credential`, request);
+    return await fetch(`${origin}/removeDIDSecret/${encodedDID}/${name}`, request);
   }
 
-  async function getSecret(did){
+  async function getSecret(did, name="credential"){
     let origin = window.top.location.origin;
     let request = {
       method: "GET",
@@ -54,7 +57,7 @@ function SecretsHandler(){
       }
     }
     let encodedDID = base58DID(did);
-    return await fetch(`${origin}/getDIDSecret/${encodedDID}/credential`, request).then(result=>{
+    return await fetch(`${origin}/getDIDSecret/${encodedDID}/${name}`, request).then(result=>{
       if(result.ok){
         return result.json();
       }
@@ -118,6 +121,10 @@ function SecretsHandler(){
     }
     return;
   }
+
+  this.storeDIDSecret = storeSecret;
+  this.getDIDSecret = getSecret;
+  this.clearDIDSecret = clearSecret;
 }
 
 let instance;
