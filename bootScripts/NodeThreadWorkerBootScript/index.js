@@ -179,9 +179,9 @@ function boot() {
                 try {
                     dsuCodeFileCacheHandler = new DSUCodeFileCacheHandler(dsu, cacheContainerPath);
                     // construct the cache in parallel since it takes a bit of time
-                    setInterval(async () => {
+                    setTimeout(async () => {
                         await reconstructCache();
-                    }, 10000);
+                    });
                 } catch (error) {
                     console.log("Failed to create DSU code handler", error)
                 }
