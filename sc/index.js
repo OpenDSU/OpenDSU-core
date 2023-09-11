@@ -218,6 +218,23 @@ const mainEnclaveIsInitialised = () => {
     return securityContextIsInitialised();
 };
 
+const MAINDIDKEY = "WALLET_MAIN_DID";
+const setMainDID = (did, callback) => {
+    config.setEnv(MAINDIDKEY, did, callback);
+}
+
+const setMainDIDAsync = (did) =>{
+    return $$.promisify(setMainDID)(did);
+}
+
+const getMainDID = (callback) => {
+    config.getEnv(MAINDIDKEY, callback);
+}
+
+const getMainDIDAsync = () =>{
+    return $$.promisify(getMainDID)();
+}
+
 module.exports = {
     setMainDSU: MainDSU.setMainDSU,
     getMainDSU: MainDSU.getMainDSU,
@@ -237,6 +254,10 @@ module.exports = {
     setPIN,
     setEnclaveKeySSI,
     isPINNeeded,
-    mainEnclaveIsInitialised
+    mainEnclaveIsInitialised,
+    setMainDID,
+    getMainDID,
+    setMainDIDAsync,
+    getMainDIDAsync
 };
     

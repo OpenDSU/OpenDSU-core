@@ -191,5 +191,6 @@ module.exports = {
     W3CDIDMixin: require('./W3CDID_Mixin'),
     W3CCVCMixin: require('./W3CVC_Mixin'),
     getCommunicationHub: require("./hubs/CommunicationHub").getCommunicationHub,
-    getTypicalBusinessLogicHub: require("./hubs/TypicalBusinessLogicHub").getTypicalBusinessLogicHub
+    getTypicalBusinessLogicHub: require("./hubs/TypicalBusinessLogicHub").getTypicalBusinessLogicHub,
+    SecretsHandler: require("./utils/SecretsHandler.js")
 }
