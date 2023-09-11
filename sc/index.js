@@ -219,6 +219,7 @@ const mainEnclaveIsInitialised = () => {
 };
 
 const MAINDIDKEY = "WALLET_MAIN_DID";
+const MAINDIDKEYFALLBACK = "mainAppDID";
 const setMainDID = (did, callback) => {
     config.setEnv(MAINDIDKEY, did, callback);
 }
@@ -228,7 +229,17 @@ const setMainDIDAsync = (did) =>{
 }
 
 const getMainDID = (callback) => {
-    config.getEnv(MAINDIDKEY, callback);
+    let keys = [MAINDIDKEY, MAINDIDKEYFALLBACK];
+    config.readEnvFile((err, env)=>{
+        if(err){
+            return callback(err);
+        }
+        for(let key of keys){
+            if(env[key]){
+                return callback(undefined, env[key]);
+            }
+        }
+    });
 }
 
 const getMainDIDAsync = () =>{
