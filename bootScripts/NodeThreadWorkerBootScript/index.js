@@ -168,18 +168,20 @@ function boot() {
                 }
             }
 
+            const reconstructCache = async (isBoot) => {
+                try {
+                    await dsuCodeFileCacheHandler.constructCache(isBoot);
+                } catch (error) {
+                    console.log("Failed to construct DSU cache", error);
+                }
+            }
             if (cacheContainerPath) {
                 try {
                     dsuCodeFileCacheHandler = new DSUCodeFileCacheHandler(dsu, cacheContainerPath);
-
                     // construct the cache in parallel since it takes a bit of time
-                    setTimeout(async () => {
-                        try {
-                            await dsuCodeFileCacheHandler.constructCache();
-                        } catch (error) {
-                            console.log("Failed to construct DSU cache", error);
-                        }
-                    });
+                    setInterval(async () => {
+                        await reconstructCache();
+                    }, 10000);
                 } catch (error) {
                     console.log("Failed to create DSU code handler", error)
                 }

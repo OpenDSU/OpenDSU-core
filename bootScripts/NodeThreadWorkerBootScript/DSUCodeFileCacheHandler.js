@@ -24,7 +24,7 @@ class DSUCodeFileCacheHandler {
         this.cacheFolderBasePath = cacheFolderBasePath;
     }
 
-    async constructCache() {
+    async constructCache(isBoot) {
         const openDSU = require("opendsu");
         const keySSISpace = openDSU.loadAPI("keyssi");
         const resolver = openDSU.loadApi("resolver");
@@ -50,7 +50,7 @@ class DSUCodeFileCacheHandler {
         if (!isHashLinkFolderAlreadyPresent) {
             console.log(`Creating cache folder for DSU ${lastVersion}: ${cacheFolderPath}`);
             try {
-                await mkdirAsync(cacheFolderPath, { recursive: true });
+                await mkdirAsync(cacheFolderPath, {recursive: true});
             } catch (error) {
                 console.log(`Failed created cacheFolderPath ${cacheFolderPath}`, error);
             }
@@ -64,7 +64,7 @@ class DSUCodeFileCacheHandler {
                 const codeFolder = codeFile.substr(0, codeFile.lastIndexOf("/"));
                 if (!createdFoldersMap[codeFolder]) {
                     try {
-                        await mkdirAsync(path.join(cacheFolderPath, codeFolder), { recursive: true });
+                        await mkdirAsync(path.join(cacheFolderPath, codeFolder), {recursive: true});
                     } catch (error) {
                         if (error.code !== "EEXIST") {
                             console.log(`Failed to create cache folder ${codeFolder}`, error);
