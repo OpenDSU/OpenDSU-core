@@ -78,7 +78,6 @@ function MappingEngine(storageService, options) {
       for(let i= touchedDSUs.length-1; i>=0; i--){
         const commitBatch = $$.promisify(touchedDSUs[i].commitBatch);
         commitPromises.push(commitBatch(touchedDSUs[i].secretBatchID));
-        touchedDSUs.splice(i, 1);
       }
 
       Promise.all(commitPromises)
@@ -92,9 +91,12 @@ function MappingEngine(storageService, options) {
                 return reject(errorHandler.createOpenDSUErrorWrapper(`Cancel batch on dsu identified with ${await getDSUIdentifier()}`, error));
               }
             }
+
+            touchedDSUs = [];
             resolve(true);
           }
         ).catch(err => {
+          touchedDSUs = [];
          return reject(errorHandler.createOpenDSUErrorWrapper(`Caught error during commit batch on registered DSUs`, err));
       });
     });
