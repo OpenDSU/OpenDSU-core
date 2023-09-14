@@ -7,7 +7,7 @@ const parse = (ssiString, options) => {
 };
 
 const createSeedSSI = (domain, privateKey, vn, hint, callback) => {
-    return we_createSeedSSI(openDSU.loadAPI("sc").getMainEnclave(), domain, privateKey, vn, hint, callback);
+    return we_createSeedSSI(undefined, domain, privateKey, vn, hint, callback);
 };
 
 const isJson = (obj) => {
@@ -168,7 +168,7 @@ const createTemplateWalletSSI = (domain, arrayWIthCredentials, hint) => {
 };
 
 const createConstSSI = (domain, constString, vn, hint) => {
-    return we_createConstSSI(openDSU.loadAPI("sc").getMainEnclave(), domain, constString, vn, hint)
+    return we_createConstSSI(undefined, domain, constString, vn, hint)
 };
 
 const we_createConstSSI = (enclave, domain, constString, vn, hint, callback) => {
@@ -181,7 +181,7 @@ const we_createConstSSI = (enclave, domain, constString, vn, hint, callback) => 
 };
 
 const createArraySSI = (domain, arr, vn, hint, callback) => {
-    return we_createArraySSI(openDSU.loadAPI("sc").getMainEnclave(), domain, arr, vn, hint);
+    return we_createArraySSI(undefined, domain, arr, vn, hint);
 }
 
 const we_createArraySSI = (enclave, domain, arr, vn, hint, callback) => {
