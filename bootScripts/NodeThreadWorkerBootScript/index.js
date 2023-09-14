@@ -177,11 +177,21 @@ function boot() {
             }
             if (cacheContainerPath) {
                 try {
-                    dsuCodeFileCacheHandler = new DSUCodeFileCacheHandler(dsu, cacheContainerPath);
+                    const openDSU = require("opendsu");
+                    const resolver = openDSU.loadApi("resolver");
+                    const mountedDSUs = await $$.promisify(dsu.listMountedDossiers, dsu)("/");
+
+                    let codeFolderName = openDSU.constants.CODE_FOLDER;
+                    if (codeFolderName[0] === "/") {
+                        codeFolderName = codeFolderName.substring(1);
+                    }
+                    const codeMount = mountedDSUs.find((mount) => mount.path === codeFolderName);
+                    const codeDSU = await $$.promisify(resolver.loadDSU)(codeMount.identifier);
+                    dsuCodeFileCacheHandler = new DSUCodeFileCacheHandler(codeDSU, cacheContainerPath);
                     // construct the cache in parallel since it takes a bit of time
-                    setTimeout(async () => {
+                    setInterval(async () => {
                         await reconstructCache();
-                    });
+                    }, 10000);
                 } catch (error) {
                     console.log("Failed to create DSU code handler", error)
                 }

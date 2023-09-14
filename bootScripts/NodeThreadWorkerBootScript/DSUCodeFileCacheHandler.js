@@ -19,34 +19,24 @@ function isFileInsideFolderStructure(file) {
 }
 
 class DSUCodeFileCacheHandler {
-    constructor(dsu, cacheFolderBasePath) {
-        this.dsu = dsu;
+    constructor(codeDSU, cacheFolderBasePath) {
+        this.codeDSU = codeDSU;
         this.cacheFolderBasePath = cacheFolderBasePath;
     }
 
     async constructCache(isBoot) {
-        const openDSU = require("opendsu");
-        const keySSISpace = openDSU.loadAPI("keyssi");
-        const resolver = openDSU.loadApi("resolver");
-
-        const mountedDSUs = await $$.promisify(this.dsu.listMountedDossiers)("/");
-
-        let codeFolderName = openDSU.constants.CODE_FOLDER;
-        if (codeFolderName[0] === "/") {
-            codeFolderName = codeFolderName.substring(1);
-        }
-        const codeMount = mountedDSUs.find((mount) => mount.path === codeFolderName);
-        const codeDSU = await $$.promisify(resolver.loadDSU)(codeMount.identifier);
-        const codeFiles = await $$.promisify(codeDSU.listFiles)("/");
-        let lastVersion = await $$.promisify(codeDSU.getLastHashLinkSSI)();
+        const codeFiles = await $$.promisify(this.codeDSU.listFiles, this.codeDSU)("/");
+        let lastVersion = await $$.promisify(this.codeDSU.getLastHashLinkSSI, this.codeDSU)();
         lastVersion = lastVersion.getIdentifier();
         const cacheFolderPath = path.join(this.cacheFolderBasePath, lastVersion);
         this.cacheFolderPath = cacheFolderPath;
-
-        const readDSUFileAsync = await $$.promisify(codeDSU.readFile);
-
+        const readDSUFileAsync = await $$.promisify(this.codeDSU.readFile, this.codeDSU);
         const isHashLinkFolderAlreadyPresent = await pathExistsAsync(cacheFolderPath);
-
+        const hasNewVersion = await $$.promisify(this.codeDSU.hasNewVersion, this.codeDSU)();
+        if (hasNewVersion === false) {
+            // No new version available
+            return;
+        }
         if (!isHashLinkFolderAlreadyPresent) {
             console.log(`Creating cache folder for DSU ${lastVersion}: ${cacheFolderPath}`);
             try {
