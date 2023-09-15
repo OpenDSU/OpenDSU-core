@@ -144,7 +144,12 @@ function MQHandler(didDocument, domain, pollingTimeout) {
         }
     }
 
-    function ensureAuth(callback) {
+    function ensureAuth(options, callback) {
+        if (typeof options === "function") {
+            callback = options;
+            options = {};
+        }
+
         getURL(queueName, "token", (err, url) => {
             if (err) {
                 return callback(err);
@@ -152,7 +157,7 @@ function MQHandler(didDocument, domain, pollingTimeout) {
 
             if (!token || (expiryTime && Date.now() + 2000 > expiryTime)) {
                 callback = $$.makeSaneCallback(callback);
-                return http.fetch(url)
+                return http.fetch(url, options)
                     .then(response => {
                         connectionTimeout = parseInt(response.headers.get("connection-timeout"));
                         return response.json()
@@ -186,42 +191,68 @@ function MQHandler(didDocument, domain, pollingTimeout) {
 
     }
 
-    function consumeMessage(action, waitForMore, callback) {
-        if (typeof waitForMore === "function") {
-            callback = waitForMore;
-            waitForMore = false;
+    function consumeMessage(action, waitForMore, abortController, callback) {
+
+        if (typeof abortController === "function") {
+            callback = abortController;
+            abortController = new AbortController();
         }
-        callback.__requestInProgress = true;
+
+        const signal = abortController.signal;
+
+        function abortCB(callback) {
+            let msg = "Aborted by client";
+            if (self.stopReceivingMessages) {
+                msg = "Rejected by client. Message handler is set to not receive messages";
+            }
+            callback(new Error(msg));
+        }
+
+        // callback.__requestInProgress = true;
         ensureAuth((err, token) => {
             if (err) {
                 return callback(err);
             }
-            //somebody called abort before the ensureAuth resolved
-            if (!callback.__requestInProgress) {
-                return;
+
+            if (signal.aborted || self.stopReceivingMessages) {
+                return abortCB(callback);
             }
+
             didDocument.sign(token, (err, signature) => {
                 if (err) {
                     return callback(createOpenDSUErrorWrapper(`Failed to sign token`, err));
+                }
+
+                if (signal.aborted || self.stopReceivingMessages) {
+                    return abortCB(callback);
                 }
 
                 getURL(queueName, action, signature.toString("hex"), (err, url) => {
                     if (err) {
                         return callback(err);
                     }
-                    let originalCb = callback;
+
+                    if (signal.aborted || self.stopReceivingMessages) {
+                        return abortCB(callback);
+                    }
+
+                    //let originalCb = callback;
                     //callback = $$.makeSaneCallback(callback);
 
-                    let options = { headers: { Authorization: token } };
+                    let options = { headers: { Authorization: token }, signal: signal };
 
                     function makeRequest() {
-                        let request = http.poll(url, options, connectionTimeout, timeout);
-                        originalCb.__requestInProgress = request;
+                        if (signal.aborted || self.stopReceivingMessages) {
+                            return abortCB(callback);
+                        }
+
+                        let request = http.poll(url, options, connectionTimeout, timeout, abortController);
+                        // originalCb.__requestInProgress = request;
 
                         request.then(response => response.json())
                             .then((response) => {
-                                if(self.stopReceivingMessages){
-                                    return callback(new Error("Message rejected by client"));
+                                if (signal.aborted || self.stopReceivingMessages) {
+                                    return abortCB(callback);
                                 }
                                 //the return value of the listing callback helps to stop the polling mechanism in case that
                                 //we need to stop to listen for more messages
@@ -239,10 +270,6 @@ function MQHandler(didDocument, domain, pollingTimeout) {
                             });
                     }
 
-                    //somebody called abort before we arrived here
-                    if (!originalCb.__requestInProgress) {
-                        return;
-                    }
                     makeRequest();
                 })
             })
@@ -255,8 +282,12 @@ function MQHandler(didDocument, domain, pollingTimeout) {
         }, callback);
     }
 
-    this.previewMessage = (callback) => {
-        consumeMessage("get", callback);
+    this.previewMessage = (abortController, callback) => {
+        if (typeof abortController === "function") {
+            callback = abortController;
+            abortController = new AbortController();
+        }
+        consumeMessage("get", false, abortController, callback);
     };
 
 
@@ -278,12 +309,20 @@ function MQHandler(didDocument, domain, pollingTimeout) {
         }
     }
 
-    this.readMessage = (callback) => {
-        consumeMessage("get", getSafeMessageRead(callback));
+    this.readMessage = (abortController, callback) => {
+        if (typeof abortController === "function") {
+            callback = abortController;
+            abortController = new AbortController();
+        }
+        consumeMessage("get", false, abortController, getSafeMessageRead(callback));
     };
 
-    this.readAndWaitForMessages = (callback) => {
-        consumeMessage("take", true, getSafeMessageRead(callback));
+    this.readAndWaitForMessages = (abortController, callback) => {
+        if (typeof abortController === "function") {
+            callback = abortController;
+            abortController = new AbortController();
+        }
+        consumeMessage("take", true, abortController, getSafeMessageRead(callback));
     };
 
     this.readAndWaitForMore = (waitForMore, callback) => {
@@ -291,25 +330,18 @@ function MQHandler(didDocument, domain, pollingTimeout) {
             callback = waitForMore;
             waitForMore = undefined;
         }
-        consumeMessage("get", waitForMore ? waitForMore() : true, getSafeMessageRead(callback));
+        const abortController = new AbortController();
+        consumeMessage("get", waitForMore ? waitForMore() : true, abortController, getSafeMessageRead(callback));
     };
 
     this.subscribe = this.readAndWaitForMore;
 
     this.abort = (callback) => {
-        let request = callback.__requestInProgress;
-        //if we have an object it means that a http.poll request is in progress
-        if (typeof request === "object") {
-            request.abort();
-            callback.__requestInProgress = undefined;
-            delete callback.__requestInProgress;
+        if (callback && callback.abort) {
+            callback.abort();
             console.log("A request was aborted programmatically");
         } else {
-            //if we have true value it means that an ensureAuth is in progress
-            if (request) {
-                callback.__requestInProgress = false;
-                console.log("A request was aborted programmatically");
-            }
+            console.warn("The request could not be aborted.");
         }
     }
 

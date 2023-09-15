@@ -113,7 +113,12 @@ function W3CDID_Mixin(target, enclave) {
         const mqHandler = require("opendsu")
             .loadAPI("mq")
             .getMQHandlerForDID(target);
-        mqHandler.previewMessage((err, encryptedMessage) => {
+
+        if (target.stopReceivingMessages === true)
+            return callback("DID is set to not receive messages");
+
+        const abortController = new AbortController();
+        mqHandler.previewMessage(abortController, (err, encryptedMessage) => {
             if (err) {
                 return callback(createOpenDSUErrorWrapper(`Failed to read message`, err));
             }
@@ -132,6 +137,12 @@ function W3CDID_Mixin(target, enclave) {
                 target.decryptMessage(message, callback);
             })
         });
+
+        return {
+            abort: () => {
+                abortController.abort();
+            }
+        };
     };
 
     target.subscribe = function (callback) {
@@ -169,10 +180,12 @@ function W3CDID_Mixin(target, enclave) {
             .loadAPI("mq")
             .getMQHandlerForDID(target);
 
+        if (target.stopReceivingMessages === true)
+            return callback("DID is set to not receive messages");
+
         target.onCallback = (err, encryptedMessage, notificationHandler) => {
             if (target.stopReceivingMessages) {
-                console.log(`Received message for unsubscribed DID`);
-                return;
+                return callback("DID is set to not receive messages");
             }
 
             if (err) {

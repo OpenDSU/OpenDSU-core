@@ -21,10 +21,10 @@ require("./utils/interceptors").enable(module.exports);
 const PollRequestManager = require("./utils/PollRequestManager");
 const rm = new PollRequestManager(module.exports.fetch);
 
-module.exports.poll = function (url, options, connectionTimeout, delayStart) {
+module.exports.poll = function (url, options, connectionTimeout, delayStart, abortController) {
 	connectionTimeout = connectionTimeout || 10000;
 	rm.setConnectionTimeout(connectionTimeout);
-	const request = rm.createRequest(url, options, delayStart);
+	const request = rm.createRequest(url, options, delayStart, abortController);
 	return request;
 };
 
