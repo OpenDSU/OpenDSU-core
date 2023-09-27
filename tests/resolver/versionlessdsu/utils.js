@@ -1,7 +1,7 @@
-const { launchApiHubTestNode } = require("../../../../../psknode/tests/util/tir");
+const {launchApiHubTestNode} = require("../../../../../psknode/tests/util/tir");
 
 const dc = require("double-check");
-const { assert } = dc;
+const {assert} = dc;
 const path = require("path");
 const fs = require("fs");
 
@@ -45,6 +45,9 @@ class TwoDSUTester {
         this.useStandardDSUForInnerDSU = useStandardDSUForInnerDSU;
     }
 
+    methodShouldBeBatched(methodName) {
+        return methodName === "writeFile" || methodName === "addFile" || methodName === "addFiles" || methodName === "delete" || methodName === "rename" || methodName === "copy" || methodName === "createFolder" || methodName === "mount" || methodName === "unmount";
+    }
     async callMethod(methodName, params) {
         const callParams = params ? params : [];
         let isStandardRequestFailed = false;
@@ -52,9 +55,17 @@ class TwoDSUTester {
         let standardDSUResult;
         let versionlessDSUResult;
 
+        const shouldBeBatched = this.methodShouldBeBatched(methodName)
         try {
+            let batchId;
+            if (shouldBeBatched) {
+                batchId = await this.standardDSU.startOrAttachBatchAsync();
+            }
             standardDSUResult = await $$.promisify(this.standardDSU[methodName].bind(this.standardDSU))(...callParams);
             logger.info(`standardDSU.${methodName} - ${JSON.stringify(params || [])}`, JSON.stringify(standardDSUResult));
+            if (shouldBeBatched) {
+                await this.standardDSU.commitBatchAsync(batchId);
+            }
         } catch (error) {
             logger.info(`standardDSU.${methodName} - ${JSON.stringify(params || [])} FAILED`);
             isStandardRequestFailed = true;
@@ -93,12 +104,20 @@ class TwoDSUTester {
         const callParams = params ? params : [];
         let isStandardRequestFailed = false;
         let standardDSUResult;
-
+        const shouldBeBatched = this.methodShouldBeBatched(methodName)
         try {
+            let batchId
+            if (shouldBeBatched) {
+                batchId = await this.standardDSU.startOrAttachBatchAsync();
+            }
             standardDSUResult = await $$.promisify(this.standardDSU[methodName].bind(this.standardDSU))(...callParams);
             logger.info(`standardDSUResult.${methodName} - ${JSON.stringify(params || [])}`, JSON.stringify(standardDSUResult));
+            if (shouldBeBatched) {
+                await this.standardDSU.commitBatchAsync(batchId);
+            }
         } catch (error) {
             logger.info(`standardDSUResult.${methodName} - ${JSON.stringify(params || [])} FAILED`);
+            logger.error(error)
             isStandardRequestFailed = true;
         }
 
@@ -182,9 +201,17 @@ class TwoDSUTester {
             assert.objectHasFields(versionlessDSUResult, standardDSUResult);
             return;
         }
-
+``
         if (Array.isArray(standardDSUResult) || Array.isArray(versionlessDSUResult)) {
+            try{
+
             assert.arraysMatch(standardDSUResult, versionlessDSUResult);
+            }catch (e) {
+                console.log(e);
+                console.log(standardDSUResult);
+                console.log(versionlessDSUResult);
+                throw e;
+            }
         } else if ($$.Buffer.isBuffer(standardDSUResult) && $$.Buffer.isBuffer(versionlessDSUResult)) {
             assert.true(standardDSUResult.equals(versionlessDSUResult), "Buffers don't match");
         } else if (typeof standardDSUResult === "object" && typeof versionlessDSUResult === "object") {
@@ -198,7 +225,15 @@ class TwoDSUTester {
     async callMethodWithResultComparison(methodName, params) {
         const callMethodResults = await this.callMethod(methodName, params);
         const [standardDSUResult, versionlessDSUResult] = callMethodResults;
+        try{
+
         this.compareMethodResults(methodName, standardDSUResult, versionlessDSUResult);
+        }catch (e) {
+            console.log(e);
+            console.log(standardDSUResult);
+            console.log(versionlessDSUResult);
+            throw e;
+        }
         return callMethodResults;
     }
 
@@ -224,7 +259,7 @@ class TwoDSUTester {
         await $$.promisify(dsu.refresh)();
         // refresh doesn't work as expected so we need to load the DSU again manually, without caching
         const dsuKeySSI = await $$.promisify(dsu.getKeySSIAsString)();
-        dsu = await $$.promisify(resolver.loadDSU)(dsuKeySSI, { skipCache: true });
+        dsu = await $$.promisify(resolver.loadDSU)(dsuKeySSI, {skipCache: true});
         return dsu;
     }
 
@@ -232,14 +267,14 @@ class TwoDSUTester {
         await $$.promisify(this.standardDSU.refresh)();
         // refresh doesn't work as expected so we need to load the DSU again manually, without caching
         const standardDSUKeySSI = await $$.promisify(this.standardDSU.getKeySSIAsString)();
-        this.standardDSU = await $$.promisify(resolver.loadDSU)(standardDSUKeySSI, { skipCache: true });
+        this.standardDSU = await $$.promisify(resolver.loadDSU)(standardDSUKeySSI, {skipCache: true});
     }
 
     async refreshVersionlessDSU() {
         await $$.promisify(this.versionlessDSU.refresh)();
         // refresh doesn't work as expected so we need to load the DSU again manually, without caching
         const versionlessDSUKeySSI = await $$.promisify(this.versionlessDSU.getKeySSIAsString)();
-        this.versionlessDSU = await $$.promisify(resolver.loadDSU)(versionlessDSUKeySSI, { skipCache: true });
+        this.versionlessDSU = await $$.promisify(resolver.loadDSU)(versionlessDSUKeySSI, {skipCache: true});
     }
 
     async getVersionlessDSUContent() {
@@ -247,10 +282,10 @@ class TwoDSUTester {
         const filePath = keySSIObject.getFilePath();
 
         const openDSU = require("opendsu");
-        const { SmartUrl } = openDSU.loadAPI("utils");
+        const {SmartUrl} = openDSU.loadAPI("utils");
         let smartUrl = new SmartUrl(this.apiHubUrl);
         let path = "/versionlessdsu";
-        if(filePath.startsWith("/")){
+        if (filePath.startsWith("/")) {
             path = path.concat(filePath);
         } else {
             path = path.concat("/").concat(filePath);
