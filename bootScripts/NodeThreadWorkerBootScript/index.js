@@ -188,6 +188,9 @@ function boot() {
                     const codeMount = mountedDSUs.find((mount) => mount.path === codeFolderName);
                     const codeDSU = await $$.promisify(resolver.loadDSU)(codeMount.identifier);
                     dsuCodeFileCacheHandler = new DSUCodeFileCacheHandler(codeDSU, cacheContainerPath);
+                    setTimeout(async () => {
+                        await reconstructCache(true);
+                    })
                     // construct the cache in parallel since it takes a bit of time
                     setInterval(async () => {
                         await reconstructCache();

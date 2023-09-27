@@ -1,4 +1,5 @@
 const fs = require("fs");
+const fsPromises = require("node:fs/promises");
 const path = require("path");
 
 const readFileAsync = $$.promisify(fs.readFile.bind(fs));
@@ -24,6 +25,24 @@ class DSUCodeFileCacheHandler {
         this.cacheFolderBasePath = cacheFolderBasePath;
     }
 
+    async deleteOldCacheVersions() {
+        const anchoringAPI = require("opendsu").loadAPI("anchoring").getAnchoringX();
+        let codeDSUVersions;
+        const anchorId = await $$.promisify(this.codeDSU.getAnchorId, this.codeDSU)();
+
+        codeDSUVersions = await $$.promisify(anchoringAPI.getAllVersions)(anchorId);
+
+
+        if (codeDSUVersions && codeDSUVersions.length > 1) {
+            for (let i = 0; i < codeDSUVersions.length - 1; i++) {
+                await fsPromises.rm(path.join(this.cacheFolderBasePath, codeDSUVersions[i].getIdentifier()), {
+                    recursive: true,
+                    force: true
+                });
+            }
+        }
+    }
+
     async constructCache(isBoot) {
         const codeFiles = await $$.promisify(this.codeDSU.listFiles, this.codeDSU)("/");
         let lastVersion = await $$.promisify(this.codeDSU.getLastHashLinkSSI, this.codeDSU)();
@@ -33,10 +52,14 @@ class DSUCodeFileCacheHandler {
         const readDSUFileAsync = await $$.promisify(this.codeDSU.readFile, this.codeDSU);
         const isHashLinkFolderAlreadyPresent = await pathExistsAsync(cacheFolderPath);
         const hasNewVersion = await $$.promisify(this.codeDSU.hasNewVersion, this.codeDSU)();
-        if (hasNewVersion === false) {
-            // No new version available
-            return;
+        if (!isBoot) {
+            if (hasNewVersion === false) {
+                // No new version available
+                console.log(`No new version available for DSU ${lastVersion}`)
+                return;
+            }
         }
+        console.log("new version available")
         if (!isHashLinkFolderAlreadyPresent) {
             console.log(`Creating cache folder for DSU ${lastVersion}: ${cacheFolderPath}`);
             try {
@@ -87,6 +110,7 @@ class DSUCodeFileCacheHandler {
             }
         }
 
+        await this.deleteOldCacheVersions();
         this.availableFilesMap = availableFilesMap;
     }
 
