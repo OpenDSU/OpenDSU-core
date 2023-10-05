@@ -865,8 +865,8 @@ function Enclave_Mixin(target, did, keySSI) {
 
         resolverAPI.loadDSU(keySSI, options, (err, dsu) => {
             if (err) {
-                target.getReadForKeySSI(undefined, keySSI.getIdentifier(), (err, sReadSSI) => {
-                    if (err) {
+                target.getReadForKeySSI(undefined, keySSI.getIdentifier(), (e, sReadSSI) => {
+                    if (e) {
                         return callback(err);
                     }
                     resolverAPI.loadDSU(sReadSSI, options, callback);
