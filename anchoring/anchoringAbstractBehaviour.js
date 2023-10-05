@@ -21,8 +21,6 @@ function AnchoringAbstractBehaviour(persistenceStrategy) {
             anchorValueSSIKeySSI = keySSISpace.parse(anchorValueSSI);
         }
 
-
-
         anchorIdKeySSI.getAnchorId((err, _anchorId) => {
             if (err) {
                 return callback(err);
@@ -30,6 +28,7 @@ function AnchoringAbstractBehaviour(persistenceStrategy) {
 
             let fakeLastVersionForAnchorId = fakeLastVersion[_anchorId];
             if(fakeLastVersionForAnchorId){
+                unmarkAnchorForRecovery(_anchorId);
                 return callback(undefined);
             }
 
@@ -101,7 +100,10 @@ function AnchoringAbstractBehaviour(persistenceStrategy) {
                         }
                     }
 
-                    persistenceStrategy.appendAnchor(_anchorId, anchorValueSSIKeySSI.getIdentifier(), callback);
+                    persistenceStrategy.appendAnchor(_anchorId, anchorValueSSIKeySSI.getIdentifier(), (err, res)=>{
+                        unmarkAnchorForRecovery(_anchorId);
+                        callback(err, res);
+                    });
                 }
 
                 let fakeHistoryAvailable = fakeHistory[_anchorId];
@@ -236,9 +238,11 @@ function AnchoringAbstractBehaviour(persistenceStrategy) {
         fakeLastVersion[anchorId] = anchorFakeLastVersion;
     }
 
-    self.unmarkAnchorForRecovery = function(anchorId){
+    let unmarkAnchorForRecovery = function(anchorId){
         fakeHistory[anchorId] = undefined;
+        delete fakeHistory[anchorId];
         fakeLastVersion[anchorId] = undefined;
+        delete fakeLastVersion[anchorId];
     }
 
     self.testIfRecoveryActiveFor = function(anchorId){

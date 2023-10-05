@@ -255,17 +255,10 @@ let tryToRunRecoveryContentFnc = (keySSI, recoveredInstance, options, anchorFake
                     throw createOpenDSUErrorWrapper(`Surprise error!`, err);
                 }
                 let {
-                    markAnchorForRecovery,
-                    unmarkAnchorForRecovery
+                    markAnchorForRecovery
                 } = require("opendsu").loadApi("anchoring").getAnchoringX();
                 markAnchorForRecovery(anchorId, anchorFakeHistory, anchorFakeLastVersion);
-                options.contentRecoveryFnc(recoveredInstance, (err, dsu) => {
-                    if (!err) {
-                        //we clean the fake history after the successful recovery in order to let
-                        unmarkAnchorForRecovery(anchorId);
-                    }
-                    cb(err, dsu);
-                });
+                options.contentRecoveryFnc(recoveredInstance, cb);
             });
 
         } catch (err) {
