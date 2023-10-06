@@ -310,7 +310,11 @@ registry.defineApi("recoverDSU", function (ssi, recoveryFnc, callback) {
             return callback(err);
         }
 
-        return callback(undefined, await registerDSU(this, dsu));
+        await registerDSU(this, dsu);
+        setTimeout(()=>{
+            callback(undefined, dsu)
+        }, 3000);
+        return;
     });
 });
 
