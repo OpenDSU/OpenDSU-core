@@ -289,7 +289,7 @@ const loadFallbackDSU = (keySSI, options, callback) => {
             return callback(createOpenDSUErrorWrapper(`Failed to get anchorId for keySSI ${keySSI.getIdentifier()}`, err));
         }
 
-        anchoringX.getAllVersions(anchorId, (err, versions) => {
+        anchoringX.getAllVersions(anchorId, {realHistory:true}, (err, versions) => {
             if (err) {
                 return callback(createOpenDSUErrorWrapper(`Failed to get versions for anchorId ${anchorId}`, err));
             }
