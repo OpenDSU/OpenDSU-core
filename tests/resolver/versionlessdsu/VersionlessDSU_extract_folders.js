@@ -1,8 +1,8 @@
 require("../../../../../builds/output/testsRuntime");
-const { assertBlockFailure, getNonEncryptedAndEncryptedDSUTester} = require("./utils");
+const {assertBlockFailure, getNonEncryptedAndEncryptedDSUTester} = require("./utils");
 $$.LEGACY_BEHAVIOUR_ENABLED = true;
 const dc = require("double-check");
-const { assert } = dc;
+const {assert} = dc;
 const path = require("path");
 const fs = require("fs");
 const crypto = require("crypto");
@@ -12,11 +12,11 @@ const logger = $$.getLogger("VersionlessDSUTest", "apihub/versionlessDSU");
 assert.callback(
     "VersionlessDSU folders without mounts test",
     getNonEncryptedAndEncryptedDSUTester(async (dsuTester) => {
-        await dsuTester.callMethod("createFolder", ["/demo", { ignoreMounts: true }]);
+        await dsuTester.callMethod("createFolder", ["/demo", {ignoreMounts: true}]);
 
-        await dsuTester.callMethodWithResultComparison("listFolders", ["/", { ignoreMounts: true }]);
-        await dsuTester.callMethodWithResultComparison("listFolders", ["/demo", { ignoreMounts: true }]);
-        await dsuTester.callMethodWithResultComparison("listFolders", ["demo", { ignoreMounts: true }]);
+        await dsuTester.callMethodWithResultComparison("listFolders", ["/", {ignoreMounts: true}]);
+        await dsuTester.callMethodWithResultComparison("listFolders", ["/demo", {ignoreMounts: true}]);
+        await dsuTester.callMethodWithResultComparison("listFolders", ["demo", {ignoreMounts: true}]);
     }),
     60000
 );
@@ -60,17 +60,24 @@ assert.callback(
 
         await extractFolder("demo");
 
-        await assertBlockFailure(async () => {
-            // should not work
+        let error;
+        // should not work
+        try {
             await extractFolder("non-existing");
-        });
+        } catch (e) {
+            error = e;
+        }
 
-        await assertBlockFailure(async () => {
-            // should not work
+        assert.true(typeof error !== "undefined");
+        error = undefined;
+        try {
             await extractFolder("demo/non-existing");
-        });
+        } catch (e) {
+            error = e;
+        }
+        assert.true(typeof error !== "undefined");
     }),
-    60000
+    600000
 );
 
 

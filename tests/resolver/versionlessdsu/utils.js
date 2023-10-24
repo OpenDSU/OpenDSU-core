@@ -123,7 +123,7 @@ class TwoDSUTester {
 
         if (isStandardRequestFailed) {
             logger.info(`isStandardRequestFailed: ${isStandardRequestFailed} `);
-            assert.true(false, "StandardDSU request failed!");
+            throw new Error("StandardDSU request failed!");
         }
         return standardDSUResult;
     }
@@ -146,7 +146,7 @@ class TwoDSUTester {
 
         if (isVersionlessRequestFailed) {
             logger.info(`isVersionlessRequestFailed: ${isVersionlessRequestFailed} `);
-            assert.true(false, "VersionlessDSU request failed!");
+            throw new Error("VersionlessDSU request failed!");
         }
         return versionlessDSUResult;
     }
@@ -201,7 +201,7 @@ class TwoDSUTester {
             assert.objectHasFields(versionlessDSUResult, standardDSUResult);
             return;
         }
-``
+
         if (Array.isArray(standardDSUResult) || Array.isArray(versionlessDSUResult)) {
             try{
 
