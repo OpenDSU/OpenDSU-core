@@ -35,4 +35,4 @@ assert.callback('PathKeySSI stress test', (testFinished) => {
             });
         });
     });
-}, 1000000);
+}, 100000);

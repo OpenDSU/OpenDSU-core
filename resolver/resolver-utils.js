@@ -19,7 +19,8 @@ function getWebWorkerBootScript(dsuKeySSI) {
 }
 
 function getNodeWorkerBootScript(dsuKeySSI) {
-    const openDSUScriptPath = global.bundlePaths.openDSU.replace(/\\/g, "\\\\").replace(".js", "");
+    const pathAPI = require("path");
+    const openDSUScriptPath = pathAPI.join(__dirname, "../../../", global.bundlePaths.openDSU);
     const script = `require("${openDSUScriptPath}");require('opendsu').loadApi('boot')('${dsuKeySSI}')`;
     return script;
 }
