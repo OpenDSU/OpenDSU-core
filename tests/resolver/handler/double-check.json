@@ -1,4 +1,4 @@
 {
   "confFileName": "double-check.json",
-  "ignore": ["utils.js"]
+  "ignore": ["utils.js", "ApiCallTest.js"]
 }

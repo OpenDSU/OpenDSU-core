@@ -18,7 +18,7 @@ function getWebWorkerBootScript() {
 }
 
 function getNodeWorkerBootScript() {
-    const openDSUScriptPath = global.bundlePaths.openDSU.replace(/\\/g, "\\\\").replace(".js", "");
+    const openDSUScriptPath = require("path").join(__dirname, "../../../", global.bundlePaths.openDSU);
     return `
         require("${openDSUScriptPath}");
         (${require("./bootScript/node").toString()})();

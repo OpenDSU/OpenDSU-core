@@ -1,8 +1,8 @@
 require("../../../../../builds/output/testsRuntime");
-const { assertBlockFailure, getDSUTesters} = require("./utils");
+const {assertBlockFailure, getDSUTesters} = require("./utils");
 $$.LEGACY_BEHAVIOUR_ENABLED = true;
 const dc = require("double-check");
-const { assert } = dc;
+const {assert} = dc;
 const crypto = require("crypto");
 
 assert.callback(
@@ -36,9 +36,14 @@ assert.callback(
             const encryptedDsuContentBuffer = await encryptedDsuTester.getVersionlessDSUContent();
 
             // should not arrive here since the encrypted content is not a JSON
-            assertBlockFailure(() => {
+            let error;
+            try {
                 JSON.parse(encryptedDsuContentBuffer);
-            });
+
+            } catch (e) {
+                error = e;
+            }
+            assert.true(error !== undefined);
 
             const encryptedDSUKeySSIObject = await $$.promisify(encryptedDsuTester.versionlessDSU.getKeySSIAsObject)();
             const encryptedDSUKeySSIString = await $$.promisify(encryptedDsuTester.versionlessDSU.getKeySSIAsString)();

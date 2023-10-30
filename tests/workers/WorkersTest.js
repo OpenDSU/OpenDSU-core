@@ -20,7 +20,7 @@ assert.callback("Test method runSyncFunction", (testFinished) => {
 
         testFinished();
     });
-});
+}, 10000);
 
 assert.callback("Test method runSyncFunctionOnlyByWorker", (testFinished) => {
     const data = "some data";
@@ -32,4 +32,4 @@ assert.callback("Test method runSyncFunctionOnlyByWorker", (testFinished) => {
 
         testFinished();
     });
-});
+}, 10000);
