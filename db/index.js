@@ -1,7 +1,7 @@
 let util = require("./impl/DSUDBUtil")
 const {SingleDSUStorageStrategy} = require("./storageStrategies/SingleDSUStorageStrategy");
 const {TimestampMergingStrategy: ConflictStrategy} = require("./conflictSolvingStrategies/timestampMergingStrategy");
-
+const logger = $$.getLogger("opendsu", "db");
 function getBasicDB(storageStrategy, conflictSolvingStrategy, options) {
     let BasicDB = require("./impl/BasicDB");
     return new BasicDB(storageStrategy, conflictSolvingStrategy, options);
@@ -40,7 +40,9 @@ let getSimpleWalletDB = (dbName, options) => {
 
     util.initialiseWalletDB(dbName, options.keySSI, (err, _storageDSU, keySSI) => {
         if (err) {
-            console.error("Failed to initialise WalletDB_DSU " + dbName, err);
+            const code = 0x401;
+            logger.ignoreErrorsWithCode(code);
+            logger.error(code, "Failed to initialise WalletDB_DSU " + dbName, err);
             return db.dispatchEvent("error", createOpenDSUErrorWrapper("Failed to initialise WalletDB_DSU " + dbName, err));
         }
 
