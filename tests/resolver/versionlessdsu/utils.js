@@ -1,4 +1,4 @@
-const {launchApiHubTestNode} = require("../../../../../psknode/tests/util/tir");
+const {launchConfigurableApiHubTestNodeAsync} = require("../../../../../psknode/tests/util/tir");
 
 const dc = require("double-check");
 const {assert} = dc;
@@ -10,6 +10,7 @@ const logger = $$.getLogger("VersionlessDSUTestUtils", "apihub/versionlessDSU");
 const DOMAIN = "default";
 
 const opendsu = require("opendsu");
+const tir = require("../../../../../psknode/tests/util/tir");
 const keySSIApi = opendsu.loadAPI("keyssi");
 const resolver = opendsu.loadApi("resolver");
 const crypto = opendsu.loadApi("crypto");
@@ -337,7 +338,13 @@ async function getDSUTesters(useStandardDSUForInnerDSUConfig) {
         useStandardDSUForInnerDSUConfig = [true, false];
     }
     const testFolder = await $$.promisify(dc.createTestFolder)(`versionlesstest-${folderNonce++}`);
-    const port = await $$.promisify(launchApiHubTestNode)(10, testFolder);
+    const vaultDomainConfig = {
+        "anchoring": {
+            "type": "FS",
+            "option": {}
+        }
+    }
+    const {port} = await tir.launchConfigurableApiHubTestNodeAsync({domains: [{name: "vault", config: vaultDomainConfig}], rootFolder: testFolder});
 
     const dsuTesters = [];
     for (const encrypted of [false, true]) {

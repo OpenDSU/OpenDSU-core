@@ -3,23 +3,8 @@ const { assertBlockFailure, getNonEncryptedAndEncryptedDSUTester} = require("./u
 $$.LEGACY_BEHAVIOUR_ENABLED = true;
 const dc = require("double-check");
 const { assert } = dc;
-const path = require("path");
-const fs = require("fs");
 const crypto = require("crypto");
 
-const logger = $$.getLogger("VersionlessDSUTest", "apihub/versionlessDSU");
-
-assert.callback(
-    "VersionlessDSU folders without mounts test",
-    getNonEncryptedAndEncryptedDSUTester(async (dsuTester) => {
-        await dsuTester.callMethod("createFolder", ["/demo", { ignoreMounts: true }]);
-
-        await dsuTester.callMethodWithResultComparison("listFolders", ["/", { ignoreMounts: true }]);
-        await dsuTester.callMethodWithResultComparison("listFolders", ["/demo", { ignoreMounts: true }]);
-        await dsuTester.callMethodWithResultComparison("listFolders", ["demo", { ignoreMounts: true }]);
-    }),
-    60000
-);
 
 assert.callback(
     "VersionlessDSU rename test",

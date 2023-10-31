@@ -10,18 +10,6 @@ const crypto = require("crypto");
 const logger = $$.getLogger("VersionlessDSUTest", "apihub/versionlessDSU");
 
 assert.callback(
-    "VersionlessDSU folders without mounts test",
-    getNonEncryptedAndEncryptedDSUTester(async (dsuTester) => {
-        await dsuTester.callMethod("createFolder", ["/demo", { ignoreMounts: true }]);
-
-        await dsuTester.callMethodWithResultComparison("listFolders", ["/", { ignoreMounts: true }]);
-        await dsuTester.callMethodWithResultComparison("listFolders", ["/demo", { ignoreMounts: true }]);
-        await dsuTester.callMethodWithResultComparison("listFolders", ["demo", { ignoreMounts: true }]);
-    }),
-    60000
-);
-
-assert.callback(
     "VersionlessDSU addFolder test",
     getNonEncryptedAndEncryptedDSUTester(async (dsuTester) => {
         const FILE_CONTENT_SIZE = 1024;
