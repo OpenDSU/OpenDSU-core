@@ -41,7 +41,6 @@ let getSimpleWalletDB = (dbName, options) => {
     util.initialiseWalletDB(dbName, options.keySSI, (err, _storageDSU, keySSI) => {
         if (err) {
             const code = 0x401;
-            logger.ignoreErrorsWithCode(code);
             logger.error(code, "Failed to initialise WalletDB_DSU " + dbName, err);
             return db.dispatchEvent("error", createOpenDSUErrorWrapper("Failed to initialise WalletDB_DSU " + dbName, err));
         }
