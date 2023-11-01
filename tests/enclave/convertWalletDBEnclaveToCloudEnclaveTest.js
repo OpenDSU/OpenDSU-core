@@ -59,5 +59,5 @@ assert.callback('Convert WalletDBEnclave to CloudEnclave test', (testFinished) =
 
         sc.on("initialised", runAssertions);
     });
-}, 500000000);
+}, 50000);
 
