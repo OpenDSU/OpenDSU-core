@@ -14,9 +14,10 @@ assert.callback('WalletDBEnclave init fail test', async (testFinished) => {
     const seedSSI = await $$.promisify(keySSISpace.createSeedSSI)(DOMAIN);
     console.log(seedSSI.getIdentifier());
     const walletDBEnclave = enclaveAPI.initialiseWalletDBEnclave(seedSSI);
+    $$.debug.useStdoutOnceForErrorWithCode(0x401);
     walletDBEnclave.on("error", (err) => {
         assert.true(err !== undefined);
         testFinished();
     })
-}, 5000000);
+}, 50000);
 

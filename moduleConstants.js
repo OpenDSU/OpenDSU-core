@@ -1,4 +1,4 @@
-const ENVIRONMENT_TYPES = require("../overwrite-require/moduleConstants");
+const ENVIRONMENT_TYPES = require("../overwrite-require/src/moduleConstants");
 
 let cachedKeySSIResolver = undefined;
 
