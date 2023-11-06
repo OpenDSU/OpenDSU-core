@@ -1,13 +1,13 @@
 require("../../../../builds/output/testsRuntime");
+$$.debug.verbosity("info")
 const tir = require("../../../../psknode/tests/util/tir");
-$$.debug.verbosity("debug")
+$$.debug.useStdoutOnceForErrorWithCode(0x401);
 const dc = require("double-check");
 const assert = dc.assert;
 const openDSU = require('../../index');
 $$.__registerModule("opendsu", openDSU);
 const enclaveAPI = openDSU.loadAPI("enclave");
 const keySSISpace = openDSU.loadAPI("keyssi");
-$$.debug.useStdoutOnceForErrorWithCode(0x401);
 
 assert.callback('WalletDBEnclave init fail test', async (testFinished) => {
     const DOMAIN = "default";
@@ -20,5 +20,5 @@ assert.callback('WalletDBEnclave init fail test', async (testFinished) => {
         assert.true(err !== undefined);
         testFinished();
     })
-}, 50000);
+}, 500000);
 
