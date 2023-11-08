@@ -1,5 +1,4 @@
 require("../../../../builds/output/testsRuntime");
-$$.debug.verbosity("info")
 const tir = require("../../../../psknode/tests/util/tir");
 $$.debug.useStdoutOnceForErrorWithCode(0x401);
 const dc = require("double-check");
