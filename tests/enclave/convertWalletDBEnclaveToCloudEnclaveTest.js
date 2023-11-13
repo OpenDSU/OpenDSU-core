@@ -48,6 +48,7 @@ assert.callback('Convert WalletDBEnclave to CloudEnclave test', (testFinished) =
 
                 delete cloudEnclaveRecord.meta;
                 delete cloudEnclaveRecord.$loki
+                delete cloudEnclaveRecord.did;
                 assert.objectsAreEqual(record, cloudEnclaveRecord, "Records do not match");
                 testFinished();
             })

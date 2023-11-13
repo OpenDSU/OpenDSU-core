@@ -27,7 +27,7 @@ assert.callback('Remote enclave test', (testFinished) => {
         const runAssertions = async () => {
             try {
                 const clientDIDDocument = await $$.promisify(w3cDID.createIdentity)("ssi:name", domain, "client");
-                const remoteEnclave = enclaveAPI.initialiseRemoteEnclave(clientDIDDocument.getIdentifier(), serverDID);
+                const remoteEnclave = enclaveAPI.initialiseCloudEnclaveClient(clientDIDDocument.getIdentifier(), serverDID);
                 const TABLE = "test_table";
                 const addedRecord = {data: 1};
                 remoteEnclave.on("initialised", async () => {
