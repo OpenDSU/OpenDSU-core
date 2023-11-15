@@ -13,12 +13,12 @@ function ProxyMixin(target) {
         target.__putCommandObject(commandNames.GRANT_READ_ACCESS, forDID, callback);
     }
 
-    target.revokeWriteAccess = (forDID, callback) => {
-        target.__putCommandObject(commandNames.REVOKE_WRITE_ACCESS, forDID, callback);
-    }
-
     target.revokeReadAccess = (forDID, callback) => {
         target.__putCommandObject(commandNames.REVOKE_READ_ACCESS, forDID, callback);
+    }
+
+    target.revokeExecutionAccess = (forDID, callback) => {
+        target.__putCommandObject(commandNames.REVOKE_EXECUTION_ACCESS, forDID, callback);
     }
 
     target.hasWriteAccess = (forDID, callback) => {
@@ -27,6 +27,10 @@ function ProxyMixin(target) {
 
     target.hasReadAccess = (forDID, callback) => {
         target.__putCommandObject(commandNames.HAS_READ_ACCESS, forDID, callback);
+    }
+
+    target.hasExecutionAccess = (forDID, callback) => {
+        target.__putCommandObject(commandNames.HAS_EXECUTION_ACCESS, forDID, callback);
     }
 
     target.getCollections = (callback) => {

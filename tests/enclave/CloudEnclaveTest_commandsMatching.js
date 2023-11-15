@@ -31,7 +31,6 @@ assert.callback('Remote enclave test', (testFinished) => {
                 const TABLE = "test_table";
                 const addedRecord = {data: 1};
                 remoteEnclave.on("initialised", async () => {
-
                     const numberOfRecords = 10;
                     let promisesList = [];
                     for (let i = 0; i < numberOfRecords; i++) {

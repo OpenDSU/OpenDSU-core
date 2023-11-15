@@ -1,4 +1,5 @@
 const {createCommandObject} = require("./lib/createCommandObject");
+const commandNames = require("./lib/commandsNames");
 
 function CloudEnclaveClient(clientDID, remoteDID, requestTimeout) {
     let initialised = false;
@@ -32,36 +33,23 @@ function CloudEnclaveClient(clientDID, remoteDID, requestTimeout) {
         callback(undefined, did);
     }
 
-    this.grantExecutionAccess = (forDID, callback) => {
-        this.__putCommandObject("grantExecutionAccess", forDID, callback);
+    this.grantReadAccess = (forDID, resource, callback) => {
+        this.__putCommandObject(commandNames.GRANT_READ_ACCESS, forDID, resource, callback);
     }
 
-    this.hasExecutionAccess = (forDID, callback) => {
-        this.__putCommandObject("hasExecutionAccess", forDID, callback);
+    this.grantWriteAccess = (forDID, resource, callback) => {
+        this.__putCommandObject(commandNames.GRANT_WRITE_ACCESS, forDID, resource, callback);
     }
 
-    this.revokeExecutionAccess = (forDID, callback) => {
-        this.__putCommandObject("revokeExecutionAccess", forDID, callback);
+    this.grantAdminAccess = (forDID, resource, callback) => {
+        this.__putCommandObject(commandNames.GRANT_ADMIN_ACCESS, forDID, resource, callback);
     }
 
     this.callLambda = (lambdaName, ...args) => {
-        let callback;
         if (typeof args[args.length - 1] !== "function") {
             throw new Error("Last argument must be a callback function");
         }
-        callback = args[args.length - 1];
-        this.hasExecutionAccess(this.clientDIDDocument.getIdentifier(), (err, hasExecutionAccess) => {
-            if (err) {
-                return callback(err);
-            }
-
-            if (!hasExecutionAccess) {
-                const error = new Error("Client does not have execution access");
-                return callback(error);
-            }
-
-            this.__putCommandObject(lambdaName, ...args);
-        });
+        this.__putCommandObject(lambdaName, ...args);
     }
 
     this.__putCommandObject = (commandName, ...args) => {

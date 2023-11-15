@@ -63,7 +63,7 @@ assert.callback('Lambda test', (testFinished) => {
 
                 const cloudEnclaveClient = enclaveAPI.initialiseCloudEnclaveClient(clientDIDDocument.getIdentifier(), serverDID);
                 cloudEnclaveClient.on("initialised", async () => {
-                    cloudEnclaveClient.grantExecutionAccess(clientDIDDocument.getIdentifier(), (err) => {
+                    cloudEnclaveClient.grantAdminAccess(clientDIDDocument.getIdentifier(), "testLambda", (err) => {
                         assert.true(err === undefined, "Grant execution access failed")
                         cloudEnclaveClient.callLambda("testLambda", "param1", "param2", (err, result) => {
                             assert.true(err === undefined, "Lambda call failed");
