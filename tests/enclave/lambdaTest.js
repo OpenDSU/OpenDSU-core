@@ -50,8 +50,11 @@ assert.callback('Lambda test', (testFinished) => {
             rootFolder: folder,
             secret: "testSecret",
             lambdas: path.join(folder, "main"),
-            name: "lambdasEnclave"
-
+            name: "lambdasEnclave",
+            persistence: {
+                type: "loki",
+                options: [path.join(folder, "main", "enclaveDB")]
+            }
         });
 
         try {
