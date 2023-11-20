@@ -4,6 +4,7 @@ const tir = require("../../../../psknode/tests/util/tir");
 const dc = require("double-check");
 const assert = dc.assert;
 const openDSU = require('../../index');
+const path = require("path");
 $$.__registerModule("opendsu", openDSU);
 const enclaveAPI = openDSU.loadAPI("enclave");
 const scAPI = openDSU.loadAPI("sc");
@@ -27,7 +28,12 @@ assert.callback('Remote enclave test', (testFinished) => {
             rootFolder: folder,
             domain,
             secret: process.env.CLOUD_ENCLAVE_SECRET,
-            name: "cloud-enclave"
+            name: "cloud-enclave",
+            lambdas: path.join(folder, "main"),
+            persistence: {
+                type: "loki",
+                options: [path.join(folder, "main", "enclaveDB")]
+            }
         });
 
         const runAssertions = async () => {
@@ -49,7 +55,6 @@ assert.callback('Remote enclave test', (testFinished) => {
                     } catch (e) {
                         return console.log(e);
                     }
-
                 });
 
             } catch (e) {

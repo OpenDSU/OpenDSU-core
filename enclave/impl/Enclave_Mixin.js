@@ -150,7 +150,23 @@ function Enclave_Mixin(target, did, keySSI) {
         target.storageDB.insertRecord(table, pk, encryptedRecord, callback);
     }
 
+    target._insertRecord = (table, pk, plainRecord, encryptedRecord, callback) => {
+        if (typeof encryptedRecord === "function") {
+            callback = encryptedRecord;
+            encryptedRecord = plainRecord;
+        }
+        target.storageDB.insertRecord(table, pk, encryptedRecord, callback);
+    }
+
     target.updateRecord = (forDID, table, pk, plainRecord, encryptedRecord, callback) => {
+        if (typeof encryptedRecord === "function") {
+            callback = encryptedRecord;
+            encryptedRecord = plainRecord;
+        }
+        target.storageDB.updateRecord(table, pk, encryptedRecord, callback);
+    }
+
+    target._updateRecord = (table, pk, plainRecord, encryptedRecord, callback) => {
         if (typeof encryptedRecord === "function") {
             callback = encryptedRecord;
             encryptedRecord = plainRecord;
@@ -162,6 +178,10 @@ function Enclave_Mixin(target, did, keySSI) {
         target.storageDB.getRecord(table, pk, callback);
     };
 
+    target._getRecord = (table, pk, callback) => {
+        target.storageDB.getRecord(table, pk, callback);
+    }
+
     target.getAllTableNames = (forDID, callback) => {
         target.storageDB.getAllTableNames(callback);
     }
@@ -170,7 +190,15 @@ function Enclave_Mixin(target, did, keySSI) {
         target.storageDB.filter(table, filter, sort, limit, callback);
     }
 
+    target._filter = (table, filter, sort, limit, callback) => {
+        target.storageDB.filter(table, filter, sort, limit, callback);
+    }
+
     target.deleteRecord = (forDID, table, pk, callback) => {
+        target.storageDB.deleteRecord(table, pk, callback);
+    }
+
+    target._deleteRecord = (table, pk, callback) => {
         target.storageDB.deleteRecord(table, pk, callback);
     }
 
@@ -223,6 +251,10 @@ function Enclave_Mixin(target, did, keySSI) {
     }
 
     target.getAllRecords = (forDID, tableName, callback) => {
+        target.storageDB.getAllRecords(tableName, callback);
+    }
+
+    target._getAllRecords = (tableName, callback) => {
         target.storageDB.getAllRecords(tableName, callback);
     }
 
