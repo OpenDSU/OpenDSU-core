@@ -88,7 +88,6 @@ assert.callback('Lambda test', (testFinished) => {
             sc.on("initialised", async () => {
                 await createCloudEnclaveClient();
             });
-
         } catch (e) {
             return console.log(e);
         }

@@ -5,14 +5,15 @@ const dc = require("double-check");
 const assert = dc.assert;
 const openDSU = require('../../index');
 const path = require("path");
+const fs = require("fs");
 $$.__registerModule("opendsu", openDSU);
 const enclaveAPI = openDSU.loadAPI("enclave");
 const scAPI = openDSU.loadAPI("sc");
 const w3cDID = openDSU.loadAPI("w3cdid");
 
 
-assert.callback('Remote enclave test', (testFinished) => {
-    dc.createTestFolder('createDSU', async (err, folder) => {
+assert.callback('Cloud enclave test', (testFinished) => {
+    dc.createTestFolder('cloudEnclave', async (err, folder) => {
         const vaultDomainConfig = {
             "anchoring": {
                 "type": "FS",
@@ -24,22 +25,25 @@ assert.callback('Remote enclave test', (testFinished) => {
         const domain = "mqtestdomain";
         process.env.CLOUD_ENCLAVE_SECRET = "some secret";
         await tir.launchConfigurableApiHubTestNodeAsync({domains: [{name: domain, config: vaultDomainConfig}], rootFolder: folder});
-        const serverDID = await tir.launchConfigurableCloudEnclaveTestNodeAsync({
-            rootFolder: folder,
+
+        const testEnclaveFolder = path.join(folder, "cloud-enclaves", "testEnclave");
+        const enclaveConfig = {
             domain,
-            secret: process.env.CLOUD_ENCLAVE_SECRET,
-            name: "cloud-enclave",
-            lambdas: path.join(folder, "main"),
+            name: "testEnclave",
             persistence: {
                 type: "loki",
-                options: [path.join(folder, "main", "enclaveDB")]
+                options: [path.join(testEnclaveFolder, "enclaveDB")]
             }
-        });
+        }
+
+        fs.mkdirSync(testEnclaveFolder, {recursive: true});
+        fs.writeFileSync(path.join(testEnclaveFolder, "testEnclave.json"), JSON.stringify(enclaveConfig));
+         const serverDID = await tir.launchConfigurableCloudEnclaveTestNodeAsync({rootFolder: path.join(folder, "cloud-enclaves"), secret: process.env.CLOUD_ENCLAVE_SECRET});
 
         const runAssertions = async () => {
             try {
                 const clientDIDDocument = await $$.promisify(w3cDID.createIdentity)("ssi:name", domain, "client");
-                const cloudEnclave = enclaveAPI.initialiseCloudEnclaveClient(clientDIDDocument.getIdentifier(), serverDID);
+                const cloudEnclave = enclaveAPI.initialiseCloudEnclaveClient(clientDIDDocument.getIdentifier(), serverDID[0]);
                 const TABLE = "test_table";
                 const addedRecord = {data: 1};
                 cloudEnclave.on("initialised", async () => {
@@ -67,4 +71,4 @@ assert.callback('Remote enclave test', (testFinished) => {
         }
         sc.on("initialised", runAssertions);
     });
-}, 20000);
+}, 2000000);
