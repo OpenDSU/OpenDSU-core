@@ -77,6 +77,7 @@ function CloudEnclaveClient(clientDID, remoteDID, requestTimeout) {
 
             try {
                 const resObj = JSON.parse(res);
+
                 const commandResult = resObj.commandResult;
                 const commandID = resObj.commandID;
 
@@ -85,6 +86,10 @@ function CloudEnclaveClient(clientDID, remoteDID, requestTimeout) {
                 const callback = this.commandsMap.get(commandID).callback;
                 this.commandsMap.delete(commandID)
                 console.log("Deleted resolved command with id " + commandID)
+                if(resObj.error){
+                    callback(Error(commandResult.debug_message));
+                    return;
+                }
                 callback(err, commandResult);
             } catch (err) {
                 console.log(err);

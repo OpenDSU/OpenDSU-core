@@ -24,6 +24,7 @@ assert.callback('key DID SSI test', (testFinished) => {
         sc.on("initialised", async () => {
             try {
                 const publicName = "publicName";
+                const newPublicName = "newPublicName";
                 const initialSecret = "secret";
                 const wrongSecret = "wrongsecret";
                 let [err, didDocument] = await $$.call(w3cDID.resolveNameDID, domain, publicName, initialSecret);
@@ -31,6 +32,8 @@ assert.callback('key DID SSI test', (testFinished) => {
                 assert.true(didDocument !== undefined);
                 console.log(didDocument.getIdentifier());
 
+                let [error, newDidDocument] = await $$.call(w3cDID.resolveNameDID, domain, newPublicName, initialSecret);
+                console.log(didDocument.getIdentifier(), newDidDocument.getIdentifier());
                 let initialSignature;
                 const dataToSign = "someData";
                 [err, initialSignature] = await $$.call(didDocument.sign, dataToSign);

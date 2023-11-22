@@ -24,7 +24,10 @@ assert.callback('Cloud enclave test', (testFinished) => {
 
         const domain = "mqtestdomain";
         process.env.CLOUD_ENCLAVE_SECRET = "some secret";
-        await tir.launchConfigurableApiHubTestNodeAsync({domains: [{name: domain, config: vaultDomainConfig}], rootFolder: folder});
+        await tir.launchConfigurableApiHubTestNodeAsync({
+            domains: [{name: domain, config: vaultDomainConfig}],
+            rootFolder: folder
+        });
 
         const testEnclaveFolder = path.join(folder, "cloud-enclaves", "testEnclave");
         const enclaveConfig = {
@@ -38,7 +41,10 @@ assert.callback('Cloud enclave test', (testFinished) => {
 
         fs.mkdirSync(testEnclaveFolder, {recursive: true});
         fs.writeFileSync(path.join(testEnclaveFolder, "testEnclave.json"), JSON.stringify(enclaveConfig));
-         const serverDID = await tir.launchConfigurableCloudEnclaveTestNodeAsync({rootFolder: path.join(folder, "cloud-enclaves"), secret: process.env.CLOUD_ENCLAVE_SECRET});
+        const serverDID = await tir.launchConfigurableCloudEnclaveTestNodeAsync({
+            rootFolder: path.join(folder, "cloud-enclaves"),
+            secret: process.env.CLOUD_ENCLAVE_SECRET
+        });
 
         const runAssertions = async () => {
             try {
@@ -48,8 +54,10 @@ assert.callback('Cloud enclave test', (testFinished) => {
                 const addedRecord = {data: 1};
                 cloudEnclave.on("initialised", async () => {
                     try {
+                        await $$.promisify(cloudEnclave.grantWriteAccess)("some_did", TABLE);
                         await $$.promisify(cloudEnclave.insertRecord)("some_did", TABLE, "pk1", addedRecord, addedRecord);
                         await $$.promisify(cloudEnclave.insertRecord)("some_did", TABLE, "pk2", addedRecord, addedRecord);
+                        await $$.promisify(cloudEnclave.grantReadAccess)("some_did", TABLE);
                         const record = await $$.promisify(cloudEnclave.getRecord)("some_did", TABLE, "pk1");
                         assert.objectsAreEqual(record, addedRecord, "Records do not match");
                         const allRecords = await $$.promisify(cloudEnclave.getAllRecords)("some_did", TABLE);
@@ -71,4 +79,4 @@ assert.callback('Cloud enclave test', (testFinished) => {
         }
         sc.on("initialised", runAssertions);
     });
-}, 2000000);
+}, 20000);

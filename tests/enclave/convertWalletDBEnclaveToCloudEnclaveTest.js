@@ -4,6 +4,8 @@ const tir = require("../../../../psknode/tests/util/tir");
 const dc = require("double-check");
 const assert = dc.assert;
 const openDSU = require('../../index');
+const path = require("path");
+const fs = require("fs");
 $$.__registerModule("opendsu", openDSU);
 const enclaveAPI = openDSU.loadAPI("enclave");
 const scAPI = openDSU.loadAPI("sc");
@@ -17,12 +19,27 @@ assert.callback('Convert WalletDBEnclave to CloudEnclave test', (testFinished) =
             }
         }
         const domain = "vault";
-        await tir.launchConfigurableApiHubTestNodeAsync({domains: [{name: domain, config: vaultDomainConfig}], rootFolder: folder});
-        const serverDID = await tir.launchConfigurableCloudEnclaveTestNodeAsync({
-            rootFolder: folder,
+        process.env.CLOUD_ENCLAVE_SECRET = "some secret";
+        await tir.launchConfigurableApiHubTestNodeAsync({
+            domains: [{name: domain, config: vaultDomainConfig}],
+            rootFolder: folder
+        });
+
+        const testEnclaveFolder = path.join(folder, "cloud-enclaves", "testEnclave");
+        const enclaveConfig = {
             domain,
-            secret: process.env.CLOUD_ENCLAVE_SECRET,
-            name: "cloud-enclave"
+            name: "testEnclave",
+            persistence: {
+                type: "loki",
+                options: [path.join(testEnclaveFolder, "enclaveDB")]
+            }
+        }
+
+        fs.mkdirSync(testEnclaveFolder, {recursive: true});
+        fs.writeFileSync(path.join(testEnclaveFolder, "testEnclave.json"), JSON.stringify(enclaveConfig));
+        const serverDIDs = await tir.launchConfigurableCloudEnclaveTestNodeAsync({
+            rootFolder: path.join(folder, "cloud-enclaves"),
+            secret: process.env.CLOUD_ENCLAVE_SECRET
         });
 
         const runAssertions = async () => {
@@ -35,12 +52,13 @@ assert.callback('Convert WalletDBEnclave to CloudEnclave test', (testFinished) =
                 assert.objectsAreEqual(record, addedRecord, "Records do not match");
                 let error;
                 let cloudEnclave;
-                [error, cloudEnclave] = await $$.call(enclaveAPI.convertWalletDBEnclaveToCloudEnclave, walletDBEnclave, serverDID);
+                [error, cloudEnclave] = await $$.call(enclaveAPI.convertWalletDBEnclaveToCloudEnclave, walletDBEnclave, serverDIDs[0]);
                 if(error){
                     throw error;
                 }
 
                 let cloudEnclaveRecord;
+                await $$.promisify(cloudEnclave.grantReadAccess)("some_did", TABLE);
                 [error, cloudEnclaveRecord] = await $$.call(cloudEnclave.getRecord, "some_did", TABLE, "pk1");
                 if(error){
                     throw error;

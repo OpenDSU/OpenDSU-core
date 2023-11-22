@@ -25,6 +25,7 @@ function initialiseCloudEnclaveClient(clientDID, remoteDID) {
     const CloudEnclave = require("./impl/CloudEnclaveClient");
     return new CloudEnclave(clientDID, remoteDID);
 }
+
 function initialiseVersionlessDSUEnclave(versionlessSSI) {
     const VersionlessDSUEnclave = require("./impl/VersionlessDSUEnclave");
     return new VersionlessDSUEnclave(versionlessSSI);
@@ -115,10 +116,10 @@ function convertWalletDBEnclaveToCloudEnclave(walletDBEnclave, cloudEnclaveServe
             return callback(error);
         }
 
-        if(typeof keySSI === "string"){
-            try{
+        if (typeof keySSI === "string") {
+            try {
                 keySSI = keySSIApi.parse(keySSI);
-            } catch(err){
+            } catch (err) {
                 return callback(err);
             }
         }
@@ -131,7 +132,8 @@ function convertWalletDBEnclaveToCloudEnclave(walletDBEnclave, cloudEnclaveServe
         if (error) {
             return callback(error);
         }
-        let cloudEnclave = initialiseRemoteEnclave(cloudEnclaveDIDDocument.getIdentifier(), cloudEnclaveServerDIO);
+        const cloudEnclaveDID = cloudEnclaveDIDDocument.getIdentifier();
+        let cloudEnclave = initialiseCloudEnclaveClient(cloudEnclaveDID, cloudEnclaveServerDIO);
 
         cloudEnclave.on("initialised", async () => {
             for (let i = 0; i < tableNames.length; i++) {
@@ -140,10 +142,15 @@ function convertWalletDBEnclaveToCloudEnclave(walletDBEnclave, cloudEnclaveServe
                     return callback(error);
                 }
 
+                [error, res] = await $$.call(cloudEnclave.grantWriteAccess, cloudEnclaveDID, tableNames[i]);
+                if (error) {
+                    return callback(error);
+                }
+
                 for (let j = 0; j < records.length; j++) {
-                    [error, res] = await $$.call(cloudEnclave.insertRecord, undefined, tableNames[i], records[j].pk, records[j]);
+                    [error, res] = await $$.call(cloudEnclave.insertRecord, cloudEnclaveDID, tableNames[i], records[j].pk, records[j]);
                     if (error) {
-                        [error, res] = await $$.call(cloudEnclave.updateRecord, undefined, tableNames[i], records[j].pk, records[j], records[j]);
+                        [error, res] = await $$.call(cloudEnclave.updateRecord, cloudEnclaveDID, tableNames[i], records[j].pk, records[j], records[j]);
                         if (error) {
                             return callback(error);
                         }
