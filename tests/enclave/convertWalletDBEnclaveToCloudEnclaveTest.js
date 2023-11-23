@@ -25,6 +25,7 @@ assert.callback('Convert WalletDBEnclave to CloudEnclave test', (testFinished) =
             rootFolder: folder
         });
 
+        const configFolder = path.join(folder, "cloud-enclaves");
         const testEnclaveFolder = path.join(folder, "cloud-enclaves", "testEnclave");
         const enclaveConfig = {
             domain,
@@ -39,6 +40,7 @@ assert.callback('Convert WalletDBEnclave to CloudEnclave test', (testFinished) =
         fs.writeFileSync(path.join(testEnclaveFolder, "testEnclave.json"), JSON.stringify(enclaveConfig));
         const serverDIDs = await tir.launchConfigurableCloudEnclaveTestNodeAsync({
             rootFolder: path.join(folder, "cloud-enclaves"),
+            configLocation: configFolder,
             secret: process.env.CLOUD_ENCLAVE_SECRET
         });
 

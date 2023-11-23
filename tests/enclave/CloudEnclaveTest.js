@@ -29,8 +29,9 @@ assert.callback('Cloud enclave test', (testFinished) => {
             rootFolder: folder
         });
 
-        const testEnclaveFolder1 = path.join(folder, "cloud-enclaves", "testEnclave1");
-        const testEnclaveFolder2 = path.join(folder, "cloud-enclaves", "testEnclave2");
+        const configFolder = path.join(folder, "conf");
+        const testEnclaveFolder1 = path.join(configFolder, "testEnclave1");
+        const testEnclaveFolder2 = path.join(configFolder, "testEnclave2");
         const testEnclaveConfig1 = {
             domain,
             name: "testEnclave1",
@@ -55,6 +56,7 @@ assert.callback('Cloud enclave test', (testFinished) => {
         fs.writeFileSync(path.join(testEnclaveFolder2, "testEnclave2.json"), JSON.stringify(testEnclaveConfig2));
         const serverDIDs = await tir.launchConfigurableCloudEnclaveTestNodeAsync({
             rootFolder: path.join(folder, "cloud-enclaves"),
+            configLocation: configFolder,
             secret: process.env.CLOUD_ENCLAVE_SECRET
         });
 
