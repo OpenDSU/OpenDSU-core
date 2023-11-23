@@ -29,41 +29,63 @@ assert.callback('Cloud enclave test', (testFinished) => {
             rootFolder: folder
         });
 
-        const testEnclaveFolder = path.join(folder, "cloud-enclaves", "testEnclave");
-        const enclaveConfig = {
+        const testEnclaveFolder1 = path.join(folder, "cloud-enclaves", "testEnclave1");
+        const testEnclaveFolder2 = path.join(folder, "cloud-enclaves", "testEnclave2");
+        const testEnclaveConfig1 = {
             domain,
-            name: "testEnclave",
+            name: "testEnclave1",
             persistence: {
                 type: "loki",
-                options: [path.join(testEnclaveFolder, "enclaveDB")]
+                options: [path.join(testEnclaveFolder1, "testEnclave1DB")]
             }
         }
 
-        fs.mkdirSync(testEnclaveFolder, {recursive: true});
-        fs.writeFileSync(path.join(testEnclaveFolder, "testEnclave.json"), JSON.stringify(enclaveConfig));
-        const serverDID = await tir.launchConfigurableCloudEnclaveTestNodeAsync({
+        const testEnclaveConfig2 = {
+            domain,
+            name: "testEnclave2",
+            persistence: {
+                type: "loki",
+                options: [path.join(testEnclaveFolder2, "testEnclave2DB")]
+            }
+        }
+
+        fs.mkdirSync(testEnclaveFolder1, {recursive: true});
+        fs.mkdirSync(testEnclaveFolder2, {recursive: true});
+        fs.writeFileSync(path.join(testEnclaveFolder1, "testEnclave1.json"), JSON.stringify(testEnclaveConfig1));
+        fs.writeFileSync(path.join(testEnclaveFolder2, "testEnclave2.json"), JSON.stringify(testEnclaveConfig2));
+        const serverDIDs = await tir.launchConfigurableCloudEnclaveTestNodeAsync({
             rootFolder: path.join(folder, "cloud-enclaves"),
             secret: process.env.CLOUD_ENCLAVE_SECRET
         });
 
+        assert.true(serverDIDs.length === 2, "Not all cloud enclaves have been initialised")
         const runAssertions = async () => {
             try {
                 const clientDIDDocument = await $$.promisify(w3cDID.createIdentity)("ssi:name", domain, "client");
-                const cloudEnclave = enclaveAPI.initialiseCloudEnclaveClient(clientDIDDocument.getIdentifier(), serverDID[0]);
+                const cloudEnclaveClient1 = enclaveAPI.initialiseCloudEnclaveClient(clientDIDDocument.getIdentifier(), serverDIDs[0]);
                 const TABLE = "test_table";
                 const addedRecord = {data: 1};
-                cloudEnclave.on("initialised", async () => {
+                cloudEnclaveClient1.on("initialised", async () => {
                     try {
-                        await $$.promisify(cloudEnclave.grantWriteAccess)("some_did", TABLE);
-                        await $$.promisify(cloudEnclave.insertRecord)("some_did", TABLE, "pk1", addedRecord, addedRecord);
-                        await $$.promisify(cloudEnclave.insertRecord)("some_did", TABLE, "pk2", addedRecord, addedRecord);
-                        await $$.promisify(cloudEnclave.grantReadAccess)("some_did", TABLE);
-                        const record = await $$.promisify(cloudEnclave.getRecord)("some_did", TABLE, "pk1");
+                        await $$.promisify(cloudEnclaveClient1.grantWriteAccess)("some_did", TABLE);
+                        await $$.promisify(cloudEnclaveClient1.insertRecord)("some_did", TABLE, "pk1", addedRecord, addedRecord);
+                        await $$.promisify(cloudEnclaveClient1.insertRecord)("some_did", TABLE, "pk2", addedRecord, addedRecord);
+                        const record = await $$.promisify(cloudEnclaveClient1.getRecord)("some_did", TABLE, "pk1");
                         assert.objectsAreEqual(record, addedRecord, "Records do not match");
-                        const allRecords = await $$.promisify(cloudEnclave.getAllRecords)("some_did", TABLE);
-
+                        const allRecords = await $$.promisify(cloudEnclaveClient1.getAllRecords)("some_did", TABLE);
                         assert.equal(allRecords.length, 2, "Not all inserted records have been retrieved")
-                        testFinished();
+
+                        const cloudEnclaveClient2 = enclaveAPI.initialiseCloudEnclaveClient(clientDIDDocument.getIdentifier(), serverDIDs[1]);
+                        cloudEnclaveClient2.on("initialised", async () => {
+                            await $$.promisify(cloudEnclaveClient2.grantWriteAccess)("some_did", TABLE);
+                            await $$.promisify(cloudEnclaveClient2.insertRecord)("some_did", TABLE, "pk1", addedRecord, addedRecord);
+                            await $$.promisify(cloudEnclaveClient2.insertRecord)("some_did", TABLE, "pk2", addedRecord, addedRecord);
+                            const record = await $$.promisify(cloudEnclaveClient2.getRecord)("some_did", TABLE, "pk1");
+                            assert.objectsAreEqual(record, addedRecord, "Records do not match");
+                            const allRecords = await $$.promisify(cloudEnclaveClient2.getAllRecords)("some_did", TABLE);
+                            assert.equal(allRecords.length, 2, "Not all inserted records have been retrieved")
+                            testFinished();
+                        })
                     } catch (e) {
                         return console.log(e);
                     }
@@ -79,4 +101,4 @@ assert.callback('Cloud enclave test', (testFinished) => {
         }
         sc.on("initialised", runAssertions);
     });
-}, 20000);
+}, 200000);
