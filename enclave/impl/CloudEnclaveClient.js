@@ -3,10 +3,10 @@ const commandNames = require("./lib/commandsNames");
 
 function CloudEnclaveClient(clientDID, remoteDID, requestTimeout) {
     let initialised = false;
-    const DEFAULT_TIMEOUT = 30000;
+    const DEFAULT_TIMEOUT = 10000;
 
     this.commandsMap = new Map();
-    this.requestTimeout = requestTimeout ?? DEFAULT_TIMEOUT;
+    requestTimeout = requestTimeout ?? DEFAULT_TIMEOUT;
 
     const ProxyMixin = require("./ProxyMixin");
     ProxyMixin(this);
@@ -60,13 +60,23 @@ function CloudEnclaveClient(clientDID, remoteDID, requestTimeout) {
         const commandID = JSON.parse(command).commandID;
         this.commandsMap.set(commandID, {"callback": callback, "time": Date.now()});
 
+        const timeout = setTimeout(() => {
+            if (this.commandsMap.has(commandID)) {
+                this.commandsMap.get(commandID).callback(new Error(`Response for command ${commandID} not received within ${requestTimeout}ms`));
+                this.commandsMap.delete(commandID);
+            }
+        }, requestTimeout);
+
+        this.commandsMap.get(commandID).timeout = timeout;
+
         this.clientDIDDocument.sendMessage(command, this.remoteDIDDocument, (err, res) => {
-            console.log("Sent command with id " + commandID)
+            console.log("Sent command with id " + commandID);
             if (err) {
                 console.log(err);
+                clearTimeout(timeout);
             }
         });
-    }
+    };
 
     const subscribe = () => {
         this.clientDIDDocument.subscribe((err, res) => {
@@ -77,25 +87,26 @@ function CloudEnclaveClient(clientDID, remoteDID, requestTimeout) {
 
             try {
                 const resObj = JSON.parse(res);
-
-                const commandResult = resObj.commandResult;
                 const commandID = resObj.commandID;
 
-                if (!this.commandsMap.get(commandID)) return;
+                if (this.commandsMap.has(commandID)) {
+                    clearTimeout(this.commandsMap.get(commandID).timeout);
+                    const callback = this.commandsMap.get(commandID).callback;
+                    this.commandsMap.delete(commandID);
+                    console.log("Deleted resolved command with id " + commandID);
 
-                const callback = this.commandsMap.get(commandID).callback;
-                this.commandsMap.delete(commandID)
-                console.log("Deleted resolved command with id " + commandID)
-                if(resObj.error){
-                    callback(Error(commandResult.debug_message));
-                    return;
+                    if (resObj.error) {
+                        callback(Error(resObj.commandResult.debug_message));
+                    } else {
+                        callback(undefined, resObj.commandResult);
+                    }
                 }
-                callback(err, commandResult);
             } catch (err) {
                 console.log(err);
             }
-        })
-    }
+        });
+    };
+
     const bindAutoPendingFunctions = require("../../utils/BindAutoPendingFunctions").bindAutoPendingFunctions;
     bindAutoPendingFunctions(this, ["on", "off", "dispatchEvent", "beginBatch", "isInitialised", "getEnclaveType"]);
 
