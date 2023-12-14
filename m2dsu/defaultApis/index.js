@@ -1,4 +1,5 @@
 const registry = require("../apisRegistry");
+const {dsuExists} = require("../../resolver");
 
 /*
 * based on jsonIndications Object {attributeName1: "DSU_file_path", attributeName2: "DSU_file_path"}
@@ -91,8 +92,24 @@ async function registerDSU(mappingInstance, dsu) {
         $$.debug.logDSUEvent(dsu, `Already in batch mode in active mapping execution`);
         return promisifyDSUAPIs(dsu);
     }
-
-    let batchId = await dsu.startOrAttachBatchAsync();
+    let batchId;
+    const keySSI = await dsu.getKeySSIAsObjectAsync();
+    const openDSU = require("opendsu");
+    const SSITypes = openDSU.constants.KEY_SSI_FAMILIES;
+    const resolver = openDSU.loadAPI("resolver");
+    if(keySSI.getFamilyName() === SSITypes.CONST_SSI_FAMILY){
+        $$.debug.logDSUEvent(dsu, `Const DSU in active mapping execution`);
+        const dsuExists = await $$.promisify(resolver.dsuExists)(keySSI);
+        if(dsuExists){
+            $$.debug.logDSUEvent(dsu, `Const DSU already exists in active mapping execution`);
+            return promisifyDSUAPIs(dsu);
+        }
+        batchId = await dsu.startOrAttachBatchAsync();
+        dsu.secretBatchId = batchId;
+        mappingInstance.registeredDSUs.push(dsu);
+        return promisifyDSUAPIs(dsu);
+    }
+    batchId = await dsu.startOrAttachBatchAsync();
     dsu.secretBatchId = batchId;
     mappingInstance.registeredDSUs.push(dsu);
     return promisifyDSUAPIs(dsu);

@@ -1,3 +1,5 @@
+const {createOpenDSUErrorWrapper, httpToRootCauseErrorCode} = require("../../error");
+
 function callGlobalHandler(res){
 	if($$.httpUnknownResponseGlobalHandler){
 		$$.httpUnknownResponseGlobalHandler(res);
@@ -74,12 +76,21 @@ function customFetch(...args){
 		if(res.status >= 300 && res.status < 400){
 			callGlobalHandler(res);
 		}
+		if(res.status >= 400){
+			let error = new Error(`Request Failed.\n Status Code: ${res.status}\n`);
+			error.statusCode = res.status;
+			error = createOpenDSUErrorWrapper("HTTP request failed", error, httpToRootCauseErrorCode(error));
+			throw error;
+		}
 		return res;
 	}).catch(err=>{
 		const constants = require("../../moduleConstants");
-		let error = createOpenDSUErrorWrapper(err.message, err, constants.ERROR_ROOT_CAUSE.NETWORK_ERROR);
-		callGlobalHandler({err:error});
-		throw error;
+		if(err.rootCause) {
+			throw err;
+		}
+        err = createOpenDSUErrorWrapper(err.message, err, constants.ERROR_ROOT_CAUSE.NETWORK_ERROR);
+		callGlobalHandler({err});
+		throw err;
 	});
 }
 
