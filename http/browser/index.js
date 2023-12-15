@@ -76,7 +76,7 @@ function customFetch(...args){
 		if(res.status >= 300 && res.status < 400){
 			callGlobalHandler(res);
 		}
-		if(res.status >= 400){
+		if(res.status === 404){
 			let error = new Error(`Request Failed.\n Status Code: ${res.status}\n`);
 			error.statusCode = res.status;
 			error = createOpenDSUErrorWrapper("HTTP request failed", error, httpToRootCauseErrorCode(error));
