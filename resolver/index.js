@@ -591,7 +591,7 @@ function dsuExists(keySSI, callback) {
         try {
             keySSI = keySSISpace.parse(keySSI);
         } catch (e) {
-            return callback(createOpenDSUErrorWrapper(`Failed to parse KeySSI <${keySSI}>`, e, constants.ERROR_ROOT_CAUSE.DATA_INPUT));
+            return callback(createOpenDSUErrorWrapper(`Failed to parse KeySSI <${keySSI}>`, e, constants.ERROR_ROOT_CAUSE.DATA_INPUT_ERROR));
         }
     }
     keySSI.getAnchorId((err, anchorId) => {
@@ -601,7 +601,7 @@ function dsuExists(keySSI, callback) {
 
         anchoringX.getLastVersion(anchorId, (err, anchorVersion) => {
             if (err) {
-                if (err.rootCause === constants.ERROR_ROOT_CAUSE.MISSING_DATA) {
+                if (err.rootCause === constants.ERROR_ROOT_CAUSE.MISSING_DATA_ERROR) {
                     return callback(undefined, false);
                 }
 

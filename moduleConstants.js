@@ -76,9 +76,11 @@ module.exports = {
         NETWORK_ERROR: "network",
         THROTTLER_ERROR: "throttler",
         BUSINESS_ERROR: "business",
-        DATA_INPUT: "dataInput",
-        MISSING_DATA: "missingData",
-        DSU_INVALID_OPERATION: "dsuInvalidOperation"
+        DATA_INPUT_ERROR: "dataInput",
+        MISSING_DATA_ERROR: "missingData",
+        DSU_INVALID_OPERATION: "dsuInvalidOperation",
+        SECURITY_ERROR: "security",
+        RESOURCE_ERROR: "resource"
     },
     get KEY_SSIS() {
         if (cachedKeySSIResolver === undefined) {

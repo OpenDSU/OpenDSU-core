@@ -12,7 +12,7 @@ function handlePromise(promise, message) {
                 rootCause = constants.NETWORK_ERROR;
                 break;
             case 404 :
-                rootCause = constants.MISSING_DATA;
+                rootCause = constants.MISSING_DATA_ERROR;
                 break;
             case 400 :
                 rootCause = constants.BUSINESS_ERROR;

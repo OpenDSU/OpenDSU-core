@@ -26,7 +26,7 @@ function ErrorWrapper(message, err, otherErrors, rootCause) {
 
     if (!rootCause && otherErrors) {
         const errorTypes = constants.ERROR_ROOT_CAUSE;
-        rootCause = detectRootCauseType(otherErrors, [errorTypes.DATA_INPUT, errorTypes.MISSING_DATA, errorTypes.BUSINESS_ERROR, errorTypes.THROTTLER_ERROR, errorTypes.NETWORK_ERROR]);
+        rootCause = detectRootCauseType(otherErrors, [errorTypes.DATA_INPUT_ERROR, errorTypes.MISSING_DATA_ERROR, errorTypes.BUSINESS_ERROR, errorTypes.THROTTLER_ERROR, errorTypes.NETWORK_ERROR]);
     }
 
     if (err.message || otherErrors) {
@@ -267,7 +267,7 @@ function httpToRootCauseErrorCode(httpRes) {
     }
 
     if (httpRes.statusCode === 404) {
-        return constants.ERROR_ROOT_CAUSE.MISSING_DATA;
+        return constants.ERROR_ROOT_CAUSE.MISSING_DATA_ERROR;
     }
 
     if (httpRes.statusCode < 500) {
