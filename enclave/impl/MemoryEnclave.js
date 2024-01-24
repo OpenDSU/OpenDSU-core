@@ -1,5 +1,5 @@
 function MemoryEnclave() {
-    const EnclaveMixin = require("./Enclave_Mixin");
+    const EnclaveMixin = require("../mixins/Enclave_Mixin");
     EnclaveMixin(this);
     const openDSU = require("opendsu");
     const db = openDSU.loadAPI("db");

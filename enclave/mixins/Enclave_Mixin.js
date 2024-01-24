@@ -1,4 +1,4 @@
-const constants = require("./constants");
+const constants = require("../constants/constants");
 
 function Enclave_Mixin(target, did, keySSI) {
     const openDSU = require("opendsu");
@@ -63,8 +63,8 @@ function Enclave_Mixin(target, did, keySSI) {
             return callback(undefined, pathKeyMapping);
         }
 
-        const EnclaveHandler = require("./WalletDBEnclaveHandler");
-        const PathKeyMapping = require("../impl/PathKeyMapping");
+        const EnclaveHandler = require("../handlers/WalletDBEnclaveHandler");
+        const PathKeyMapping = require("../utils/PathKeyMapping");
 
         try {
             target.getDSU((err, dsuInstance) => {

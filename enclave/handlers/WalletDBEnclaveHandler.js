@@ -1,5 +1,5 @@
 const pathModule = require("path");
-const constants = require("./constants");
+const constants = require("../constants/constants");
 
 function WalletDBEnclaveHandler(walletDBEnclaveDSU, config) {
     const defaultConfig = {

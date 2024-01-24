@@ -1,5 +1,5 @@
-const {createCommandObject} = require("./lib/createCommandObject");
-const commandNames = require("./lib/commandsNames");
+const {createCommandObject} = require("../utils/createCommandObject");
+const commandNames = require("../constants/commandsNames");
 
 function CloudEnclaveClient(clientDID, remoteDID, requestTimeout) {
     let initialised = false;
@@ -8,7 +8,7 @@ function CloudEnclaveClient(clientDID, remoteDID, requestTimeout) {
     this.commandsMap = new Map();
     requestTimeout = requestTimeout ?? DEFAULT_TIMEOUT;
 
-    const ProxyMixin = require("./ProxyMixin");
+    const ProxyMixin = require("../mixins/ProxyMixin");
     ProxyMixin(this);
 
     const init = async () => {

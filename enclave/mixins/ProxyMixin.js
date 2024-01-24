@@ -1,9 +1,11 @@
 const {createOpenDSUErrorWrapper} = require("../../error");
 
 function ProxyMixin(target) {
-    const commandNames = require("./lib/commandsNames");
+    const commandNames = require("../constants/commandsNames");
     const ObservableMixin = require("../../utils/ObservableMixin");
     ObservableMixin(target);
+    const EnclaveMixin = require("./Enclave_Mixin");
+    EnclaveMixin(target);
 
     target.grantWriteAccess = (forDID, callback) => {
         target.__putCommandObject(commandNames.GRANT_WRITE_ACCESS, forDID, callback);

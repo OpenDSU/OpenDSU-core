@@ -9,9 +9,9 @@ const enclaveAPI = openDSU.loadAPI("enclave");
 const keySSISpace = openDSU.loadAPI("keyssi");
 const scAPI = openDSU.loadAPI("sc");
 const crypto = openDSU.loadAPI("crypto");
-const utils = require("../../enclave/impl/utils");
-const EnclaveHandler = require("../../enclave/impl/WalletDBEnclaveHandler");
-const PathKeyMapping = require("../../enclave/impl/PathKeyMapping");
+const utils = require("../../enclave/utils/utils");
+const EnclaveHandler = require("../../enclave/handlers/WalletDBEnclaveHandler");
+const PathKeyMapping = require("../../enclave/utils/PathKeyMapping");
 assert.callback('PathKeySSI mapping test', (testFinished) => {
     dc.createTestFolder('createDSU', async (err, folder) => {
         const vaultDomainConfig = {
@@ -23,12 +23,12 @@ assert.callback('PathKeySSI mapping test', (testFinished) => {
         await tir.launchConfigurableApiHubTestNodeAsync({domains: [{name: "vault", config: vaultDomainConfig}], rootFolder: folder});
 
         const sc = scAPI.getSecurityContext();
-        sc.on("initialised", () => {
+        sc.on("initialised", async () => {
             const mainEnclave = enclaveAPI.initialiseWalletDBEnclave();
             mainEnclave.on("initialised", async () => {
                 await $$.promisify(scAPI.setMainEnclave)(mainEnclave);
-                const mainEnclaveKeySSI = await $$.promisify(mainEnclave.getKeySSI)();
-                const enclaveHandler = new EnclaveHandler(mainEnclaveKeySSI);
+                const mainDSU = await $$.promisify(mainEnclave.getDSU)();
+                const enclaveHandler = new EnclaveHandler(mainDSU);
                 const pathKeySSIMapping = new PathKeyMapping(enclaveHandler);
 
                 let expectedResult = {};

@@ -1,12 +1,12 @@
 function VersionlessDSUEnclave(keySSI, did) {
     const openDSU = require("opendsu");
-    const constants = require("./constants");
+    const constants = require("../constants/constants");
     const db = openDSU.loadAPI("db");
     const resolver = openDSU.loadAPI("resolver");
     const config = openDSU.loadAPI("config");
     const keySSISpace = openDSU.loadAPI("keyssi");
     const DB_NAME = constants.DB_NAMES.WALLET_DB_ENCLAVE;
-    const EnclaveMixin = require("./Enclave_Mixin");
+    const EnclaveMixin = require("../mixins/Enclave_Mixin");
 
     EnclaveMixin(this, did, keySSI);
 
