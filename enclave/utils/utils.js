@@ -44,6 +44,34 @@ const getKeySSIsMappingFromPathKeys = (pathKeyMap, callback) => {
     })
 }
 
+const getDerivedKeySSIs = (keySSI, callback) => {
+    if (typeof keySSI === "string") {
+        try {
+            keySSI = keySSISpace.parse(keySSI);
+        } catch (e) {
+            return callback(e);
+        }
+    }
+
+    const derivedKeySSIs = {};
+    const __getDerivedKeySSIsRecursively = (currentKeySSI, callback) => {
+        derivedKeySSIs[currentKeySSI.getTypeName()] = currentKeySSI.getIdentifier();
+        try {
+            currentKeySSI.derive((err, derivedKeySSI) => {
+                if (err) {
+                    return callback(err);
+                }
+
+                currentKeySSI = derivedKeySSI;
+                __getDerivedKeySSIsRecursively(currentKeySSI, callback);
+            });
+        } catch (e) {
+            return callback(undefined, derivedKeySSIs);
+        }
+    }
+
+    __getDerivedKeySSIsRecursively(keySSI, callback);
+}
 const getKeySSIMapping = (keySSI, callback) => {
     if (typeof keySSI === "string") {
         try {
@@ -54,23 +82,7 @@ const getKeySSIMapping = (keySSI, callback) => {
     }
     const keySSIsMap = {};
 
-    const __getDerivedKeySSIsRecursively = (currentKeySSI, derivedKeySSIsObj, callback) => {
-        derivedKeySSIsObj[currentKeySSI.getTypeName()] = currentKeySSI.getIdentifier();
-        try {
-            currentKeySSI.derive((err, derivedKeySSI) => {
-                if (err) {
-                    return callback(err);
-                }
-
-                currentKeySSI = derivedKeySSI;
-                __getDerivedKeySSIsRecursively(currentKeySSI, derivedKeySSIsObj, callback);
-            });
-        } catch (e) {
-            return callback(undefined, derivedKeySSIsObj);
-        }
-    }
-
-    __getDerivedKeySSIsRecursively(keySSI, {}, (err, _derivedKeySSIsObj)=>{
+    getDerivedKeySSIs(keySSI, (err, _derivedKeySSIsObj)=>{
         if (err) {
             return callback(err);
         }
@@ -90,5 +102,6 @@ const getKeySSIMapping = (keySSI, callback) => {
 module.exports = {
     getKeySSIsMappingFromPathKeys,
     getKeySSIMapping,
+    getDerivedKeySSIs,
     mergeMappings
 }

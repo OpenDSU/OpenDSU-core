@@ -1,5 +1,5 @@
 function PathKeyMapping(enclaveHandler) {
-    const utils = require("./utils");
+    const utils = require("../../utils/utils");
     const openDSU = require("opendsu");
     const utilsAPI = openDSU.loadAPI("utils");
     utilsAPI.ObservableMixin(this);

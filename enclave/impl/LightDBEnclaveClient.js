@@ -1,4 +1,4 @@
-const {createCommandObject} = require("./lib/createCommandObject");
+const {createCommandObject} = require("../utils/createCommandObject");
 
 function LightDBEnclaveClient(dbName, serverAddress) {
     const openDSU = require("opendsu");
@@ -6,7 +6,7 @@ function LightDBEnclaveClient(dbName, serverAddress) {
     const system = openDSU.loadAPI("system");
     serverAddress = serverAddress || process.env.LIGHT_DB_SERVER_ADDRESS || `${system.getBaseURL()}/lightDB`;
     let initialised = false;
-    const ProxyMixin = require("./ProxyMixin");
+    const ProxyMixin = require("../mixins/ProxyMixin");
     ProxyMixin(this);
 
     this.isInitialised = () => {
@@ -155,6 +155,90 @@ function LightDBEnclaveClient(dbName, serverAddress) {
 
             originalDeleteObjectFromQueue(forDID, queueName, hash, callback);
         });
+    }
+
+
+    const LightDBStorageStrategy = require("../KeySSIMappings/SeedSSIMapping/LightDBStorageStrategy");
+    const lightDBStorageStrategy = new LightDBStorageStrategy(this);
+    const SeedSSIMapping = require("../KeySSIMappings/SeedSSIMapping/SeedSSIMapping");
+    const seedSSIMapping = SeedSSIMapping.getSeedSSIMapping(lightDBStorageStrategy);
+    const resolverAPI = openDSU.loadAPI("resolver");
+    const keySSISpace = openDSU.loadAPI("keyssi");
+
+    this.storeKeySSI = seedSSIMapping.storeKeySSI;
+    this.getReadKeySSI = seedSSIMapping.getReadKeySSI;
+    this.getWriteKeySSI = seedSSIMapping.getWriteKeySSI;
+
+    this.createDSU = (forDID, keySSI, options, callback) => {
+        if (typeof options === "function") {
+            callback = options;
+            options = undefined;
+        }
+        if (typeof keySSI === "string") {
+            try {
+                keySSI = keySSISpace.parse(keySSI);
+            } catch (e) {
+                return callback(e);
+            }
+        }
+
+        if (keySSI.withoutCryptoData()) {
+            this.createSeedSSI(undefined, keySSI.getDLDomain(), (err, seedSSI) => {
+                if (err) {
+                    return callback(err);
+                }
+
+                resolverAPI.createDSUForExistingSSI(seedSSI, callback);
+            })
+        } else {
+            this.storeKeySSI(undefined, keySSI, (err) => {
+                if (err) {
+                    return callback(err);
+                }
+
+                resolverAPI.createDSU(keySSI, options, callback);
+            })
+        }
+    }
+
+    this.loadDSU = (forDID, keySSI, options, callback) => {
+        if (typeof options === "function") {
+            callback = options;
+            options = undefined;
+        }
+        if (typeof keySSI === "string") {
+            try {
+                keySSI = keySSISpace.parse(keySSI);
+            } catch (e) {
+                return callback(e);
+            }
+        }
+
+        resolverAPI.loadDSU(keySSI, options, (err, dsu) => {
+            if (err) {
+                this.getReadKeySSI(keySSI.getIdentifier(), (e, sReadSSI) => {
+                    if (e) {
+                        return callback(err);
+                    }
+                    resolverAPI.loadDSU(sReadSSI, options, callback);
+                });
+
+                return;
+            }
+
+            callback(undefined, dsu);
+        })
+    }
+
+    this.loadDSURecoveryMode = (forDID, ssi, contentRecoveryFnc, callback) => {
+        const defaultOptions = {recoveryMode: true};
+        let options = {contentRecoveryFnc, recoveryMode: true};
+        if (typeof contentRecoveryFnc === "object") {
+            options = contentRecoveryFnc;
+        }
+
+        options = Object.assign(defaultOptions, options);
+        this.loadDSU(forDID, ssi, options, callback);
     }
 }
 

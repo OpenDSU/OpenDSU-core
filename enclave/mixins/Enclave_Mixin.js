@@ -63,8 +63,8 @@ function Enclave_Mixin(target, did, keySSI) {
             return callback(undefined, pathKeyMapping);
         }
 
-        const EnclaveHandler = require("../handlers/WalletDBEnclaveHandler");
-        const PathKeyMapping = require("../utils/PathKeyMapping");
+        const EnclaveHandler = require("../KeySSIMappings/PathKeySSIMapping/WalletDBEnclaveHandler");
+        const PathKeyMapping = require("../KeySSIMappings/PathKeySSIMapping/PathKeyMapping");
 
         try {
             target.getDSU((err, dsuInstance) => {
