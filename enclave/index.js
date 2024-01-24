@@ -179,8 +179,8 @@ module.exports = {
     connectEnclave,
     createEnclave,
     registerEnclave,
-    EnclaveMixin: require("./impl/Enclave_Mixin"),
-    ProxyMixin: require("./impl/ProxyMixin"),
+    EnclaveMixin: require("./mixins/Enclave_Mixin"),
+    ProxyMixin: require("./mixins/ProxyMixin"),
     convertWalletDBEnclaveToVersionlessEnclave,
     convertWalletDBEnclaveToCloudEnclave
 }
