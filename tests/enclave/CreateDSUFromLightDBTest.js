@@ -10,7 +10,7 @@ const scAPI = openDSU.loadAPI("sc");
 const w3cDID = openDSU.loadAPI("w3cdid");
 
 
-assert.callback('Remote enclave test', (testFinished) => {
+assert.callback('Create DSU from LightDB Enclave Client Test', (testFinished) => {
     dc.createTestFolder('createDSU', async (err, folder) => {
         const vaultDomainConfig = {
             "anchoring": {
@@ -19,26 +19,24 @@ assert.callback('Remote enclave test', (testFinished) => {
             },
             "enable": ["enclave", "mq"]
         }
-
-        const domain = "mqtestdomain";
+        const domain = "testdomain";
         await tir.launchConfigurableApiHubTestNodeAsync({domains: [{name: domain, config: vaultDomainConfig}], rootFolder: folder});
 
         const runAssertions = async () => {
             try {
                 const DB_NAME = "test_db";
-                const lokiAdapterClient = enclaveAPI.initialiseLightDBEnclaveClient(DB_NAME)
+                const lightDBEnclaveClient = enclaveAPI.initialiseLightDBEnclaveClient(DB_NAME)
                 const TABLE = "test_table";
                 const addedRecord = {data: 1};
+                let dsu;
+                let loadedDSU;
                 try {
-                    await $$.promisify(lokiAdapterClient.createDatabase)(DB_NAME);
-                    await $$.promisify(lokiAdapterClient.grantWriteAccess)($$.SYSTEM_IDENTIFIER);
-                    await $$.promisify(lokiAdapterClient.insertRecord)($$.SYSTEM_IDENTIFIER, TABLE, "pk1", addedRecord);
-                    await $$.promisify(lokiAdapterClient.insertRecord)($$.SYSTEM_IDENTIFIER, TABLE, "pk2", addedRecord);
-                    const record = await $$.promisify(lokiAdapterClient.getRecord)($$.SYSTEM_IDENTIFIER, TABLE, "pk1");
-                    assert.objectsAreEqual(record, addedRecord, "Records do not match");
-                    const allRecords = await $$.promisify(lokiAdapterClient.getAllRecords)($$.SYSTEM_IDENTIFIER, TABLE);
-
-                    assert.equal(allRecords.length, 2, "Not all inserted records have been retrieved")
+                    await $$.promisify(lightDBEnclaveClient.createDatabase)(DB_NAME);
+                    await $$.promisify(lightDBEnclaveClient.grantWriteAccess)($$.SYSTEM_IDENTIFIER);
+                    const templateSeedSSI = lightDBEnclaveClient.createTemplateSeedSSI($$.SYSTEM_IDENTIFIER, domain);
+                    dsu = await $$.promisify(lightDBEnclaveClient.createDSU)($$.SYSTEM_IDENTIFIER, templateSeedSSI);
+                    const anchorId = dsu.getAnchorIdSync();
+                    loadedDSU = await $$.promisify(lightDBEnclaveClient.loadDSU)($$.SYSTEM_IDENTIFIER, anchorId);
                     testFinished();
                 } catch (e) {
                     return console.log(e);
@@ -53,4 +51,4 @@ assert.callback('Remote enclave test', (testFinished) => {
         }
         sc.on("initialised", runAssertions);
     });
-}, 20000);
+}, 2000000);

@@ -10,31 +10,34 @@ function SeedSSIMapping(storageStrategy) {
                 return callback(e);
             }
         }
-        utils.getDerivedKeySSIs(keySSI, async (err, derivedKeySSIs) => {
+        const keySSIIdentifier = keySSI.getIdentifier();
+        utils.getKeySSIMapping(keySSI, async (err, keySSIMapping) => {
             if (err) {
                 return callback(err);
             }
 
-            for (let keySSIType in derivedKeySSIs) {
-                let record;
-                try {
-                    record = await $$.promisify(storageStrategy.getRecord)(keySSIType, keySSI.getIdentifier());
-                } catch (e) {
-                    //error means that the record does not exist
-                }
-                if (!record) {
+            for (let keySSIType in keySSIMapping) {
+                for(let ssi in keySSIMapping[keySSIType]){
                     try {
-                        await $$.promisify(storageStrategy.insertRecord)(keySSIType, keySSI.getIdentifier(), {keySSI: derivedKeySSIs[keySSIType]});
+                        await $$.promisify(storageStrategy.insertRecord)(keySSIType, ssi, {keySSI: keySSIMapping[keySSIType][ssi]});
                     } catch (e) {
                         return callback(e);
                     }
                 }
             }
+            callback();
         });
     }
 
     this.getReadKeySSI = (keySSI, callback) => {
-        storageStrategy.getRecord(openDSU.constants.KEY_SSIS.SEED_SSI, keySSI.getIdentifier(), (err, sReadSSIRecord) => {
+        if(typeof keySSI === "string"){
+            try {
+                keySSI = keySSISpace.parse(keySSI);
+            } catch (e) {
+                return callback(e);
+            }
+        }
+        storageStrategy.getRecord(openDSU.constants.KEY_SSIS.SREAD_SSI, keySSI.getIdentifier(), (err, sReadSSIRecord) => {
             if (err) {
                 return callback(err);
             }
@@ -47,6 +50,13 @@ function SeedSSIMapping(storageStrategy) {
     }
 
     this.getWriteKeySSI = (keySSI, callback) => {
+        if(typeof keySSI === "string"){
+            try {
+                keySSI = keySSISpace.parse(keySSI);
+            } catch (e) {
+                return callback(e);
+            }
+        }
         storageStrategy.getRecord(openDSU.constants.KEY_SSIS.SEED_SSI, keySSI.getIdentifier(), (err, sWriteSSIRecord) => {
             if (err) {
                 return callback(err);
@@ -60,12 +70,8 @@ function SeedSSIMapping(storageStrategy) {
     }
 }
 
-let seedSSIMapping;
 const getSeedSSIMapping = (storageStrategy) => {
-    if (!seedSSIMapping) {
-        seedSSIMapping = new SeedSSIMapping(storageStrategy);
-    }
-    return seedSSIMapping;
+    return new SeedSSIMapping(storageStrategy);
 }
 
 module.exports = {

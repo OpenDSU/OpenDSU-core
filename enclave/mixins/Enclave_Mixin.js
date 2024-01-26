@@ -805,12 +805,12 @@ function Enclave_Mixin(target, did, keySSI) {
             target[trimmedFnName] = (...args) => {
                 args.shift();
                 args.unshift(target);
-                keySSISpace[fnName](...args);
+                return keySSISpace[fnName](...args);
             }
         } else if (fnName.startsWith("createTemplate")) {
             target[fnName] = (...args) => {
                 args.shift();
-                keySSISpace[fnName](...args);
+                return keySSISpace[fnName](...args);
             }
         }
     })

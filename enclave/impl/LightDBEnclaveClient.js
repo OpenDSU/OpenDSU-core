@@ -13,6 +13,10 @@ function LightDBEnclaveClient(dbName, serverAddress) {
         return initialised;
     }
 
+    this.getName = () => {
+        return dbName;
+    }
+
     this.__putCommandObject = (commandName, ...args) => {
         const callback = args.pop();
         const url = `${serverAddress}/executeCommand/${dbName}`;
@@ -165,21 +169,38 @@ function LightDBEnclaveClient(dbName, serverAddress) {
     const resolverAPI = openDSU.loadAPI("resolver");
     const keySSISpace = openDSU.loadAPI("keyssi");
 
-    this.storeKeySSI = seedSSIMapping.storeKeySSI;
-    this.getReadKeySSI = seedSSIMapping.getReadKeySSI;
-    this.getWriteKeySSI = seedSSIMapping.getWriteKeySSI;
+    this.storeKeySSI = (keySSI, callback) => {
+        seedSSIMapping.storeKeySSI(keySSI, callback);
+    }
+    this.getReadKeySSI = (keySSI, callback) => {
+        seedSSIMapping.getReadKeySSI(keySSI, callback);
+    }
+    this.getWriteKeySSI = (keySSI, callback) => {
+        seedSSIMapping.getWriteKeySSI(keySSI, callback);
+    }
 
     this.createDSU = (forDID, keySSI, options, callback) => {
-        if (typeof options === "function") {
-            callback = options;
-            options = undefined;
-        }
+        // if (typeof forDID === "string") {
+        //     try {
+        //         forDID = keySSISpace.parse(forDID);
+        //         options = keySSI;
+        //         keySSI = forDID;
+        //     } catch (e) {
+        //         //do nothing
+        //     }
+        // }
+
         if (typeof keySSI === "string") {
             try {
                 keySSI = keySSISpace.parse(keySSI);
             } catch (e) {
                 return callback(e);
             }
+        }
+
+        if (typeof options === "function") {
+            callback = options;
+            options = undefined;
         }
 
         if (keySSI.withoutCryptoData()) {
