@@ -1,10 +1,9 @@
-const {createCommandObject} = require("../utils/createCommandObject");
-
-function LightDBEnclaveClient(dbName, serverAddress) {
+function LightDBEnclave(dbName, slots) {
+    const {createCommandObject} = require("../utils/createCommandObject");
     const openDSU = require("opendsu");
     const http = openDSU.loadAPI("http");
     const system = openDSU.loadAPI("system");
-    serverAddress = serverAddress || process.env.LIGHT_DB_SERVER_ADDRESS || `${system.getBaseURL()}/lightDB`;
+    let serverAddress = process.env.LIGHT_DB_SERVER_ADDRESS || `${system.getBaseURL()}/lightDB`;
     let initialised = false;
     const ProxyMixin = require("../mixins/ProxyMixin");
     ProxyMixin(this);
@@ -179,6 +178,13 @@ function LightDBEnclaveClient(dbName, serverAddress) {
         seedSSIMapping.getWriteKeySSI(keySSI, callback);
     }
 
+    this.getPrivateKeyForSlot = (forDID, slot, callback) => {
+        if (typeof slot === "string") {
+            slot = parseInt(slot);
+        }
+        return callback(undefined, slots[slot]);
+    }
+
     this.createDSU = (forDID, keySSI, options, callback) => {
         // if (typeof forDID === "string") {
         //     try {
@@ -263,4 +269,4 @@ function LightDBEnclaveClient(dbName, serverAddress) {
     }
 }
 
-module.exports = LightDBEnclaveClient;
+module.exports = LightDBEnclave;
