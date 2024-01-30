@@ -26,7 +26,7 @@ assert.callback('Remote enclave test', (testFinished) => {
         const runAssertions = async () => {
             try {
                 const DB_NAME = "test_db";
-                const lokiAdapterClient = enclaveAPI.initialiseLightDBEnclaveClient(DB_NAME)
+                const lokiAdapterClient = enclaveAPI.initialiseLightDBEnclave(DB_NAME)
                 const TABLE = "test_table";
                 const addedRecord = {data: 1};
                 try {

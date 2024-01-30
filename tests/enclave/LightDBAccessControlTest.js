@@ -25,7 +25,7 @@ assert.callback('LightDB access control test', (testFinished) => {
         const runAssertions = async () => {
             try {
                 const DB_NAME = "db";
-                const lokiAdapterClient = enclaveAPI.initialiseLightDBEnclaveClient(DB_NAME)
+                const lokiAdapterClient = enclaveAPI.initialiseLightDBEnclave(DB_NAME)
                 const addedRecord = {data: 1};
                 let userDID = await $$.promisify(w3cDID.createIdentity)("ssi:name", domain, "user");
                 userDID = userDID.getIdentifier();

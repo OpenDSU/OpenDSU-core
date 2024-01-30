@@ -10,9 +10,9 @@ function initialiseMemoryEnclave() {
     return new MemoryEnclave();
 }
 
-function initialiseLightDBEnclaveClient(dbName) {
-    const LightDBEnclaveClient = require("./impl/LightDBEnclaveClient");
-    return new LightDBEnclaveClient(dbName);
+function initialiseLightDBEnclave(dbName) {
+    const LightDBEnclave = require("./impl/LightDBEnclave");
+    return new LightDBEnclave(dbName);
 }
 
 function initialiseRemoteEnclave(clientDID, remoteDID) {
@@ -165,14 +165,14 @@ function convertWalletDBEnclaveToCloudEnclave(walletDBEnclave, cloudEnclaveServe
 
 registerEnclave(constants.ENCLAVE_TYPES.MEMORY_ENCLAVE, initialiseMemoryEnclave);
 registerEnclave(constants.ENCLAVE_TYPES.WALLET_DB_ENCLAVE, initialiseWalletDBEnclave);
-registerEnclave(constants.ENCLAVE_TYPES.LIGHT_DB_ENCLAVE, initialiseLightDBEnclaveClient);
+registerEnclave(constants.ENCLAVE_TYPES.LIGHT_DB_ENCLAVE, initialiseLightDBEnclave);
 registerEnclave(constants.ENCLAVE_TYPES.CLOUD_ENCLAVE, initialiseCloudEnclaveClient)
 registerEnclave(constants.ENCLAVE_TYPES.VERSIONLESS_DSU_ENCLAVE, initialiseVersionlessDSUEnclave);
 
 module.exports = {
     initialiseWalletDBEnclave,
     initialiseMemoryEnclave,
-    initialiseLightDBEnclaveClient,
+    initialiseLightDBEnclave: initialiseLightDBEnclave,
     initialiseRemoteEnclave,
     initialiseCloudEnclaveClient,
     initialiseVersionlessDSUEnclave,
