@@ -10,9 +10,9 @@ function initialiseMemoryEnclave() {
     return new MemoryEnclave();
 }
 
-function initialiseLightDBEnclave(dbName) {
+function initialiseLightDBEnclave(dbName, slots) {
     const LightDBEnclave = require("./impl/LightDBEnclave");
-    return new LightDBEnclave(dbName);
+    return new LightDBEnclave(dbName, slots);
 }
 
 function initialiseRemoteEnclave(clientDID, remoteDID) {
@@ -172,7 +172,7 @@ registerEnclave(constants.ENCLAVE_TYPES.VERSIONLESS_DSU_ENCLAVE, initialiseVersi
 module.exports = {
     initialiseWalletDBEnclave,
     initialiseMemoryEnclave,
-    initialiseLightDBEnclave: initialiseLightDBEnclave,
+    initialiseLightDBEnclave,
     initialiseRemoteEnclave,
     initialiseCloudEnclaveClient,
     initialiseVersionlessDSUEnclave,
