@@ -169,20 +169,68 @@ function LightDBEnclave(dbName, slots) {
     const keySSISpace = openDSU.loadAPI("keyssi");
 
     this.storeKeySSI = (keySSI, callback) => {
+        if(typeof keySSI === "string"){
+            try {
+                keySSI = keySSISpace.parse(keySSI);
+            } catch (e) {
+                return callback(e);
+            }
+        }
+        if (keySSI.getFamilyName() === openDSU.constants.KEY_SSI_FAMILIES.CONST_SSI_FAMILY) {
+            return callback();
+        }
         seedSSIMapping.storeKeySSI(keySSI, callback);
     }
     this.getReadKeySSI = (keySSI, callback) => {
+        if(typeof keySSI === "string"){
+            try {
+                keySSI = keySSISpace.parse(keySSI);
+            } catch (e) {
+                return callback(e);
+            }
+        }
+        if (keySSI.getFamilyName() === openDSU.constants.KEY_SSI_FAMILIES.CONST_SSI_FAMILY) {
+            return callback(undefined, keySSI);
+        }
         seedSSIMapping.getReadKeySSI(keySSI, callback);
     }
     this.getWriteKeySSI = (keySSI, callback) => {
+        if(typeof keySSI === "string"){
+            try {
+                keySSI = keySSISpace.parse(keySSI);
+            } catch (e) {
+                return callback(e);
+            }
+        }
+        if (keySSI.getFamilyName() === openDSU.constants.KEY_SSI_FAMILIES.CONST_SSI_FAMILY) {
+            return callback(undefined, keySSI);
+        }
         seedSSIMapping.getWriteKeySSI(keySSI, callback);
     }
 
     this.getPrivateKeyForSlot = (forDID, slot, callback) => {
+        if (typeof slot === "function") {
+            callback = slot;
+            slot = forDID;
+            forDID = undefined;
+        }
         if (typeof slot === "string") {
             slot = parseInt(slot);
         }
         return callback(undefined, slots[slot]);
+    }
+
+    this.derivePathSSI = (forDID, pathSSI, callback) => {
+        const specificString = pathSSI.getSpecificString();
+        const index = specificString.indexOf("/");
+        const slot = specificString.slice(0, index);
+        const path = specificString.slice(index + 1);
+        let privateKey = slots[slot];
+        privateKey = pathSSI.hash(`${path}${privateKey}`);
+        privateKey = pathSSI.decode(privateKey);
+        const seedSpecificString = pathSSI.encodeBase64(privateKey);
+        const seedSSI = this.createSeedSSI(pathSSI.getDLDomain(), seedSpecificString, pathSSI.getVn(), pathSSI.getHint());
+        callback(undefined, seedSSI);
     }
 
     this.createDSU = (forDID, keySSI, options, callback) => {
@@ -226,6 +274,24 @@ function LightDBEnclave(dbName, slots) {
                 resolverAPI.createDSU(keySSI, options, callback);
             })
         }
+    }
+
+    this.createDSUForExistingSSI = (forDID, keySSI, options, callback) => {
+        if (typeof keySSI === "function") {
+            callback = keySSI;
+            keySSI = forDID;
+            options = {};
+            forDID = $$.SYSTEM_IDENTIFIER
+        }
+        if (typeof options === "function") {
+            callback = options;
+            options = {};
+        }
+        if (!options) {
+            options = {};
+        }
+        options.useSSIAsIdentifier = true;
+        resolverAPI.createDSUForExistingSSI(keySSI, options, callback);
     }
 
     this.loadDSU = (forDID, keySSI, options, callback) => {
