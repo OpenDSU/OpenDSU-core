@@ -169,43 +169,51 @@ function LightDBEnclave(dbName, slots) {
     const keySSISpace = openDSU.loadAPI("keyssi");
 
     this.storeKeySSI = (keySSI, callback) => {
-        if(typeof keySSI === "string"){
-            try {
-                keySSI = keySSISpace.parse(keySSI);
-            } catch (e) {
-                return callback(e);
-            }
+        keySSI = parseKeySSI(keySSI, callback);
+        if (!keySSI) {
+            return;
         }
-        if (keySSI.getFamilyName() === openDSU.constants.KEY_SSI_FAMILIES.CONST_SSI_FAMILY) {
+        if (isConstSSIFamily(keySSI)) {
             return callback();
         }
         seedSSIMapping.storeKeySSI(keySSI, callback);
     }
+
     this.getReadKeySSI = (keySSI, callback) => {
-        if(typeof keySSI === "string"){
-            try {
-                keySSI = keySSISpace.parse(keySSI);
-            } catch (e) {
-                return callback(e);
-            }
+        keySSI = parseKeySSI(keySSI, callback);
+        if (!keySSI) {
+            return;
         }
-        if (keySSI.getFamilyName() === openDSU.constants.KEY_SSI_FAMILIES.CONST_SSI_FAMILY) {
+        if (isConstSSIFamily(keySSI)) {
             return callback(undefined, keySSI);
         }
         seedSSIMapping.getReadKeySSI(keySSI, callback);
     }
+
     this.getWriteKeySSI = (keySSI, callback) => {
-        if(typeof keySSI === "string"){
-            try {
-                keySSI = keySSISpace.parse(keySSI);
-            } catch (e) {
-                return callback(e);
-            }
+        keySSI = parseKeySSI(keySSI, callback);
+        if (!keySSI) {
+            return;
         }
-        if (keySSI.getFamilyName() === openDSU.constants.KEY_SSI_FAMILIES.CONST_SSI_FAMILY) {
+        if (isConstSSIFamily(keySSI)) {
             return callback(undefined, keySSI);
         }
         seedSSIMapping.getWriteKeySSI(keySSI, callback);
+    }
+
+    function parseKeySSI(keySSI, callback) {
+        if (typeof keySSI === "string") {
+            try {
+                return keySSISpace.parse(keySSI);
+            } catch (e) {
+                callback(e);
+            }
+        }
+        return keySSI;
+    }
+
+    function isConstSSIFamily(keySSI) {
+        return keySSI.getFamilyName() === openDSU.constants.KEY_SSI_FAMILIES.CONST_SSI_FAMILY;
     }
 
     this.getPrivateKeyForSlot = (forDID, slot, callback) => {
