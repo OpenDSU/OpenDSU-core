@@ -270,6 +270,6 @@ module.exports = {
     setMainDID,
     getMainDID,
     setMainDIDAsync,
-    getMainDIDAsync
+    getMainDIDAsync,
+    getMainDSUForNode:MainDSU.getMainDSUForNode
 };
-    

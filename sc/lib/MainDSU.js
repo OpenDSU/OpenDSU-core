@@ -82,5 +82,6 @@ function getMainDSUForIframe(callback) {
 
 module.exports = {
     getMainDSU,
-    setMainDSU
+    setMainDSU,
+    getMainDSUForNode
 }
