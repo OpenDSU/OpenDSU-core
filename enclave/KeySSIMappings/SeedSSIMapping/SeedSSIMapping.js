@@ -10,18 +10,22 @@ function SeedSSIMapping(storageStrategy) {
                 return callback(e);
             }
         }
-        const keySSIIdentifier = keySSI.getIdentifier();
         utils.getKeySSIMapping(keySSI, async (err, keySSIMapping) => {
             if (err) {
                 return callback(err);
             }
 
             for (let keySSIType in keySSIMapping) {
-                for(let ssi in keySSIMapping[keySSIType]){
+                for (let ssi in keySSIMapping[keySSIType]) {
+                    let record;
                     try {
-                        await $$.promisify(storageStrategy.insertRecord)(keySSIType, ssi, {keySSI: keySSIMapping[keySSIType][ssi]});
+                        record = await $$.promisify(storageStrategy.getRecord)(keySSIType, ssi);
                     } catch (e) {
-                        return callback(e);
+                        try {
+                            await $$.promisify(storageStrategy.insertRecord)(keySSIType, ssi, {keySSI: keySSIMapping[keySSIType][ssi]});
+                        } catch (e) {
+                            return callback(e);
+                        }
                     }
                 }
             }
@@ -30,7 +34,7 @@ function SeedSSIMapping(storageStrategy) {
     }
 
     this.getReadKeySSI = (keySSI, callback) => {
-        if(typeof keySSI === "string"){
+        if (typeof keySSI === "string") {
             try {
                 keySSI = keySSISpace.parse(keySSI);
             } catch (e) {
@@ -50,7 +54,7 @@ function SeedSSIMapping(storageStrategy) {
     }
 
     this.getWriteKeySSI = (keySSI, callback) => {
-        if(typeof keySSI === "string"){
+        if (typeof keySSI === "string") {
             try {
                 keySSI = keySSISpace.parse(keySSI);
             } catch (e) {
