@@ -92,7 +92,18 @@ function MemoryStorageStrategy() {
 
     this.getAllRecords = (tableName, callback) => {
         const table = getTable(tableName);
-        callback(undefined, Object.values(table));
+        let values = Object.values(table);
+        if(values.length === 0){
+            return callback(undefined, []);
+        }
+
+        values = values.filter((record) => {
+            if (!record.__deleted) {
+                return record;
+            }
+        });
+
+        callback(undefined, values);
     }
     /*
       Insert a record, return error if already exists
