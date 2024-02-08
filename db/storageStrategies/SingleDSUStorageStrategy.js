@@ -69,13 +69,7 @@ function SingleDSUStorageStrategy(recordStorageStrategy) {
     }
 
     this.getAllRecords = (tableName, callback) => {
-        readTheWholeTable(tableName, (err, tbl) => {
-            if (err) {
-                return callback(err);
-            }
-
-            return callback(undefined, Object.values(tbl));
-        })
+        this.filter(tableName, "__timestamp > 0", callback);
     }
 
     function readTheWholeTable(tableName, callback) {
