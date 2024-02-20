@@ -25,11 +25,6 @@ function VersionlessDSUEnclave(keySSI, did) {
             } catch (e) {
                 throw createOpenDSUErrorWrapper(`Failed to get enclave DSU KeySSI`, e);
             }
-            try {
-                await $$.promisify(config.setEnv)(openDSU.constants.MAIN_ENCLAVE.KEY_SSI, keySSI);
-            } catch (e) {
-                throw createOpenDSUErrorWrapper(`Failed to store enclave DSU KeySSI`, e);
-            }
         }
 
         await $$.promisify(resolver.invalidateDSUCache)(keySSI);
