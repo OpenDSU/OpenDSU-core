@@ -69,7 +69,7 @@ function doGet(url, options, callback) {
 	return fnc(url, undefined, options, callback);
 }
 module.exports = {
-	fetch: require("./fetch").fetch,
+	fetch,
 	doGet,
 	doPost: generateMethodForRequestWithData('POST'),
 	doPut: generateMethodForRequestWithData('PUT')
