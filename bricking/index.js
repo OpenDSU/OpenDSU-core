@@ -97,7 +97,8 @@ const getBrick = (hashLinkSSI, authToken, callback) => {
                 smartUrl = smartUrl.concatWith(`/bricking/${dlDomain}/get-brick/${brickHash}`);
 
                 return smartUrl.fetch().then(async (response) => {
-                    const brickData = await response.arrayBuffer();
+                    let brickData = await response.arrayBuffer();
+                    brickData = $$.Buffer.from(brickData);
                     if (isValidBrickHash(hashLinkSSI, brickData)) {
                         if (typeof cache !== "undefined") {
                             cache.put(brickHash, brickData);
