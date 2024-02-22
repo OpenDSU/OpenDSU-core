@@ -4,7 +4,10 @@ function registerInterceptor(interceptor){
     if(typeof interceptor !== "function"){
         throw new Error('interceptor argument should be a function');
     }
-    interceptors.push(interceptor);
+    //check if the interceptor is already registered
+    if(interceptors.indexOf(interceptor) === -1) {
+        interceptors.push(interceptor);
+    }
 }
 
 function unregisterInterceptor(interceptor){
