@@ -21,6 +21,10 @@ function SeedSSIMapping(storageStrategy) {
                     try {
                         record = await $$.promisify(storageStrategy.getRecord)(keySSIType, ssi);
                     } catch (e) {
+                        // ignore error
+                    }
+
+                    if (!record) {
                         try {
                             await $$.promisify(storageStrategy.insertRecord)(keySSIType, ssi, {keySSI: keySSIMapping[keySSIType][ssi]});
                         } catch (e) {
