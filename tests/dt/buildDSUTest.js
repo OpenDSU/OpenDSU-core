@@ -25,6 +25,7 @@ assert.callback('Build DSU test', (testFinished) => {
 
         await tir.launchConfigurableApiHubTestNodeAsync({domains: [{name: "vault", config: vaultDomainConfig}], rootFolder: folder});
         process.env.BUILD_SECRET = "secret";
+        process.env.SSO_SECRETS_ENCRYPTION_KEY = "+WG9HhIoXGGSVq6cMlhy2P3vuiqz1O/WAaiF5JhXmnc="
         await $$.promisify(dt.initialiseBuildWallet)();
         const dossierBuilder = dt.getDossierBuilder();
         const path = require("path");
