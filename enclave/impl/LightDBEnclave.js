@@ -225,7 +225,7 @@ function LightDBEnclave(dbName, slots) {
         if (typeof slot === "string") {
             slot = parseInt(slot);
         }
-        return callback(undefined, slots[slot]);
+        return callback(undefined, $$.Buffer.from(slots[slot], "base64"));
     }
 
     this.derivePathSSI = (forDID, pathSSI, callback) => {
