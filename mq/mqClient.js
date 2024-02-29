@@ -180,7 +180,7 @@ function MQHandler(didDocument, domain, pollingTimeout) {
                     return callback(err);
                 }
 
-                http.doPut(url, message, { headers: { "Authorization": token } }, callback);
+                http.doPut(url, message, { headers: { "x-mq-authorization": token } }, callback);
             });
         })
 
@@ -212,7 +212,7 @@ function MQHandler(didDocument, domain, pollingTimeout) {
                     let originalCb = callback;
                     //callback = $$.makeSaneCallback(callback);
 
-                    let options = { headers: { Authorization: token } };
+                    let options = { headers: { "x-mq-authorization": token } };
 
                     function makeRequest() {
                         let request = http.poll(url, options, connectionTimeout, timeout);
@@ -330,7 +330,7 @@ function MQHandler(didDocument, domain, pollingTimeout) {
 
                     http.fetch(url, {
                         method: "DELETE",
-                        headers: { "Authorization": token }
+                        headers: { "x-mq-authorization": token }
                     })
                         .then(response => callback())
                         .catch(e => callback(e));
