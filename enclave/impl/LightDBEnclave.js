@@ -293,7 +293,9 @@ function LightDBEnclave(dbName, slots) {
         }
         if (typeof options === "function") {
             callback = options;
-            options = {};
+            options = keySSI;
+            keySSI = forDID;
+            forDID = $$.SYSTEM_IDENTIFIER
         }
         if (!options) {
             options = {};
