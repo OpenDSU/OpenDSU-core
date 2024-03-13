@@ -39,6 +39,7 @@ if(!PREVENT_DOUBLE_LOADING_OF_OPENDSU.INITIALISED){
         switch (apiSpaceName) {
             case "http":return require("./http"); break;
             case "crypto":return require("./crypto"); break;
+            case "apiKey":return require("./apiKey"); break;
             case "anchoring":return require("./anchoring"); break;
             case "contracts":return require("./contracts"); break;
             case "bricking":return require("./bricking"); break;
