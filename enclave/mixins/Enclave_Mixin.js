@@ -911,6 +911,47 @@ function Enclave_Mixin(target, did, keySSI) {
         })
     }
 
+    target.loadDSUVersionBasedOnVersionNumber = (forDID, keySSI, versionNumber, callback) => {
+        if(typeof versionNumber === "function"){
+            callback = versionNumber;
+            versionNumber = keySSI;
+            keySSI = forDID;
+            forDID = undefined;
+        }
+        resolverAPI.getDSUVersionHashlink(keySSI, versionNumber, (err, versionHashLink) => {
+            if (err) {
+                return callback(err);
+            }
+
+            target.loadDSUVersion(forDID, keySSI, versionHashLink, callback);
+        })
+    }
+
+    target.loadDSUVersion = (forDID, keySSI, versionHashlink, options, callback) => {
+        if(typeof versionHashlink === "function"){
+            callback = versionHashlink;
+            versionHashlink = keySSI;
+            keySSI = forDID;
+            forDID = undefined;
+            options = {};
+        }
+        if (typeof options === "function") {
+            callback = options;
+            options = {};
+        }
+
+        if (typeof keySSI === "string") {
+            try {
+                keySSI = keySSISpace.parse(keySSI);
+            } catch (e) {
+                return callback(createOpenDSUErrorWrapper(`Failed to parse keySSI ${keySSI}`, e));
+            }
+        }
+
+        options.versionHashlink = versionHashlink;
+        target.loadDSU(forDID, keySSI, options, callback);
+    }
+
     target.loadDSURecoveryMode = (forDID, ssi, contentRecoveryFnc, callback) => {
         const defaultOptions = {recoveryMode: true};
         let options = {contentRecoveryFnc, recoveryMode: true};

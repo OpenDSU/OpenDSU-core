@@ -168,7 +168,13 @@ function LightDBEnclave(dbName, slots) {
     const resolverAPI = openDSU.loadAPI("resolver");
     const keySSISpace = openDSU.loadAPI("keyssi");
 
-    this.storeKeySSI = (keySSI, callback) => {
+    this.storeKeySSI = (forDID, keySSI, callback) => {
+        if(typeof keySSI === "function"){
+            callback = keySSI;
+            keySSI = forDID;
+            forDID = undefined;
+        }
+
         keySSI = parseKeySSI(keySSI, callback);
         if (!keySSI) {
             return;
@@ -179,7 +185,13 @@ function LightDBEnclave(dbName, slots) {
         seedSSIMapping.storeKeySSI(keySSI, callback);
     }
 
-    this.getReadKeySSI = (keySSI, callback) => {
+    this.getReadForKeySSI = (forDID, keySSI, callback) => {
+        if(typeof keySSI === "function"){
+            callback = keySSI;
+            keySSI = forDID;
+            forDID = undefined;
+        }
+
         keySSI = parseKeySSI(keySSI, callback);
         if (!keySSI) {
             return;
@@ -190,7 +202,12 @@ function LightDBEnclave(dbName, slots) {
         seedSSIMapping.getReadKeySSI(keySSI, callback);
     }
 
-    this.getWriteKeySSI = (keySSI, callback) => {
+    this.getWriteKeySSI = (forDID, keySSI, callback) => {
+        if(typeof keySSI === "function"){
+            callback = keySSI;
+            keySSI = forDID;
+            forDID = undefined;
+        }
         keySSI = parseKeySSI(keySSI, callback);
         if (!keySSI) {
             return;
@@ -302,46 +319,6 @@ function LightDBEnclave(dbName, slots) {
         }
         options.useSSIAsIdentifier = true;
         resolverAPI.createDSUForExistingSSI(keySSI, options, callback);
-    }
-
-    this.loadDSU = (forDID, keySSI, options, callback) => {
-        if (typeof options === "function") {
-            callback = options;
-            options = undefined;
-        }
-        if (typeof keySSI === "string") {
-            try {
-                keySSI = keySSISpace.parse(keySSI);
-            } catch (e) {
-                return callback(e);
-            }
-        }
-
-        resolverAPI.loadDSU(keySSI, options, (err, dsu) => {
-            if (err) {
-                this.getReadKeySSI(keySSI.getIdentifier(), (e, sReadSSI) => {
-                    if (e) {
-                        return callback(err);
-                    }
-                    resolverAPI.loadDSU(sReadSSI, options, callback);
-                });
-
-                return;
-            }
-
-            callback(undefined, dsu);
-        })
-    }
-
-    this.loadDSURecoveryMode = (forDID, ssi, contentRecoveryFnc, callback) => {
-        const defaultOptions = {recoveryMode: true};
-        let options = {contentRecoveryFnc, recoveryMode: true};
-        if (typeof contentRecoveryFnc === "object") {
-            options = contentRecoveryFnc;
-        }
-
-        options = Object.assign(defaultOptions, options);
-        this.loadDSU(forDID, ssi, options, callback);
     }
 }
 
