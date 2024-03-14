@@ -44,7 +44,7 @@ assert.callback("Test API keys", async (callback) => {
     const crypto = openDSU.loadAPI("crypto");
 
     const htPasswordPath = path.join(folder, ".htpassword.secret");
-    for(let i=0; i<10; i++){
+    for (let i = 0; i < 10; i++) {
         const user = `user${i}`;
         const password = `password${i}`;
         const hashedPassword = crypto.sha256JOSE(password).toString("hex");
@@ -70,6 +70,18 @@ assert.callback("Test API keys", async (callback) => {
     const receivedAPIKey = await client.getAPIKey("appName", "name", "usr3@example.com", headers);
     assert.true(receivedAPIKey === newAPIKey, "Invalid API");
 
+    // Delete Admin Test
+    await client.deleteAdmin("usr2@example.com", headers);
+
+    // Delete API Key Test
+    await client.deleteAPIKey("appName", "name", "usr3@example.com", headers);
+    let error;
+    try {
+        await client.getAPIKey("appName", "name", "usr3@example.com", headers);
+    } catch (err) {
+        error = err;
+    }
+    assert.true(error.message.includes("Failed to fetch"), "Deletion of API key confirmed.");
     callback();
 }, 5000000);
 
