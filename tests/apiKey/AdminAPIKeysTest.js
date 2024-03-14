@@ -83,5 +83,5 @@ assert.callback("Test API keys", async (callback) => {
     }
     assert.true(error.message.includes("Failed to fetch"), "Deletion of API key confirmed.");
     callback();
-}, 5000000);
+}, 50000);
 
