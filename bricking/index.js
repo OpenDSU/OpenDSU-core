@@ -30,6 +30,13 @@ const brickExistsOnServer = (hashLinkSSI, callback) => {
             let smartUrl = new SmartUrl(storage);
             smartUrl = smartUrl.concatWith(`/bricking/${dlDomain}/brick-exists/${brickHash}`);
             return smartUrl.fetch().then(async (response) => {
+                if(response.status === 404){
+                    return false;
+                }
+                if (response.status !== 200) {
+                    throw Error(`Failed to contact server. Status code: ${response.status}`);
+                }
+
                 const exists = await response.text();
                 if (exists === "true") {
                     return true;
@@ -39,8 +46,10 @@ const brickExistsOnServer = (hashLinkSSI, callback) => {
                     return false;
                 }
 
-                throw Error(`Failed to check brick <${brickHash}>`);
-            });
+                throw Error(`Failed to parse response from server. Expected "true" or "false" but got ${exists}`);
+            }).catch(e => {
+                throw Error(`Failed to check brick <${brickHash}>: e.message`);
+            })
         };
 
         const runnerCallback = (error, result) => {
