@@ -15,14 +15,16 @@ switch ($$.environmentType) {
         module.exports = require("./node");
         const interceptor = (data, callback) => {
             let {url, headers} = data;
-            if (!process.env.SSO_SECRETS_ENCRYPTION_KEY || !headers["x-api-key"]) {
+            if (!process.env.SSO_SECRETS_ENCRYPTION_KEY) {
                 return callback(undefined, {url, headers});
             }
             if (!headers) {
                 headers = {};
             }
 
-            headers["x-api-key"] = process.env.SSO_SECRETS_ENCRYPTION_KEY;
+            if (!headers["x-api-key"]) {
+                headers["x-api-key"] = process.env.SSO_SECRETS_ENCRYPTION_KEY;
+            }
             callback(undefined, {url, headers});
         }
         require("./utils/interceptors").enable(module.exports);
