@@ -42,6 +42,7 @@ function LightDBEnclave(dbName, slots) {
                 try {
                     response = JSON.parse(response);
                 } catch (e) {
+                    console.log(`Failed to execute command: ${JSON.stringify(signedCommand)}`);
                     console.log(`Failed to JSON.parse on the following response: ${response}`);
                     return callback(e);
                 }
