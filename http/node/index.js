@@ -44,7 +44,7 @@ function generateMethodForRequestWithData(httpMethod) {
 			});
 		}).on("error", (error) => {
 			const errorWrapper = createOpenDSUErrorWrapper(`Network error`, error, constants.ERROR_ROOT_CAUSE.NETWORK_ERROR);
-			console.log(`[POST] ${url}`, errorWrapper);
+			console.log(`[${httpMethod}] ${url}`, errorWrapper);
 			callback(errorWrapper);
 		})
 
