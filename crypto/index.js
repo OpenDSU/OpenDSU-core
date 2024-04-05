@@ -7,7 +7,7 @@ const CryptoFunctionTypes = keySSIResolver.CryptoFunctionTypes;
 const jwtUtils = require("./jwt");
 const constants = require("../moduleConstants");
 const config = require("./index");
-const { Mnemonic } = require("./mnemonic");
+const {Mnemonic} = require("./mnemonic");
 
 const templateSeedSSI = keySSIFactory.createType(SSITypes.SEED_SSI);
 templateSeedSSI.load(SSITypes.SEED_SSI, "default");
@@ -375,7 +375,8 @@ module.exports = {
     base64URLEncode: base64UrlEncodeJOSE,
     base64URLDecode: base64UrlDecodeJOSE,
     sha256JOSE,
-    joseAPI: require("pskcrypto").joseAPI,
+    joseAPI: require("./jose"),
+    jsonWebTokenAPI: crypto.jsonWebTokenAPI,
     convertKeySSIObjectToMnemonic,
     convertMnemonicToKeySSIIdentifier,
     getRandomSecret
