@@ -1,5 +1,3 @@
-const {prettyByte} = require("@msgpack/msgpack/dist/utils/prettyByte");
-
 class Storage {
     get(key) {
         return localStorage.getItem(key);

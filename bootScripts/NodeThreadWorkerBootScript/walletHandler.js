@@ -57,13 +57,13 @@ const createDSU = async (wallet, response) => {
 };
 
 const appendToDSU = async (wallet, request, response) => {
-    const { sReadSSI, filePath } = extractSReadSSIAndFilePathFromRequest(request);
-    console.log(`Appending file to sReadSSI: ${sReadSSI} at path ${filePath}...`);
-
     if (!request || !request.pipe || typeof request.pipe !== "function") {
         response.statusCode = 500;
         return response.end("File not provided");
     }
+
+    const { sReadSSI, filePath } = extractSReadSSIAndFilePathFromRequest(request);
+    console.log(`Appending file to sReadSSI: ${sReadSSI} at path ${filePath}...`);
 
     const Transform = require("stream").Transform;
     const Writable = require("stream").Writable;

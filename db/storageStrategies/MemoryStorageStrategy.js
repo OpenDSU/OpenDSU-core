@@ -3,9 +3,6 @@ function MemoryStorageStrategy() {
     const operators = require("./operators");
     let volatileMemory = {}
     let self = this
-    let storageDSU, afterInitialisation;
-    let dbName;
-
     ObservableMixin(this);
 
     function getTable(tableName) {

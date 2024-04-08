@@ -177,7 +177,7 @@ Uploader.prototype.validateRequestBody = function (body) {
  * @throws {object}
  */
 Uploader.prototype.validateFile = function (file) {
-    if (!IS_NODE_ENV && !file instanceof File) {
+    if (!IS_NODE_ENV && !(file instanceof File)) {
         const error = {
             message: "File must be an instance of File",
             code: this.Error.INVALID_FILE,

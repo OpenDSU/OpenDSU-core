@@ -1,6 +1,3 @@
-
-const constants = require("../moduleConstants");
-
 function MemoryCache(useWeakRef) {
     let storage = {};
     const self = this;

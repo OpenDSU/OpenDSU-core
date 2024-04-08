@@ -1,5 +1,4 @@
 function VersionlessRecordStorageStrategy(rootDSU) {
-    const DATA_PATH = "data";
     const openDSU = require("opendsu");
     const resolver = openDSU.loadAPI("resolver");
 

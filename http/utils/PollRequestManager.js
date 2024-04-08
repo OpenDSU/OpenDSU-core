@@ -169,7 +169,6 @@ function PollRequestManager(fetchFunction,  connectionTimeout = 10000, pollingTi
 						let err = Error(response.statusText || "Service unavailable");
 						err.code = 503;
 						throw err;
-						return;
 					}
 
 					return beginSafePeriod();

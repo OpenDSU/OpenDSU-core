@@ -77,6 +77,7 @@ function convertWalletDBEnclaveToVersionlessEnclave(walletDBEnclave, callback) {
 
         versionlessEnclave.on("initialised", async () => {
             for (let i = 0; i < tableNames.length; i++) {
+                let records;
                 [error, records] = await $$.call(walletDBEnclave.getAllRecords, undefined, tableNames[i]);
                 if (error) {
                     return callback(error);
@@ -100,7 +101,6 @@ function convertWalletDBEnclaveToVersionlessEnclave(walletDBEnclave, callback) {
 
 function convertWalletDBEnclaveToCloudEnclave(walletDBEnclave, cloudEnclaveServerDIO, callback) {
     const openDSU = require("opendsu");
-    const resolver = openDSU.loadAPI("resolver");
     const w3cDidAPI = openDSU.loadAPI("w3cdid");
     const keySSIApi = openDSU.loadAPI("keyssi");
     walletDBEnclave.getAllTableNames(undefined, async (err, tableNames) => {
@@ -112,7 +112,7 @@ function convertWalletDBEnclaveToCloudEnclave(walletDBEnclave, cloudEnclaveServe
         let keySSI;
 
         [error, keySSI] = await $$.call(walletDBEnclave.getKeySSI);
-        if (err) {
+        if (error) {
             return callback(error);
         }
 
@@ -137,6 +137,7 @@ function convertWalletDBEnclaveToCloudEnclave(walletDBEnclave, cloudEnclaveServe
 
         cloudEnclave.on("initialised", async () => {
             for (let i = 0; i < tableNames.length; i++) {
+                let records;
                 [error, records] = await $$.call(walletDBEnclave.getAllRecords, undefined, tableNames[i]);
                 if (error) {
                     return callback(error);
