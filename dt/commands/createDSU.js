@@ -34,7 +34,7 @@ const _getKeyType = function(dsuType){
  * @param {string[]} arg
  * @param {function(err, KeySSI)} callback
  */
-_createSSI = function(varStore, arg, callback){
+const _createSSI = function(varStore, arg, callback){
     const argToArray = (arg) => {
         return `${arg.type} ${arg.domain} ${typeof arg.args === 'string' ? arg.args : JSON.stringify(arg.hint ? {
             hint: arg.hint,
@@ -51,7 +51,7 @@ _createSSI = function(varStore, arg, callback){
  * @param {object} opts DSU Creation Options
  * @param {function(err, Archive)} callback
  */
-_createWalletDSU = function(varStore, arg, opts, callback){
+const _createWalletDSU = function(varStore, arg, opts, callback){
     _createSSI(varStore, arg, (err, keySSI) => {
         _getResolver().createDSUForExistingSSI(keySSI, opts, (err, dsu) => {
             if (err)
@@ -67,7 +67,7 @@ _createWalletDSU = function(varStore, arg, opts, callback){
  * @param {object} opts DSU Creation Options
  * @param {function(err, Archive)} callback
  */
-_createDSU = function(varStore, arg, opts, callback){
+const _createDSU = function(varStore, arg, opts, callback){
     _createSSI(varStore, arg, (err, keySSI) => {
         _getResolver().createDSU(keySSI, opts, (err, dsu) => {
             if (err)
@@ -83,7 +83,7 @@ _createDSU = function(varStore, arg, opts, callback){
  * @param {object} opts DSU Creation Options
  * @param {function(err, Archive)} callback
  */
-_createConstDSU = function(varStore, arg,opts , callback){
+const _createConstDSU = function(varStore, arg,opts , callback){
     _createSSI(varStore, arg, (err, keySSI) => {
         _getResolver().createDSUForExistingSSI(keySSI, opts, (err, dsu) => {
             if (err)
@@ -93,9 +93,6 @@ _createConstDSU = function(varStore, arg,opts , callback){
     });
 }
 
-_getDSUFactory = function(isConst, isWallet){
-    return isConst ? (isWallet ? _createWalletDSU : _createConstDSU) : _createDSU;
-}
 
 /**
  * creates a new DSU of the provided type and with the provided key gen arguments

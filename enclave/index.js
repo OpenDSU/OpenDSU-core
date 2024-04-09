@@ -1,6 +1,6 @@
 const constants = require("../moduleConstants");
 
-function initialiseWalletDBEnclave(keySSI, did) {
+function initialiseWalletDBEnclave(keySSI) {
     const WalletDBEnclave = require("./impl/WalletDBEnclave");
     return new WalletDBEnclave(keySSI);
 }

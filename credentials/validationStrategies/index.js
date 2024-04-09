@@ -18,7 +18,7 @@ function registerValidationStrategy(validationStrategyName, implementation) {
  */
 function getValidationStrategy(validationStrategyName) {
     if (!validationStrategies[validationStrategyName]) {
-        return callback(VALIDATION_STRATEGIES.INVALID_VALIDATION_STRATEGY);
+        throw Error(VALIDATION_STRATEGIES.INVALID_VALIDATION_STRATEGY);
     }
 
     return validationStrategies[validationStrategyName];

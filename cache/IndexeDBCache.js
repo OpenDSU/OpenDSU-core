@@ -1,7 +1,4 @@
-let stores = {};
-const config = require("opendsu").loadApi("config");
 const CacheMixin = require("../utils/PendingCallMixin");
-const constants = require("../moduleConstants");
 
 function IndexedDBCache(storeName, lifetime) {
     const self = this;
@@ -78,7 +75,7 @@ function IndexedDBCache(storeName, lifetime) {
             transaction.onabort = function() {
                 console.log("Error", transaction.error);
             };
-            req.onerror = function (event){
+            req.onerror = function (){
                 next();
             }
         });
@@ -109,7 +106,7 @@ function IndexedDBCache(storeName, lifetime) {
                 transaction.onabort = function() {
                     console.log("Error", transaction.error);
                 };
-                req.onerror = function (event){
+                req.onerror = function (){
                     next();
                 }
             });
@@ -137,7 +134,7 @@ function IndexedDBCache(storeName, lifetime) {
             transaction.onabort = function() {
                 console.log("Error", transaction.error);
             };
-            req.onerror = function (event){
+            req.onerror = function (){
                 next();
             }
         });

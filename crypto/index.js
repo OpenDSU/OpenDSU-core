@@ -5,8 +5,6 @@ const keySSIFactory = keySSIResolver.KeySSIFactory;
 const SSITypes = keySSIResolver.SSITypes;
 const CryptoFunctionTypes = keySSIResolver.CryptoFunctionTypes;
 const jwtUtils = require("./jwt");
-const constants = require("../moduleConstants");
-const config = require("./index");
 const {Mnemonic} = require("./mnemonic");
 
 const templateSeedSSI = keySSIFactory.createType(SSITypes.SEED_SSI);

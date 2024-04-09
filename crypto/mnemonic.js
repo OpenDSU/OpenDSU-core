@@ -216,8 +216,7 @@ const Mnemonic = function (language) {
     function init() {
         wordlist = WORDLISTS[language];
         if (wordlist.length != RADIX) {
-            err = 'Wordlist should contain ' + RADIX + ' words, but it contains ' + wordlist.length + ' words.';
-            throw err;
+            throw Error('Wordlist should contain ' + RADIX + ' words, but it contains ' + wordlist.length + ' words.');
         }
     }
 

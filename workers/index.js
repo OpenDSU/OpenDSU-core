@@ -1,7 +1,7 @@
 function getWebWorkerBootScript() {
     const scriptLocation = document.currentScript
         ? document.currentScript
-        : new Error().stack.match(/([^ ^(\n])*([a-z]*:\/\/\/?)*?[a-z0-9\/\\]*\.js/gi)[0];
+        : new Error().stack.match(/([^ ^(\n])*([a-z]*:\/\/\/?)*?[a-z0-9/\\]*\.js/gi)[0];
     return URL.createObjectURL(
         new Blob(
             [

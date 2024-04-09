@@ -1,4 +1,4 @@
-errorTypes = {
+const errorTypes = {
   "UNKNOWN": {
     errorCode: 0,
     message: "Unknown error",
@@ -171,5 +171,6 @@ module.exports = {
   getErrorKeyByCode,
   getErrorKeyByMessage,
   setErrorMessage,
-  addNewErrorType
+  addNewErrorType,
+  getErrorCodes
 }

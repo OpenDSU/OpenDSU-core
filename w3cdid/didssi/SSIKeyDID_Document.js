@@ -6,7 +6,6 @@ function SSIKeyDID_Document(enclave, isInitialisation, seedSSI) {
     const ObservableMixin = require("../../utils/ObservableMixin");
     ObservableMixin(this);
     const openDSU = require("opendsu");
-    const dbAPI = openDSU.loadAPI("db");
     const keySSISpace = openDSU.loadAPI("keyssi");
     const crypto = openDSU.loadAPI("crypto");
 

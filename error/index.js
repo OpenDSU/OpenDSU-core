@@ -149,7 +149,6 @@ function OpenDSUSafeCallback(callback) {
 }
 
 let observable = require("./../utils/observable").createObservable();
-let devObservers = [];
 
 function reportUserRelevantError(message, err) {
   genericDispatchEvent(constants.NOTIFICATION_TYPES.ERROR, message, err);

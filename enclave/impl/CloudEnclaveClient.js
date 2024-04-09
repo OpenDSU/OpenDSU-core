@@ -30,7 +30,7 @@ function CloudEnclaveClient(clientDID, remoteDID, requestTimeout) {
     }
 
     this.getDID = (callback) => {
-        callback(undefined, did);
+        callback(undefined, clientDID);
     }
 
     this.grantReadAccess = (forDID, resource, callback) => {
@@ -69,7 +69,7 @@ function CloudEnclaveClient(clientDID, remoteDID, requestTimeout) {
 
         this.commandsMap.get(commandID).timeout = timeout;
 
-        this.clientDIDDocument.sendMessage(command, this.remoteDIDDocument, (err, res) => {
+        this.clientDIDDocument.sendMessage(command, this.remoteDIDDocument, (err) => {
             console.log("Sent command with id " + commandID);
             if (err) {
                 console.log(err);

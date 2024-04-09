@@ -96,7 +96,7 @@ if(!PREVENT_DOUBLE_LOADING_OF_OPENDSU.INITIALISED){
                     reportUserRelevantError("global not defined in nodejs environment");
                 }
         }
-    };
+    }
 
     function getGlobalVariable(name){
         switch ($$.environmentType) {
@@ -109,7 +109,7 @@ if(!PREVENT_DOUBLE_LOADING_OF_OPENDSU.INITIALISED){
             default:
                 return global[name];
         }
-    };
+    }
 
     function globalVariableExists(name){
         switch ($$.environmentType) {
@@ -122,7 +122,7 @@ if(!PREVENT_DOUBLE_LOADING_OF_OPENDSU.INITIALISED){
             default:
                 return typeof global[name] != "undefined";
         }
-    };
+    }
 
     PREVENT_DOUBLE_LOADING_OF_OPENDSU.loadApi = loadApi;
     PREVENT_DOUBLE_LOADING_OF_OPENDSU.loadAPI = loadApi; //upper case version just

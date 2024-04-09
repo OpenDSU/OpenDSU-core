@@ -102,7 +102,7 @@ class JwtVC extends JWT {
 		this.jwtPayload.vc = JSON.parse(JSON.stringify(vc));
 
 		callback(undefined, true);
-	};
+	}
 
 	async embedSubjectClaimAsync(context, type, subjectClaims, subject) {
 		return this.asyncMyFunction(this.embedSubjectClaim, [...arguments]);
@@ -119,7 +119,7 @@ class JwtVC extends JWT {
 			this.jwtSignature = result.jwtSignature;
 			this.notifyInstanceReady();
 		});
-	};
+	}
 
 	verifyJWT(rootsOfTrust, callback) {
 		if (typeof rootsOfTrust === 'function') {

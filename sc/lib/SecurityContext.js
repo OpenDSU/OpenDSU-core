@@ -47,7 +47,7 @@ function SecurityContext(target, PIN) {
             }
             catch (err) {
                 pinNeeded = true;
-                sharedEnclave = new Promise((res, rej) => {
+                sharedEnclave = new Promise((res) => {
                     target.on("pinSet", async () => {
                         await initSharedEnclave();
                         pinNeeded = false;
@@ -302,7 +302,7 @@ function SecurityContext(target, PIN) {
 
     target.isPINNeeded = async () => {
 
-        return new Promise((res, rej) => {
+        return new Promise((res) => {
             if (initialised) {
                 res(pinNeeded);
             }

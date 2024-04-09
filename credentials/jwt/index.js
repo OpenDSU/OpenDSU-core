@@ -20,7 +20,7 @@ class JWT {
 			const encodedJWT = [base64UrlEncode(JSON.stringify(this.jwtHeader)), base64UrlEncode(JSON.stringify(this.jwtPayload)), jwtSignature].join('.');
 			callback(undefined, encodedJWT);
 		});
-	};
+	}
 
 	async getEncodedJWTAsync() {
 		return this.asyncMyFunction(this.getEncodedJWT, [...arguments]);
@@ -43,7 +43,7 @@ class JWT {
 
 		this.jwtPayload[claimName] = claimValue;
 		callback(undefined, true);
-	};
+	}
 
 	async embedClaimAsync(claimName, claimValue) {
 		return this.asyncMyFunction(this.embedClaim, [...arguments]);
@@ -61,7 +61,7 @@ class JWT {
 
 		this.jwtPayload.exp = this.jwtPayload.exp + timeInSeconds * 1000;
 		callback(undefined, true);
-	};
+	}
 
 	async extendExpirationDateAsync(timeInSeconds) {
 		return this.asyncMyFunction(this.extendExpirationDate, [...arguments]);

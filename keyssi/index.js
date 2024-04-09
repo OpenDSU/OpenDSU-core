@@ -181,7 +181,7 @@ const we_createConstSSI = (enclave, domain, constString, vn, hint, callback) => 
 };
 
 const createArraySSI = (domain, arr, vn, hint, callback) => {
-    return we_createArraySSI(openDSU.loadAPI("sc").getMainEnclave(), domain, arr, vn, hint);
+    return we_createArraySSI(openDSU.loadAPI("sc").getMainEnclave(), domain, arr, vn, hint, callback);
 }
 
 const we_createArraySSI = (enclave, domain, arr, vn, hint, callback) => {
@@ -217,7 +217,7 @@ const createToken = (domain, amountOrSerialNumber, vn, hint, callback) => {
     // the tokenSSI must have the ownershipSSI's public key hash
     // the ownershipSSI must have the tokenSSI's base58 ssi
     const ownershipSSI = keySSIFactory.createType(SSITypes.OWNERSHIP_SSI);
-    ownershipSSI.initialize(domain, undefined, undefined, vn, hint, (err) => {
+    ownershipSSI.initialize(domain, undefined, undefined, vn, hint, () => {
 
         const ownershipPublicKeyHash = ownershipSSI.getPublicKeyHash();
         const ownershipPrivateKey = ownershipSSI.getPrivateKey();

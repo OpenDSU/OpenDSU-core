@@ -43,24 +43,6 @@ function decipherUrl(url, options) {
 	options.port = parseInt(innerUrl.port);
 }
 
-function getMethod(options) {
-	let method = 'get';
-	if (typeof options !== "undefined") {
-		method = options.method;
-	}
-	return method;
-}
-
-function convertOptions(options = {}) {
-	//convert from fetch options into xhr options
-
-	if (typeof options.method === "undefined") {
-		options.method = 'GET';
-	}
-
-	return options;
-}
-
 function fetch(url, options = {}) {
 	const protocol = getProtocol(url, options);
 
@@ -95,8 +77,6 @@ function fetch(url, options = {}) {
 }
 
 function Response(httpRequest, httpResponse) {
-	let handlers = {};
-
 	let readingInProgress = false;
 	function readResponse(callback) {
 		if (readingInProgress) {

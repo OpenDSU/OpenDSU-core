@@ -85,7 +85,7 @@ function BasicDB(storageStrategy, conflictSolvingStrategy, options) {
     }
 
     function getDefaultCallback(message, tableName, key) {
-        return function (err, res) {
+        return function (err) {
             if (err) {
                 reportUserRelevantError(message + ` with errors in table ${tableName} for key ${key}`, err);
             } else {

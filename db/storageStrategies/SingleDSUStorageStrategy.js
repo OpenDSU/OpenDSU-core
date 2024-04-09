@@ -1,10 +1,8 @@
 const ObservableMixin = require("../../utils/ObservableMixin");
 const SingleDSURecordStorageStrategy = require("./SingleDSURecordStorageStrategy");
 function SingleDSUStorageStrategy(recordStorageStrategy) {
-    let volatileMemory = {}
     let self = this
     let storageDSU;
-    let shareableSSI;
     let dbName;
 
     ObservableMixin(this);

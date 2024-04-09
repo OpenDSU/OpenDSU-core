@@ -1,6 +1,6 @@
 const constants = require("../constants/constants");
 
-function Enclave_Mixin(target, did, keySSI) {
+function Enclave_Mixin(target, did) {
     const openDSU = require("opendsu");
     const keySSISpace = openDSU.loadAPI("keyssi")
     const w3cDID = openDSU.loadAPI("w3cdid")

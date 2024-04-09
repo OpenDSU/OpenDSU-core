@@ -33,7 +33,7 @@ function generateMethodForRequestWithData(httpMethod) {
 			}
 		};
 
-		xhr.onerror = function (e) {
+		xhr.onerror = function () {
 			callback(new Error("A network error occurred"));
 		};
 

@@ -3,7 +3,6 @@ const {SmartUrl} = require("../utils");
 function RemotePersistence() {
     const openDSU = require("opendsu");
     const keySSISpace = openDSU.loadAPI("keyssi");
-    const resolver = openDSU.loadAPI("resolver");
     const promiseRunner = require("../utils/promise-runner");
 
     const getAnchoringServices = (dlDomain, callback) => {
@@ -85,7 +84,7 @@ function RemotePersistence() {
         updateAnchor(capableOfSigningKeySSI, anchorValue, "append-to-anchor", callback);
     }
 
-    const getFetchAnchor = (anchorId, dlDomain, actionName, callback) => {
+    const getFetchAnchor = (anchorId, dlDomain, actionName) => {
         return function (service) {
             return new Promise((resolve, reject) => {
 
@@ -155,7 +154,7 @@ function RemotePersistence() {
     }
 
     this.createOrUpdateMultipleAnchors = (anchors, callback) => {
-        let smartUrl = new SmartUrl(service);
+        let smartUrl = new SmartUrl();
         smartUrl = smartUrl.concatWith(`/anchor/create-or-update-multiple-anchors`);
 
         smartUrl.doPut(JSON.stringify(anchors), (err, data) => {

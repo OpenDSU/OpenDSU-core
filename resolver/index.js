@@ -4,7 +4,7 @@ const keySSISpace = openDSU.loadAPI("keyssi");
 const crypto = openDSU.loadAPI("crypto");
 const constants = require("../moduleConstants");
 
-let {ENVIRONMENT_TYPES, KEY_SSIS} = require("../moduleConstants.js");
+let {ENVIRONMENT_TYPES} = require("../moduleConstants.js");
 const {getWebWorkerBootScript, getNodeWorkerBootScript} = require("./resolver-utils");
 const cache = require("../cache");
 const {createOpenDSUErrorWrapper} = require("../error");
@@ -211,21 +211,6 @@ const getDSUVersionHashlink = (keySSI, versionNumber, callback) => {
             callback(undefined, versionHashLink);
         })
     })
-}
-
-const getVersionNumberFromKeySSI = (keySSI) => {
-    let versionNumber;
-    try {
-        versionNumber = parseInt(keySSI.getHint());
-    } catch (e) {
-        return undefined;
-    }
-
-    if (versionNumber < 0) {
-        return undefined;
-    }
-
-    return versionNumber;
 }
 
 const loadDSUVersionBasedOnVersionNumber = (keySSI, versionNumber, callback) => {

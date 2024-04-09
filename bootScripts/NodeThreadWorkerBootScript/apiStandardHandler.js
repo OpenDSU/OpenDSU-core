@@ -41,7 +41,7 @@ const getUserDetails = function (dsu, res) {
 
 const handle = (dsu, res, requestedPath) => {
     const requestedApiPath = requestedPath.substr("/api-standard".length + 1);
-    const requestedApiPathInfoMatch = requestedApiPath.match(/^([^\/\?]*)[\/\?](.*)$/);
+    const requestedApiPathInfoMatch = requestedApiPath.match(/^([^/?]*)[/?](.*)$/);
 
     const apiMethod = requestedApiPathInfoMatch ? requestedApiPathInfoMatch[1] : requestedApiPath;
     const apiParameter = requestedApiPathInfoMatch ? requestedApiPathInfoMatch[2] : undefined;

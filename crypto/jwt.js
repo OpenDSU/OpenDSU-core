@@ -29,7 +29,7 @@ templateSeedSSI.load(SSITypes.SEED_SSI, "default");
 
 function encodeBase58(data) {
     return cryptoRegistry.getEncodingFunction(templateSeedSSI)(data).toString();
-};
+}
 
 function decodeBase58(data, keepBuffer) {
     const decodedValue = cryptoRegistry.getDecodingFunction(templateSeedSSI)(data);
@@ -37,7 +37,7 @@ function decodeBase58(data, keepBuffer) {
         return decodedValue;
     }
     return decodedValue ? decodedValue.toString() : null;
-};
+}
 
 function nowEpochSeconds() {
     return Math.floor(new Date().getTime() / 1000);
@@ -307,7 +307,7 @@ const verifyDID_JWT = ({jwt, rootOfTrustVerificationStrategy, verifySignature}, 
             if (verifyError) return callback(verifyError);
 
             const {header, body, signatureInput, signature} = jwtContent;
-            const {iss: did, publicKey} = body;
+            const {iss: did} = body;
 
             const openDSU = require("opendsu");
             const crypto = openDSU.loadAPI("crypto");

@@ -1,4 +1,3 @@
-let stores = {};
 const config = require("opendsu").loadApi("config");
 const CacheMixin = require("../utils/PendingCallMixin");
 const constants = require("../moduleConstants");

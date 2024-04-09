@@ -43,7 +43,7 @@ function publish(keySSI, message, timeout, callback) {
 
 let requests = new Map();
 
-function getObservableHandler(keySSI, timeout) {
+function getObservableHandler(keySSI, timeout, callback) {
     timeout = timeout || 0;
     let obs = require("../utils/observable").createObservable();
 

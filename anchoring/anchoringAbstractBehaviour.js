@@ -1,5 +1,4 @@
 const {createOpenDSUErrorWrapper} = require("../error");
-const {parse} = require("../keyssi");
 const fakeHistory = {};
 const fakeLastVersion = {};
 

@@ -30,7 +30,7 @@ function ObservableMixin(target) {
             try{
                 callback(message);
             }catch(err){
-				        console.error(err);
+                console.error(err);
                 reportDevRelevantInfo(`Caught an error during the delivery of ${eventType} to ${c.toString()}`);
             }
         });

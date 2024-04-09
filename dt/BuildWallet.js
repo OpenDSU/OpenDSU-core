@@ -11,7 +11,7 @@ function BuildWallet() {
     let writableDSU;
 
     const __ensureEnvIsInitialised = (writableDSU, callback) => {
-        writableDSU.readFile("/environment.json", async (err, env) => {
+        writableDSU.readFile("/environment.json", async (err) => {
             //TODO: check if env is a valid JSON
             if (err) {
                 try {

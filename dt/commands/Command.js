@@ -64,7 +64,7 @@ class Command {
                 let arg = parsedArgs.shift();
                 if (!arg)
                     return callback(undefined, bar);
-                return self._runCommand(arg, bar, options, (err, dsu) => err
+                return self._runCommand(arg, bar, options, (err) => err
                     ? _err(`Could iterate over Command ${self.constructor.name} with args ${JSON.stringify(arg)}`, err, callback)
                     : iterator(args, callback));
             }

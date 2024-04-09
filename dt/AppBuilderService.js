@@ -533,7 +533,7 @@ function AppBuilderService(environment, opts) {
     }
 
     this.loadWallet = function(secrets, callback){
-        parseSecrets(true, secrets, (err, keyGenArgs, publicSecrets) => {
+        parseSecrets(true, secrets, (err, keyGenArgs) => {
             if (err)
                 return callback(err);
             createWalletSSI(keyGenArgs, (err, keySSI) => {

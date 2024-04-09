@@ -199,7 +199,7 @@ function MemoryStorageStrategy() {
         callback(undefined);
     }
 
-    this.safeBeginBatchAsync = async (wait) => {
+    this.safeBeginBatchAsync = async () => {
 
     }
 

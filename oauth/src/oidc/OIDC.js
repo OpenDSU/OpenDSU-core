@@ -118,7 +118,7 @@ class OIDC {
     refreshTokenSet() {
         console.log('refreshSession');
         return this.refreshWithRefreshToken()
-            .catch((err) => this.refreshWithIFrame())
+            .catch(() => this.refreshWithIFrame())
             .catch((err) => {
                 //todo: improve error detection
                 const loginRequired = err.message.includes('login_required');

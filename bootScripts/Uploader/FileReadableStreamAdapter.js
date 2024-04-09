@@ -20,7 +20,7 @@ util.inherits(FileReadableStreamAdapter, Readable);
  * Reads data from the File ReadableStreamDefaulReader
  * and pushes it into our Readable stream
  */
-FileReadableStreamAdapter.prototype._read = function (size) {
+FileReadableStreamAdapter.prototype._read = function () {
     const pushData = (result) => {
         const done = result.done;
         const data = result.value;

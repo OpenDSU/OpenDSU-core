@@ -39,7 +39,7 @@ function lockAsync(id, secret, period) {
     return handlePromise(http.fetch(`${originUrl}/lock?id=${id}&secret=${secret}&period=${period}`), "Failed to acquire lock");
 }
 
-function unlockAsync(id, secret, callback) {
+function unlockAsync(id, secret) {
     const originUrl = require("../bdns").getOriginUrl();
     const http = require("../http");
     return handlePromise(http.fetch(`${originUrl}/unlock?id=${id}&secret=${secret}`), "Failed to unlock");

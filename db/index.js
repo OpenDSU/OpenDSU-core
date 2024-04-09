@@ -1,6 +1,4 @@
 let util = require("./impl/DSUDBUtil")
-const {SingleDSUStorageStrategy} = require("./storageStrategies/SingleDSUStorageStrategy");
-const {TimestampMergingStrategy: ConflictStrategy} = require("./conflictSolvingStrategies/timestampMergingStrategy");
 const logger = $$.getLogger("opendsu", "db");
 function getBasicDB(storageStrategy, conflictSolvingStrategy, options) {
     let BasicDB = require("./impl/BasicDB");

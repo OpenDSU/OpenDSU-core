@@ -88,7 +88,7 @@ function MappingEngine(storageService, options) {
               if (result && result.status === "rejected") {
                 await $$.promisify(touchedDSUs[i].cancelBatch)(touchedDSUs[i].secretBatchID);
                 let getDSUIdentifier = $$.promisify(touchedDSUs[i].getKeySSIAsString);
-                return reject(errorHandler.createOpenDSUErrorWrapper(`Cancel batch on dsu identified with ${await getDSUIdentifier()}`, error));
+                return reject(errorHandler.createOpenDSUErrorWrapper(`Cancel batch on dsu identified with ${await getDSUIdentifier()}`));
               }
             }
 

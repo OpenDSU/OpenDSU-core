@@ -1,117 +1,12 @@
 const openDSU = require("opendsu")
-const keyssi = openDSU.loadAPI("keyssi");
 const utils = openDSU.loadAPI("utils");
 const SmartUrl = utils.SmartUrl;
 const constants = openDSU.constants;
 const promiseRunner = utils.promiseRunner;
-const config = openDSU.loadAPI("config");
-const {validateHashLinks, verifySignature} = require("./anchoring-utils");
 
 const getAnchoringBehaviour = (persistenceStrategy) => {
-        const Aab = require('./anchoringAbstractBehaviour').AnchoringAbstractBehaviour;
-        return new Aab(persistenceStrategy);
-    };
-
-
-const isValidVaultCache = () => {
-    return typeof config.get(constants.CACHE.VAULT_TYPE) !== "undefined" && config.get(constants.CACHE.VAULT_TYPE) !== constants.CACHE.NO_CACHE;
-}
-
-const buildGetVersionFunction = function(processingFunction){
-    return function (keySSI, authToken, callback) {
-        if (typeof authToken === 'function') {
-            callback = authToken;
-            authToken = undefined;
-        }
-
-        const dlDomain = keySSI.getDLDomain();
-        keySSI.getAnchorId((err, anchorId) => {
-            if (err) {
-                return callback(err);
-            }
-            const bdns = require("../bdns");
-            // if (dlDomain === constants.DOMAINS.VAULT && isValidVaultCache()) {
-            //     return cachedAnchoring.versions(anchorId, callback);
-            // }
-
-            bdns.getAnchoringServices(dlDomain, function (err, anchoringServicesArray) {
-                if (err) {
-                    return OpenDSUSafeCallback(callback)(createOpenDSUErrorWrapper(`Failed to get anchoring services from bdns`, err));
-                }
-
-                if (!anchoringServicesArray.length) {
-                    return callback('No anchoring service provided');
-                }
-
-                //TODO: security issue (which response we trust)
-                const fetchAnchor = (service) => {
-                    let smartUrl = new SmartUrl(service);
-                    smartUrl = smartUrl.concatWith(`/anchor/${dlDomain}/get-all-versions/${anchorId}`);
-                    return smartUrl.fetch().then(processingFunction);
-                };
-
-                promiseRunner.runOneSuccessful(anchoringServicesArray, fetchAnchor, callback, new Error("get Anchoring Service"));
-            });
-        });
-    }
-}
-
-/**
- * Get versions
- * @param {keySSI} keySSI
- * @param {string} authToken
- * @param {function} callback
- */
-const getAllVersions = (keySSI, authToken, callback) => {
-    const fnc = buildGetVersionFunction((response) => {
-        return response.json().then(async (hlStrings) => {
-            if (!hlStrings) {
-                return [];
-            }
-            const hashLinks = hlStrings.map((hlString) => {
-                return keyssi.parse(hlString);
-            });
-
-            const validatedHashLinks = await $$.promisify(validateHashLinks)(keySSI, hashLinks);
-
-            // cache.put(anchorId, hlStrings);
-            return validatedHashLinks;
-        });
-    });
-    return fnc(keySSI, authToken, callback);
-};
-
-/**
- * Get the latest version only
- * @param {keySSI} keySSI
- * @param {string} authToken
- * @param {function} callback
- */
-const getLastVersion = (keySSI, authToken, callback) => {
-    const fnc = buildGetVersionFunction((response) => {
-        return response.json().then(async (hlStrings) => {
-            if (!hlStrings || (Array.isArray(hlStrings) && !hlStrings.length)) {
-                //no version found
-                return undefined;
-            }
-            // We need the last two hash links in order to validate the last one
-            const hashLinks = hlStrings.slice(-2).map((hlString) => {
-                return keyssi.parse(hlString);
-            });
-
-            const latestHashLink = hashLinks.pop();
-            const prevHashLink = hashLinks.pop();
-
-            const validHL = verifySignature(keySSI, latestHashLink, prevHashLink);
-
-            if (!validHL) {
-                throw new Error('Failed to verify signature');
-            }
-
-            return latestHashLink;
-        });
-    });
-    return fnc(keySSI, authToken, callback);
+    const Aab = require('./anchoringAbstractBehaviour').AnchoringAbstractBehaviour;
+    return new Aab(persistenceStrategy);
 };
 
 /**
@@ -232,27 +127,14 @@ function createDigitalProof(SSICapableOfSigning, newSSIIdentifier, lastSSIIdenti
     });
 }
 
-const getObservable = (keySSI, fromVersion, authToken, timeout) => {
-    // TODO: to be implemented
-}
-
-
 const callContractMethod = (domain, method, ...args) => {
     const callback = args.pop();
     const contracts = require("opendsu").loadApi("contracts");
     contracts.callContractMethod(domain, "anchoring", method, args, callback);
 }
 
-const createAnchor = (dsuKeySSI, callback) => {
-    addVersion(dsuKeySSI, callback)
-}
-
 const createNFT = (nftKeySSI, callback) => {
     addVersion(nftKeySSI, callback)
-}
-
-const appendToAnchor = (dsuKeySSI, newShlSSI, previousShlSSI, zkpValue, callback) => {
-    addVersion(dsuKeySSI, newShlSSI, previousShlSSI, zkpValue, callback)
 }
 
 const transferTokenOwnership = (nftKeySSI, ownershipSSI, callback) => {

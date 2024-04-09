@@ -1,4 +1,3 @@
-const constants = require("../moduleConstants");
 const PendingCallMixin = require("../utils/PendingCallMixin");
 const getBaseURL = require("../utils/getBaseURL");
 
@@ -93,22 +92,6 @@ function BDNS() {
     this.getMQEndpoints = (dlDomain, callback) => {
         getSection(dlDomain, "mqEndpoints", callback);
     }
-
-    this.addRawInfo = (dlDomain, rawInfo) => {
-        console.warn("This function is obsolete. Doing nothing");
-    };
-
-    this.addAnchoringServices = (dlDomain, anchoringServices) => {
-        console.warn("This function is obsolete. Doing nothing");
-    };
-
-    this.addBrickStorages = (dlDomain, brickStorages) => {
-        console.warn("This function is obsolete. Doing nothing");
-    };
-
-    this.addReplicas = (dlDomain, replicas) => {
-        console.warn("This function is obsolete. Doing nothing");
-    };
 
     this.setBDNSHosts = (bdnsHosts) => {
         isInitialized = true;

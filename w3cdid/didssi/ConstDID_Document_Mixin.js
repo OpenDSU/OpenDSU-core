@@ -12,7 +12,6 @@ function ConstDID_Document_Mixin(target, enclave, domain, name, isInitialisation
     observableMixin(target);
 
     const openDSU = require("opendsu");
-    const dbAPI = openDSU.loadAPI("db");
     const scAPI = openDSU.loadAPI("sc");
     const crypto = openDSU.loadAPI("crypto");
     const keySSISpace = openDSU.loadAPI("keyssi");

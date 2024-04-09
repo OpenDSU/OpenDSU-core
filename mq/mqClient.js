@@ -14,7 +14,7 @@ function send(keySSI, message, callback) {
         let url = endpoints[0] + `/mq/send-message/${keySSI}`;
         let options = { body: message };
 
-        let request = http.poll(url, options, timeout);
+        let request = http.poll(url, options);
 
         request.then((response) => {
             callback(undefined, response);
@@ -26,7 +26,7 @@ function send(keySSI, message, callback) {
 
 let requests = {};
 
-function getHandler(keySSI, timeout) {
+function getHandler(keySSI, timeout, callback) {
     console.log("getHandler method from OpenDSU.loadApi('mq') is absolute. Adapt your code to use the new getMQHandlerForDID");
     let obs = require("../utils/observable").createObservable();
     bdns.getMQEndpoints(keySSI, (err, endpoints) => {
@@ -35,12 +35,11 @@ function getHandler(keySSI, timeout) {
         }
 
         let createChannelUrl = endpoints[0] + `/mq/create-channel/${keySSI}`;
-        http.doPost(createChannelUrl, undefined, (err, response) => {
+        http.doPost(createChannelUrl, undefined, (err) => {
             if (err) {
                 if (err.statusCode === 409) {
                     //channels already exists. no problem :D
                 } else {
-                    get
                     obs.dispatch("error", err);
                     return;
                 }
@@ -332,7 +331,7 @@ function MQHandler(didDocument, domain, pollingTimeout) {
                         method: "DELETE",
                         headers: { "x-mq-authorization": token }
                     })
-                        .then(response => callback())
+                        .then(() => callback())
                         .catch(e => callback(e));
                 });
             });

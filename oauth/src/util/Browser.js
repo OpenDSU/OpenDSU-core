@@ -18,23 +18,6 @@ function parseUrlParams(value) {
 }
 
 
-function parseUrlParamsFallback(value) {
-    const urlParams = {};
-    const a = /\+/g;
-    const r = /([^&;=]+)=?([^&;]*)/g;
-    const decode = function (s) {
-        return decodeURIComponent(s.replace(a, " "))
-    };
-
-    let search;
-    while (search = r.exec(value)) {
-        urlParams[decode(search[1])] = decode(search[2]);
-    }
-
-    return urlParams;
-}
-
-
 function getCurrentLocation() {
     return location.href.substring(location.origin.length)
 }

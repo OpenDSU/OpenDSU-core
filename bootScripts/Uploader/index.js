@@ -292,10 +292,10 @@ Uploader.prototype.uploadFile = function (file, callback) {
                     }
                     return doWriting();
                 };
-                reader.onerror = function (e) {
+                reader.onerror = function () {
                     reader.abort();
                 };
-                reader.onabort = function (e) {
+                reader.onabort = function () {
                     return callback(reader.error);
                 };
                 reader.readAsDataURL(file);

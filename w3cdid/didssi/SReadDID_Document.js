@@ -12,7 +12,6 @@ function SReadDID_Document(enclave, isInitialisation, seedSSI) {
     const openDSU = require("opendsu");
     const keySSISpace = openDSU.loadAPI("keyssi");
     const resolver = openDSU.loadAPI("resolver");
-    const dbAPI = openDSU.loadAPI("db");
 
     const createSeedDSU = async () => {
         try {

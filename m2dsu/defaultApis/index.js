@@ -1,5 +1,4 @@
 const registry = require("../apisRegistry");
-const {dsuExists} = require("../../resolver");
 
 /*
 * based on jsonIndications Object {attributeName1: "DSU_file_path", attributeName2: "DSU_file_path"}
@@ -65,7 +64,7 @@ function promisifyDSUAPIs(dsu) {
     ];
 
     const promisifyHandler = {
-        get: function (target, prop, receiver) {
+        get: function (target, prop) {
             if (promisifyAPIs.indexOf(prop) !== -1) {
                 return $$.promisify(target[prop]);
             }
@@ -113,7 +112,7 @@ async function registerDSU(mappingInstance, dsu) {
     dsu.secretBatchId = batchId;
     mappingInstance.registeredDSUs.push(dsu);
     return promisifyDSUAPIs(dsu);
-};
+}
 
 registry.defineApi("testIfDSUExists", async function(keySSI, callback){
     const keySSISpace = require("opendsu").loadApi("keyssi");
@@ -205,7 +204,7 @@ registry.defineApi("createDSU", async function (domain, ssiType, options) {
     return await registerDSU(this, dsu);
 });
 
-registry.defineApi("createPathSSI", async function (domain, path, options) {
+registry.defineApi("createPathSSI", async function (domain, path) {
     const scAPI = require("opendsu").loadAPI("sc");
     let enclave;
     try{
