@@ -5,7 +5,6 @@ const dc = require("double-check");
 const assert = dc.assert;
 const openDSU = require('../../../index');
 $$.__registerModule("opendsu", openDSU);
-const keySSISpace = openDSU.loadAPI("keyssi");
 const resolver = openDSU.loadAPI("resolver");
 const fs = require("fs");
 const path = require("path");
@@ -27,9 +26,8 @@ assert.callback('load DSU in recovery mode test', (testFinished) => {
         await $$.promisify(seedDSU.writeFile)(FILEPATH, NEW_FILE_CONTENT);
         await seedDSU.commitBatchAsync();
         const dsuVersionHash = await $$.promisify(seedDSU.getLatestAnchoredHashLink)();
-        const anchorId = seedDSU.getAnchorIdSync();
         const brickHash = dsuVersionHash.getHash();
-        const brickPath = path.join(folder, "external-volume", "domains", DOMAIN, "brick-storage", brickHash.slice(0, 5), brickHash);
+        const brickPath = path.join(folder, "external-volume", "domains", DOMAIN, "brick-storage", brickHash.slice(0, 2), brickHash);
         fs.appendFileSync(brickPath, "something");
         //console.log(fs.readFileSync(brickPath).toString());
         // let dsuVersionFileContent = await $$.promisify(dsuVersion.readFile)(FILEPATH);

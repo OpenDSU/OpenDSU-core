@@ -58,12 +58,16 @@ assert.callback("Test API keys", async (callback) => {
     });
     const url = `http://localhost:${port}`;
     const client = apiKeyAPIs.getAPIKeysClient(url);
-    const apiKey = generateEncryptionKey();
     const authorization = `Bearer user1:${crypto.sha256JOSE("password1").toString("hex")}`
     const headers = {
         "Authorization": authorization
     }
-    await client.becomeSysAdmin(apiKey, headers);
+    const body = {
+        apiKey: crypto.sha256JOSE(crypto.generateRandom(32), "base64"),
+        secret: crypto.sha256JOSE(crypto.generateRandom(32), "base64")
+
+    }
+    await client.becomeSysAdmin(JSON.stringify(body), headers);
     await client.makeSysAdmin("usr2@example.com", generateEncryptionKey(), headers);
     let newAPIKey = generateEncryptionKey();
     await client.associateAPIKey("appName", "name", "usr3@example.com", newAPIKey, headers);

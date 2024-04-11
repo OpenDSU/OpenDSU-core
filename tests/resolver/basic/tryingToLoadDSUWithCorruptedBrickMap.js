@@ -29,12 +29,11 @@ assert.callback('Loading dsu with corrupted brickmap test', (testFinished) => {
             brickMapLastHashLinkSSI = keySSISpace.parse(brickMapLastHashLinkSSI);
         }
         const brickHash = brickMapLastHashLinkSSI.getHash();
-        const brickMapLastVersionPath = path.join(folder, "external-volume", "domains", DOMAIN, "brick-storage", brickHash.substring(0, 5), brickHash);
+        const brickMapLastVersionPath = path.join(folder, "external-volume", "domains", DOMAIN, "brick-storage", brickHash.substring(0, 2), brickHash);
         fs.unlinkSync(brickMapLastVersionPath);
-        let secondDSUInstance;
         let error;
         try {
-            secondDSUInstance = await $$.promisify(resolver.loadDSU)(keySSI);
+            await $$.promisify(resolver.loadDSU)(keySSI);
         } catch (e) {
             error = e;
         }
