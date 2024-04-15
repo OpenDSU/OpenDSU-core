@@ -13,7 +13,7 @@ assert.callback('Verify error messages test', (callback) => {
   }
   const result = errorSpace.createOpenDSUErrorWrapper('This error happened', e);
 
-  errorSpace.observeUserRelevantMessages('error', (message) => {
+  errorSpace.observeUserRelevantMessages('error', () => {
     callback();
   });
   errorSpace.reportUserRelevantError('reportUserRelevantError message', result);

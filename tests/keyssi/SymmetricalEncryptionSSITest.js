@@ -2,12 +2,9 @@ require('../../../../builds/output/testsRuntime');
 
 const assert = require('double-check').assert;
 const keySSISpace = require('../../keyssi');
-const crypto = require('../../crypto');
 
 assert.callback('Test SymmetricalEncryptionSSI ', (callback) => {
     const seSSI = keySSISpace.buildSymmetricalEncryptionSSI('default', 'encryptionKey', 'control', 'vn');
-
-    const hint = seSSI.getHint();
     const type = seSSI.getTypeName();
     const DLDomain = seSSI.getDLDomain();
 

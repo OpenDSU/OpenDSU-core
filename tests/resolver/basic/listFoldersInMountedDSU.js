@@ -5,16 +5,12 @@ const dc = require("double-check");
 const assert = dc.assert;
 const openDSU = require('../../../index');
 $$.__registerModule("opendsu", openDSU);
-const keySSISpace = openDSU.loadAPI("keyssi");
 const resolver = openDSU.loadAPI("resolver");
 const DOMAIN = "default";
 const MOUNT_POINT = "/mountPoint";
 const DIR = `${MOUNT_POINT}/subfolder`
 const FILEPATH = `${DIR}/file1`;
 const FILEPATH2 = `${DIR}/folder2/file2`;
-const FILEPATH3 = "/folder/file3";
-const INITIAL_FILE_CONTENT = "some content";
-const NEW_FILE_CONTENT = "some other content";
 const NEW_FILE_CONTENT2 = "some other content2";
 assert.callback('List folders in mounted DSU test', (testFinished) => {
     dc.createTestFolder('loadDSUVersion', async (err, folder) => {

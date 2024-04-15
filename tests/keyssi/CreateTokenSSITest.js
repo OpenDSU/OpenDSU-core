@@ -4,7 +4,6 @@ const testIntegration = require("../../../../psknode/tests/util/tir");
 const dc = require("double-check");
 const assert = dc.assert;
 
-const resolver = require("../../resolver");
 const keySSI = require("../../keyssi");
 
 assert.callback(
@@ -22,7 +21,7 @@ assert.callback(
 
                 const domain = "default";
                 keySSI.createToken(domain, "SN", async (err, res) => {
-                    const { ownershipSSI, tokenSSI } = res;
+                    const {ownershipSSI, tokenSSI} = res;
 
                     assert.equal(ownershipSSI.getToken(), tokenSSI.getIdentifier());
                     assert.equal(tokenSSI.getSpecificString(), "SN");

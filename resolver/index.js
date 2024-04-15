@@ -386,6 +386,7 @@ const getDSUHandler = (dsuKeySSI) => {
     const syndicate = require("syndicate");
 
     function DSUHandler() {
+        let workerPool;
         switch ($$.environmentType) {
             case ENVIRONMENT_TYPES.SERVICE_WORKER_ENVIRONMENT_TYPE:
                 throw new Error(`service-worker environment is not supported!`);
@@ -521,10 +522,6 @@ const getDSUHandler = (dsuKeySSI) => {
     }
 
     return res;
-};
-
-const getRemoteHandler = (dsuKeySSI, remoteURL, presentation) => {
-    throw Error("Not available yet");
 };
 
 function invalidateDSUCache(dsuKeySSI, callback) {

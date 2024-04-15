@@ -5,11 +5,13 @@ class FsSVDStorage {
         this.persistence = FastSVD.createFSPersistence(directory);
         this.factory = new FastSVD.createFactory(this.persistence);
     }
+
     registerType(typeName, typeDescription) {
         this.factory.registerType(typeName, typeDescription);
     }
+
     createTransaction(callback) {
-        let t =  new FastSVD.createTransaction(this.factory);
+        let t = new FastSVD.createTransaction(this.factory);
         t.begin(callback);
     }
 }

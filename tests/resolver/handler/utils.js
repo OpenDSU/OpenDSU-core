@@ -51,10 +51,13 @@ function createDSU(domain, keySSICallback) {
     });
 }
 
-function testHandlerMethod(
-    { handlerMethod, handlerMethodArgs, dsuMethod, dsuMethodArgs, onCreatedDSU },
-    testFinishedCallback
-) {
+function testHandlerMethod({
+                               handlerMethod,
+                               handlerMethodArgs,
+                               dsuMethod,
+                               dsuMethodArgs,
+                               onCreatedDSU
+                           }, testFinishedCallback) {
     dc.createTestFolder("dsu", (err, folder) => {
         if (err) {
             throw err;
@@ -67,11 +70,13 @@ function testHandlerMethod(
             const domain = "default";
             createDSU(domain, (err, keySSI) => {
                 const executeDSUCommands = () => {
-                    loadDSUHandlerWithDSUMethod(
-                        err,
-                        { keySSI, handlerMethod, handlerMethodArgs, dsuMethod, dsuMethodArgs },
-                        testFinishedCallback
-                    );
+                    loadDSUHandlerWithDSUMethod(err, {
+                        keySSI,
+                        handlerMethod,
+                        handlerMethodArgs,
+                        dsuMethod,
+                        dsuMethodArgs
+                    }, testFinishedCallback);
                 };
 
                 if (typeof onCreatedDSU === "function") {
@@ -90,11 +95,13 @@ function testHandlerMethod(
     });
 }
 
-function loadDSUHandlerWithDSUMethod(
-    err,
-    { keySSI, handlerMethod, handlerMethodArgs, dsuMethod, dsuMethodArgs },
-    testFinishedCallback
-) {
+function loadDSUHandlerWithDSUMethod(err, {
+    keySSI,
+    handlerMethod,
+    handlerMethodArgs,
+    dsuMethod,
+    dsuMethodArgs
+}, testFinishedCallback) {
     dsuMethod = dsuMethod || handlerMethod;
     dsuMethodArgs = dsuMethodArgs || handlerMethodArgs;
     if (err) {
@@ -112,11 +119,11 @@ function loadDSUHandlerWithDSUMethod(
                 throw err;
             }
 
-            loadedDSUCallback = (error, loadedDSUResponse) => {
+            const loadedDSUCallback = (error, loadedDSUResponse) => {
                 if (error) {
                     throw error;
                 }
-                testFinishedCallback(handlerResponse, loadedDSUResponse, { dsu });
+                testFinishedCallback(handlerResponse, loadedDSUResponse, {dsu});
             };
 
             dsu[dsuMethod].apply(null, [...dsuMethodArgs, loadedDSUCallback]);
@@ -131,8 +138,5 @@ function isHashLinkSSI(result) {
 }
 
 module.exports = {
-    createTestFolderWithDSU,
-    createDSU,
-    testHandlerMethod,
-    isHashLinkSSI
+    createTestFolderWithDSU, createDSU, testHandlerMethod, isHashLinkSSI
 };

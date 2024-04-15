@@ -5,8 +5,6 @@ const dc = require("double-check");
 const assert = dc.assert;
 const openDSU = require('../../index');
 $$.__registerModule("opendsu", openDSU);
-const keySSI = openDSU.loadAPI("keyssi");
-const resolver = openDSU.loadAPI("resolver");
 const scAPI = openDSU.loadAPI("sc");
 const w3cDID = openDSU.loadAPI("w3cdid");
 
@@ -21,7 +19,10 @@ assert.callback('key DID SSI test', (testFinished) => {
                 "option": {}
             }
         }
-        await tir.launchConfigurableApiHubTestNodeAsync({domains: [{name: "vault", config: vaultDomainConfig}], rootFolder: folder});
+        await tir.launchConfigurableApiHubTestNodeAsync({
+            domains: [{name: "vault", config: vaultDomainConfig}],
+            rootFolder: folder
+        });
         sc = scAPI.getSecurityContext();
         sc.on("initialised", async () => {
             try {

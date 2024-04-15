@@ -26,7 +26,7 @@ function launchApiHubAndCreateDIDs(callback) {
                 try {
                     const issuerDidDocument = await $$.promisify(w3cDID.createIdentity)('ssi:name', domain, "issuerPublicName");
                     const subjectDidDocument = await $$.promisify(w3cDID.createIdentity)('ssi:name', domain, "subjectPublicName");
-                    callback(undefined, { issuerDidDocument, subjectDidDocument });
+                    callback(undefined, {issuerDidDocument, subjectDidDocument});
                 } catch (e) {
                     callback(e);
                 }

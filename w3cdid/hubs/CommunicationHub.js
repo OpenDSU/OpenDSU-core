@@ -12,7 +12,7 @@ function CommunicationHub() {
 
     const ensureDIDDocumentIsLoadedThenExecute = (did, fnToExecute) => {
         if (typeof did === "string") {
-            if(didDocuments[did]){
+            if (didDocuments[did]) {
                 return fnToExecute(undefined, didDocuments[did]);
             }
             return didAPI.resolveDID(did, (err, resolvedDID) => {
@@ -27,7 +27,7 @@ function CommunicationHub() {
             });
         }
         let identifier = did.getIdentifier();
-        if(!didDocuments[identifier]){
+        if (!didDocuments[identifier]) {
             didDocuments[identifier] = did;
         }
         fnToExecute(undefined, didDocuments[identifier]);
@@ -47,7 +47,7 @@ function CommunicationHub() {
                     try {
                         message = JSON.parse(message);
                     } catch (e) {
-                        pubSub.publish(getChannelName(did, ERROR_CHANNEL), {err:e, message});
+                        pubSub.publish(getChannelName(did, ERROR_CHANNEL), {err: e, message});
                         console.error(e);
                         return;
                     }
@@ -175,20 +175,20 @@ function CommunicationHub() {
         return strongPubSub;
     }
 
-    this.stop = (did)=>{
-        ensureDIDDocumentIsLoadedThenExecute(did, (err, didDocument)=>{
-                didDocument.stopWaitingForMessages();
+    this.stop = (did) => {
+        ensureDIDDocumentIsLoadedThenExecute(did, (err, didDocument) => {
+            didDocument.stopWaitingForMessages();
         });
     }
 
-    this.registerErrorHandler = (did, handler)=>{
-        ensureDIDDocumentIsLoadedThenExecute(did, (err, didDocument)=>{
+    this.registerErrorHandler = (did, handler) => {
+        ensureDIDDocumentIsLoadedThenExecute(did, (err, didDocument) => {
             pubSub.subscribe(getChannelName(didDocument, ERROR_CHANNEL), handler);
         });
     }
 
     this.unRegisterErrorHandler = (did, handler) => {
-        ensureDIDDocumentIsLoadedThenExecute(did, (err, didDocument)=>{
+        ensureDIDDocumentIsLoadedThenExecute(did, (err, didDocument) => {
             pubSub.unsubscribe(getChannelName(didDocument, ERROR_CHANNEL), handler);
         });
     }

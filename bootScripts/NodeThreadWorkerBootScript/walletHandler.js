@@ -89,7 +89,6 @@ const appendToDSU = async (wallet, request, response) => {
     let buffer = Buffer.alloc(0);
 
     let sizeSSI;
-    let needToAppendToLastBrick = false;
     if (bricksMeta && bricksMeta.length && bricksMeta[0].size) {
         try {
             sizeSSI = keyssiApi.parse(bricksMeta[0].size);
@@ -99,7 +98,6 @@ const appendToDSU = async (wallet, request, response) => {
         if (sizeSSI && isAvailableSpaceInLastBrick(sizeSSI)) {
             // we need to load the last brick and append it to the initially read buffer
             // so that we can overwrite the last brick from the file
-            needToAppendToLastBrick = true;
             const brickingApi = require("opendsu").loadApi("bricking");
             let lastBrickHashLink = bricksMeta[bricksMeta.length - 1].hashLink;
             try {

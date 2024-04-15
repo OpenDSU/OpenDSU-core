@@ -333,8 +333,8 @@ Uploader.prototype.uploadFile = function (file, callback) {
 Uploader.prototype.upload = function (request, callback) {
     if (IS_NODE_ENV) {
         this.isMultipartUpload =
-            typeof body === "object" &&
-            !(body instanceof ArrayBuffer) &&
+            typeof request.body === "object" &&
+            !(request.body instanceof ArrayBuffer) &&
             request.headers["content-type"] &&
             request.headers["content-type"].indexOf("text/plain") === -1;
     } else {

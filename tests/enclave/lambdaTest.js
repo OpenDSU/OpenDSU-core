@@ -4,10 +4,6 @@ const tir = require("../../../../psknode/tests/util/tir");
 const dc = require("double-check");
 const assert = dc.assert;
 const openDSU = require("opendsu");
-const path = require("path");
-const fs = require("fs");
-
-const scAPI = openDSU.loadApi("sc");
 const w3cDID = openDSU.loadAPI("w3cdid");
 const enclaveAPI = openDSU.loadApi("enclave");
 

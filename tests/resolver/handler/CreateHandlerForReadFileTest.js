@@ -3,7 +3,7 @@ require("../../../../../builds/output/testsRuntime");
 const dc = require("double-check");
 const assert = dc.assert;
 
-const { testHandlerMethod } = require("./utils");
+const {testHandlerMethod} = require("./utils");
 $$.LEGACY_BEHAVIOUR_ENABLED = true;
 assert.callback(
     "getHandler readFile",
@@ -13,7 +13,7 @@ assert.callback(
                 handlerMethod: "readFile",
                 handlerMethodArgs: ["dummy.txt"],
                 onCreatedDSU: (dsu, callback) => {
-                    dsu.writeFile("dummy.txt", "dummy-content", (err, result) => {
+                    dsu.writeFile("dummy.txt", "dummy-content", (err) => {
                         if (err) {
                             throw err;
                         }

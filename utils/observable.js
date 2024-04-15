@@ -1,7 +1,7 @@
-module.exports.createObservable = function(){
-	let observableMixin = require("./ObservableMixin");
-	let obs = {};
+module.exports.createObservable = function () {
+    let observableMixin = require("./ObservableMixin");
+    let obs = {};
 
-	observableMixin(obs);
-	return obs;
+    observableMixin(obs);
+    return obs;
 }

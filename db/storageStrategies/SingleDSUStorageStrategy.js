@@ -530,7 +530,7 @@ function SingleDSUStorageStrategy(recordStorageStrategy) {
         }
 
         const recordPath = getRecordPath(tableName, key);
-        recordStorageStrategy.storeRecord(recordPath, newRecord, oldRecord, function (err, res) {
+        recordStorageStrategy.storeRecord(recordPath, newRecord, oldRecord, function (err) {
             if (err) {
                 return callback(createOpenDSUErrorWrapper(`Failed to update record in ${recordPath}`, err));
             }

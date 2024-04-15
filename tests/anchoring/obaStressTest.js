@@ -35,12 +35,12 @@ async function createNewVersionForAnchor(seedSSI, brickMapHash = "hash1", previo
 
 
 assert.callback('key DID SSI test', (testFinished) => {
-    dc.createTestFolder('createDSU', async (err, folder) => {
+    dc.createTestFolder('createDSU', async () => {
         const domainConfig = {
             "anchoring": {
                 "type": "OBA",
                 "option": {
-                    endpoint:"http://localhost:3000"
+                    endpoint: "http://localhost:3000"
                 }
             }
         }
@@ -60,9 +60,10 @@ assert.callback('key DID SSI test', (testFinished) => {
             try {
                 await $$.promisify(anchoringX.createAnchor)(anchorId, anchorVersion);
                 taskCounter.decrement();
-            }catch (e) {
+            } catch (e) {
                 console.log(e);
             }
         }
+        testFinished();
     });
 }, 10000000);

@@ -2,7 +2,7 @@ require("../../../../../builds/output/testsRuntime");
 const {getNonEncryptedAndEncryptedDSUTester} = require("./utils");
 $$.LEGACY_BEHAVIOUR_ENABLED = true;
 const dc = require("double-check");
-const { assert } = dc;
+const {assert} = dc;
 const crypto = require("crypto");
 
 assert.callback(

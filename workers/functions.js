@@ -1,4 +1,4 @@
-function runSyncFunction({ apiSpaceName, functionName, params }) {
+function runSyncFunction({apiSpaceName, functionName, params}) {
     const openDSU = require("opendsu");
     const api = openDSU.loadAPI(apiSpaceName);
 
@@ -9,8 +9,8 @@ function runSyncFunction({ apiSpaceName, functionName, params }) {
     return api[functionName].apply(undefined, params);
 }
 
-function runSyncFunctionOnlyFromWorker({ apiSpaceName, functionName, params }) {
-    return runSyncFunction({ apiSpaceName, functionName, params })
+function runSyncFunctionOnlyFromWorker({apiSpaceName, functionName, params}) {
+    return runSyncFunction({apiSpaceName, functionName, params})
 }
 
 module.exports = {

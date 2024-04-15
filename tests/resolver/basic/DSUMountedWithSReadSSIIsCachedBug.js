@@ -85,7 +85,7 @@ async function loadDSU(...args) {
 function createKeySSI(domain) {
     domain = domain || 'default';
     return new Promise((resolve, reject) => {
-        keySSI.createTemplateSeedSSI('default', (err, templateKeySSI) => {
+        keySSI.createTemplateSeedSSI(domain, (err, templateKeySSI) => {
             if (err) {
                 return reject(err);
             }

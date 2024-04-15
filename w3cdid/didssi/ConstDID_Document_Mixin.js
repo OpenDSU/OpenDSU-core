@@ -71,7 +71,7 @@ function ConstDID_Document_Mixin(target, enclave, domain, name, isInitialisation
             const mountError = createOpenDSUErrorWrapper(`Failed to mount writable DSU`, e);
             try {
                 await constDSU.cancelBatchAsync();
-            }catch (error) {
+            } catch (error) {
                 return target.dispatchEvent("error", createOpenDSUErrorWrapper(`Failed to cancel batch in Const DSU`, error));
             }
             return target.dispatchEvent("error", mountError);
@@ -165,7 +165,7 @@ function ConstDID_Document_Mixin(target, enclave, domain, name, isInitialisation
                     const writeError = createOpenDSUErrorWrapper(`Failed to add public key for did ${target.getIdentifier()}`, err);
                     try {
                         await target.dsu.cancelBatchAsync(batchId);
-                    }catch (e) {
+                    } catch (e) {
                         //not that relevant
                         //return callback(createOpenDSUErrorWrapper(`Failed to cancel batch`, e, writeError));
                         console.log(e);

@@ -76,7 +76,7 @@ assert.callback("Create and verify valid JWT and rootOfTrustVerificationStrategy
                     }
                     return callback(null, true);
                 },
-                (verifyError, verifyResult) => {
+                (verifyError) => {
                     assert.notNull(verifyError);
                     assert.equal(verifyError, JWT_ERRORS.ROOT_OF_TRUST_VERIFICATION_FAILED);
                     callback();
@@ -95,7 +95,7 @@ assert.callback("Create and verify invalid JWT test", (callback) => {
             if (error) throw error;
 
             const invalidJwt = jwt + "invalid";
-            crypto.verifyJWT(invalidJwt, null, (verifyError, verifyResult) => {
+            crypto.verifyJWT(invalidJwt, null, (verifyError) => {
                 assert.notNull(verifyError);
                 assert.equal(verifyError, JWT_ERRORS.INVALID_JWT_SIGNATURE);
                 callback();
@@ -125,7 +125,7 @@ assert.callback("Create and verify invalid JWT (someone modifies the payload) te
                     const secondJwtSignature = jwt2.substr(jwt.lastIndexOf(".") + 1);
                     const invalidJwt = `${firstJwtPayload}${secondJwtSignature}`;
 
-                    crypto.verifyJWT(invalidJwt, null, (verifyError, verifyResult) => {
+                    crypto.verifyJWT(invalidJwt, null, (verifyError) => {
                         assert.notNull(verifyError);
                         callback();
                     });
@@ -268,7 +268,7 @@ assert.callback("verifyAuthToken with invalid issuer test", (callback) => {
                 crypto.createAuthToken(seedSSI2, "scope1", credentialJwt, (error, authToken) => {
                     if (error) throw error;
 
-                    crypto.verifyAuthToken(authToken, ["INEXISTING_VERIFIER"], (verifyError, verifyResult) => {
+                    crypto.verifyAuthToken(authToken, ["INEXISTING_VERIFIER"], (verifyError) => {
                         assert.notNull(verifyError);
                         return callback();
                     });

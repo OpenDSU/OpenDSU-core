@@ -15,7 +15,7 @@ assert.callback('Trying to create a new anchor for an existing SeedDSU', (testFi
             }
 
             const domain = 'default';
-            createDSU(domain, (err, keySSI, dsuHashLink) => {
+            createDSU(domain, (err) => {
                 assert.true(typeof err !== "undefined", "Expected error when trying to create an existing DSU");
                 testFinished();
             });

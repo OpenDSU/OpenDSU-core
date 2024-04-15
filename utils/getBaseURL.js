@@ -1,6 +1,7 @@
 const constants = require("../moduleConstants");
 const system = require("../system");
-function getBaseURL(){
+
+function getBaseURL() {
     switch ($$.environmentType) {
         case constants.ENVIRONMENT_TYPES.SERVICE_WORKER_ENVIRONMENT_TYPE:
             let scope = self.registration.scope;
@@ -8,14 +9,14 @@ function getBaseURL(){
             let parts = scope.split("/");
             return `${parts[0]}//${parts[2]}`;
 
-        case constants.ENVIRONMENT_TYPES.BROWSER_ENVIRONMENT_TYPE:            
+        case constants.ENVIRONMENT_TYPES.BROWSER_ENVIRONMENT_TYPE:
             const protocol = window.location.protocol;
             const host = window.location.hostname;
             const port = window.location.port;
 
             return `${protocol}//${host}:${port}`;
 
-        case constants.ENVIRONMENT_TYPES.WEB_WORKER_ENVIRONMENT_TYPE:            
+        case constants.ENVIRONMENT_TYPES.WEB_WORKER_ENVIRONMENT_TYPE:
             return self.location.origin;
 
         case constants.ENVIRONMENT_TYPES.NODEJS_ENVIRONMENT_TYPE:

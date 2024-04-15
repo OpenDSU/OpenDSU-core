@@ -188,7 +188,7 @@ function GroupDID_Document(enclave, domain, groupName, isInitialisation) {
                     });
                 }
 
-                return this.dsu.startOrAttachBatch( (err, batchId) => {
+                return this.dsu.startOrAttachBatch((err, batchId) => {
                     if (err) {
                         return callback(err);
                     }
@@ -196,9 +196,9 @@ function GroupDID_Document(enclave, domain, groupName, isInitialisation) {
                     this.dsu.writeFile(MEMBERS_FILE, JSON.stringify(members), async err => {
                         if (err) {
                             const writeError = createOpenDSUErrorWrapper(`Failed to write members`, err);
-                            try{
+                            try {
                                 await this.dsu.cancelBatchAsync(batchId);
-                            }catch (e) {
+                            } catch (e) {
                                 //not that relevant
                                 //return callback(createOpenDSUErrorWrapper(`Failed to cancel batch`, e, writeError));
                                 console.log(e);

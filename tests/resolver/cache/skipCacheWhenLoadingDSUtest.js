@@ -1,4 +1,4 @@
-const { promisify } = require('util');
+const {promisify} = require('util');
 require("../../../../../builds/output/testsRuntime");
 const testIntegration = require("../../../../../psknode/tests/util/tir");
 
@@ -13,7 +13,7 @@ const _loadDSU = promisify(resolver.loadDSU);
 $$.LEGACY_BEHAVIOUR_ENABLED = true;
 assert.callback('LoadDSUSkipCacheTest', (testfinished) => {
 
-    dc.createTestFolder('loadDSUSkipCache',(err,folder) => {
+    dc.createTestFolder('loadDSUSkipCache', (err, folder) => {
         testIntegration.launchApiHubTestNode(10, folder, async (err) => {
             if (err) {
                 throw err;
@@ -28,7 +28,7 @@ assert.callback('LoadDSUSkipCacheTest', (testfinished) => {
             assert.true(firstParentInstance === secondParentInstance, "Same DSU instance is returned when cached");
 
             // Test that a different instance is returned when loading DSU with skipCache option
-            secondParentInstance = await loadDSU(parentKeySSI, { skipCache: true });
+            secondParentInstance = await loadDSU(parentKeySSI, {skipCache: true});
             assert.true(firstParentInstance !== secondParentInstance, "Different DSU instance is returned when cache is skipped");
 
             // Test the the "skipCache" option is propagated to dsu mounts

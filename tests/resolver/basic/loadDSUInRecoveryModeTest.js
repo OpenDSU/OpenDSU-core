@@ -17,7 +17,7 @@ $$.BRICK_CACHE_ENABLED = false;
 assert.callback('load DSU in recovery mode test', (testFinished) => {
     dc.createTestFolder('loadDSUVersion', async (err, folder) => {
         await tir.launchConfigurableApiHubTestNodeAsync({rootFolder: folder});
-        const seedDSU = await $$.promisify(resolver.createSeedDSU)(DOMAIN, );
+        const seedDSU = await $$.promisify(resolver.createSeedDSU)(DOMAIN,);
         const keySSI = await $$.promisify(seedDSU.getKeySSIAsObject)();
         await seedDSU.safeBeginBatchAsync()
         await $$.promisify(seedDSU.writeFile)(FILEPATH, INITIAL_FILE_CONTENT);

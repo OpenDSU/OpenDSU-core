@@ -16,7 +16,10 @@ assert.callback('WalletDBEnclave test', (testFinished) => {
                 "option": {}
             }
         }
-        await tir.launchConfigurableApiHubTestNodeAsync({domains: [{name: "vault", config: vaultDomainConfig}], rootFolder: folder});
+        await tir.launchConfigurableApiHubTestNodeAsync({
+            domains: [{name: "vault", config: vaultDomainConfig}],
+            rootFolder: folder
+        });
         const sc = scAPI.getSecurityContext();
         sc.on("initialised", async () => {
             const walletDBEnclave = enclaveAPI.initialiseWalletDBEnclave();
@@ -25,18 +28,17 @@ assert.callback('WalletDBEnclave test', (testFinished) => {
                 const addedRecord = {data: 1};
                 await $$.promisify(walletDBEnclave.insertRecord)("some_did", TABLE, "pk1", addedRecord);
                 const record = await $$.promisify(walletDBEnclave.getRecord)("some_did", TABLE, "pk1");
-                const tables = await $$.promisify(walletDBEnclave.getAllTableNames)("some_did");
                 assert.objectsAreEqual(record, addedRecord, "Records do not match");
                 let error;
                 let versionlessEnclave;
                 [error, versionlessEnclave] = await $$.call(enclaveAPI.convertWalletDBEnclaveToVersionlessEnclave, walletDBEnclave);
-                if(error){
+                if (error) {
                     throw error;
                 }
 
                 let versionlessEnclaveRecord;
                 [error, versionlessEnclaveRecord] = await $$.call(versionlessEnclave.getRecord, "some_did", TABLE, "pk1");
-                if(error){
+                if (error) {
                     throw error;
                 }
 

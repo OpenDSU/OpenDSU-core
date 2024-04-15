@@ -9,14 +9,14 @@ switch ($$.environmentType) {
     case constants.ENVIRONMENT_TYPES.WEB_WORKER_ENVIRONMENT_TYPE:
     case constants.ENVIRONMENT_TYPES.SERVICE_WORKER_ENVIRONMENT_TYPE:
         if (typeof self !== "undefined") {
-            if(!self.PREVENT_DOUBLE_LOADING_OF_OPENDSU) {
+            if (!self.PREVENT_DOUBLE_LOADING_OF_OPENDSU) {
                 self.PREVENT_DOUBLE_LOADING_OF_OPENDSU = {}
             }
         }
         break;
     case constants.ENVIRONMENT_TYPES.BROWSER_ENVIRONMENT_TYPE:
         if (typeof window !== "undefined") {
-            if(!window.PREVENT_DOUBLE_LOADING_OF_OPENDSU){
+            if (!window.PREVENT_DOUBLE_LOADING_OF_OPENDSU) {
                 window.PREVENT_DOUBLE_LOADING_OF_OPENDSU = {}
             }
         }
@@ -24,54 +24,86 @@ switch ($$.environmentType) {
     case constants.ENVIRONMENT_TYPES.NODEJS_ENVIRONMENT_TYPE:
     default:
         if (typeof global !== "undefined") {
-            if(!global.PREVENT_DOUBLE_LOADING_OF_OPENDSU){
+            if (!global.PREVENT_DOUBLE_LOADING_OF_OPENDSU) {
                 global.PREVENT_DOUBLE_LOADING_OF_OPENDSU = {}
             }
-            setImmediate(function(){
+            setImmediate(function () {
                 require("./w3cdid").initSystemDID();
             })
         }
 }
 
-if(!PREVENT_DOUBLE_LOADING_OF_OPENDSU.INITIALISED){
+if (!PREVENT_DOUBLE_LOADING_OF_OPENDSU.INITIALISED) {
     PREVENT_DOUBLE_LOADING_OF_OPENDSU.INITIALISED = true;
-    function loadApi(apiSpaceName){
+
+    function loadApi(apiSpaceName) {
         switch (apiSpaceName) {
-            case "http":return require("./http"); 
-            case "crypto":return require("./crypto"); 
-            case "apiKey":return require("./apiKey"); 
-            case "anchoring":return require("./anchoring"); 
-            case "contracts":return require("./contracts"); 
-            case "bricking":return require("./bricking"); 
-            case "bdns":return require("./bdns"); 
-            case "boot":return require("./boot"); 
-            case "dc":return require("./dc"); 
-            case "dt":return require("./dt"); 
-            case "enclave":return require("./enclave"); 
-            case "keyssi":return require("./keyssi"); 
-            case "mq":return require("./mq/mqClient"); 
-            case "notifications":return require("./notifications"); 
-            case "oauth":return require("./oauth"); 
-            case "resolver":return require("./resolver"); 
-            case "sc":return require("./sc"); 
-            case "cache":return require("./cache"); 
-            case "config":return require("./config"); 
-            case "system":return require("./system"); 
-            case "utils":return require("./utils"); 
-            case "db":return require("./db"); 
-            case "w3cdid":return require("./w3cdid"); 
-            case "error":return require("./error"); 
-            case "m2dsu":return require("./m2dsu"); 
-            case "workers":return require("./workers"); 
-            case "storage": return require("./storage"); 
-            case "credentials": return require("./credentials"); 
-            case "lock": return require("./lock"); 
-            case "svd": return require("./svd"); 
-            default: throw new Error("Unknown API space " + apiSpaceName);
+            case "http":
+                return require("./http");
+            case "crypto":
+                return require("./crypto");
+            case "apiKey":
+                return require("./apiKey");
+            case "anchoring":
+                return require("./anchoring");
+            case "contracts":
+                return require("./contracts");
+            case "bricking":
+                return require("./bricking");
+            case "bdns":
+                return require("./bdns");
+            case "boot":
+                return require("./boot");
+            case "dc":
+                return require("./dc");
+            case "dt":
+                return require("./dt");
+            case "enclave":
+                return require("./enclave");
+            case "keyssi":
+                return require("./keyssi");
+            case "mq":
+                return require("./mq/mqClient");
+            case "notifications":
+                return require("./notifications");
+            case "oauth":
+                return require("./oauth");
+            case "resolver":
+                return require("./resolver");
+            case "sc":
+                return require("./sc");
+            case "cache":
+                return require("./cache");
+            case "config":
+                return require("./config");
+            case "system":
+                return require("./system");
+            case "utils":
+                return require("./utils");
+            case "db":
+                return require("./db");
+            case "w3cdid":
+                return require("./w3cdid");
+            case "error":
+                return require("./error");
+            case "m2dsu":
+                return require("./m2dsu");
+            case "workers":
+                return require("./workers");
+            case "storage":
+                return require("./storage");
+            case "credentials":
+                return require("./credentials");
+            case "lock":
+                return require("./lock");
+            case "svd":
+                return require("./svd");
+            default:
+                throw new Error("Unknown API space " + apiSpaceName);
         }
     }
 
-     function setGlobalVariable(name, value){
+    function setGlobalVariable(name, value) {
         switch ($$.environmentType) {
             case constants.ENVIRONMENT_TYPES.WEB_WORKER_ENVIRONMENT_TYPE:
             case constants.ENVIRONMENT_TYPES.SERVICE_WORKER_ENVIRONMENT_TYPE:
@@ -98,7 +130,7 @@ if(!PREVENT_DOUBLE_LOADING_OF_OPENDSU.INITIALISED){
         }
     }
 
-    function getGlobalVariable(name){
+    function getGlobalVariable(name) {
         switch ($$.environmentType) {
             case constants.ENVIRONMENT_TYPES.WEB_WORKER_ENVIRONMENT_TYPE:
             case constants.ENVIRONMENT_TYPES.SERVICE_WORKER_ENVIRONMENT_TYPE:
@@ -111,7 +143,7 @@ if(!PREVENT_DOUBLE_LOADING_OF_OPENDSU.INITIALISED){
         }
     }
 
-    function globalVariableExists(name){
+    function globalVariableExists(name) {
         switch ($$.environmentType) {
             case constants.ENVIRONMENT_TYPES.WEB_WORKER_ENVIRONMENT_TYPE:
             case constants.ENVIRONMENT_TYPES.SERVICE_WORKER_ENVIRONMENT_TYPE:
@@ -130,9 +162,9 @@ if(!PREVENT_DOUBLE_LOADING_OF_OPENDSU.INITIALISED){
     PREVENT_DOUBLE_LOADING_OF_OPENDSU.setGlobalVariable = setGlobalVariable;
     PREVENT_DOUBLE_LOADING_OF_OPENDSU.getGlobalVariable = getGlobalVariable;
     PREVENT_DOUBLE_LOADING_OF_OPENDSU.constants = constants;
-    setGlobalVariable("setGlobalVariable",setGlobalVariable);
-    setGlobalVariable("getGlobalVariable",getGlobalVariable);
-    setGlobalVariable("globalVariableExists",globalVariableExists);
+    setGlobalVariable("setGlobalVariable", setGlobalVariable);
+    setGlobalVariable("getGlobalVariable", getGlobalVariable);
+    setGlobalVariable("globalVariableExists", globalVariableExists);
     require("./config/autoConfig");
 }
 module.exports = PREVENT_DOUBLE_LOADING_OF_OPENDSU;

@@ -31,10 +31,6 @@ function initialiseVersionlessDSUEnclave(versionlessSSI) {
     return new VersionlessDSUEnclave(versionlessSSI);
 }
 
-function connectEnclave(forDID, enclaveDID, ...args) {
-    throw Error("Not implemented");
-}
-
 const enclaveConstructors = {};
 
 function createEnclave(enclaveType, ...args) {
@@ -177,7 +173,6 @@ module.exports = {
     initialiseRemoteEnclave,
     initialiseCloudEnclaveClient,
     initialiseVersionlessDSUEnclave,
-    connectEnclave,
     createEnclave,
     registerEnclave,
     EnclaveMixin: require("./mixins/Enclave_Mixin"),

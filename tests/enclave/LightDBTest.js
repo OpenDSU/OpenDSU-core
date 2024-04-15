@@ -7,8 +7,6 @@ const openDSU = require('../../index');
 $$.__registerModule("opendsu", openDSU);
 const enclaveAPI = openDSU.loadAPI("enclave");
 const scAPI = openDSU.loadAPI("sc");
-const w3cDID = openDSU.loadAPI("w3cdid");
-
 
 assert.callback('Remote enclave test', (testFinished) => {
     dc.createTestFolder('createDSU', async (err, folder) => {
@@ -21,7 +19,10 @@ assert.callback('Remote enclave test', (testFinished) => {
         }
 
         const domain = "mqtestdomain";
-        await tir.launchConfigurableApiHubTestNodeAsync({domains: [{name: domain, config: vaultDomainConfig}], rootFolder: folder});
+        await tir.launchConfigurableApiHubTestNodeAsync({
+            domains: [{name: domain, config: vaultDomainConfig}],
+            rootFolder: folder
+        });
 
         const runAssertions = async () => {
             try {

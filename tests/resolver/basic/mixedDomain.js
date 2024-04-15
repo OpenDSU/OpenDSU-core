@@ -1,8 +1,7 @@
 require("../../../../../builds/output/testsRuntime");
-const keySSIResolver = require("key-ssi-resolver");
-const { BRICKS_DOMAIN_KEY } = require("../../../moduleConstants");
+const {BRICKS_DOMAIN_KEY} = require("../../../moduleConstants");
 const dc = require("double-check");
-const { assert } = dc;
+const {assert} = dc;
 
 const resolver = require("../../../resolver");
 const keySSI = require("../../../keyssi");
@@ -17,7 +16,7 @@ assert.callback("Resolver DSU Creation with different domains", (testFinishCallb
 
     (function initializeEnv() {
         dc.createTestFolder("wallet", function (err, folder) {
-            testIntegration.launchApiHubTestNode(10, folder, function (err, port) {
+            testIntegration.launchApiHubTestNode(10, folder, function (err) {
                 if (err) {
                     throw err;
                 }
@@ -34,7 +33,7 @@ assert.callback("Resolver DSU Creation with different domains", (testFinishCallb
         const defaultTemplate = keySSI.createTemplateSeedSSI(DOMAIN_1, undefined, undefined, 'v0', JSON.stringify(hintJSON));
         resolver.createDSU(defaultTemplate, (err, dsu) => {
             if (err) {
-               return console.log(err);
+                return console.log(err);
             }
 
             test(dsu)

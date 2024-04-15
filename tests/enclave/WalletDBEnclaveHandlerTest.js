@@ -18,13 +18,15 @@ assert.callback('WalletDBEnclaveHandler test', (testFinished) => {
                 "option": {}
             }
         }
-        await tir.launchConfigurableApiHubTestNodeAsync({domains: [{name: "vault", config: vaultDomainConfig}], rootFolder: folder});
+        await tir.launchConfigurableApiHubTestNodeAsync({
+            domains: [{name: "vault", config: vaultDomainConfig}],
+            rootFolder: folder
+        });
 
         const mainEnclave = enclaveAPI.initialiseWalletDBEnclave();
         mainEnclave.on("initialised", async () => {
             await $$.promisify(scAPI.setMainEnclave)(mainEnclave);
             const NO_PATH_KEY_SSIS = 30;
-            const mainEnclaveKeySSI = await $$.promisify(mainEnclave.getKeySSI)();
             const mainEnclaveDSU = await $$.promisify(mainEnclave.getDSU)();
             const enclaveHandler = new EnclaveHandler(mainEnclaveDSU, {maxNoScatteredKeys: 10});
             let expectedResult = {};

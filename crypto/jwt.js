@@ -299,7 +299,7 @@ const verifyJWT = ({jwt, rootOfTrustVerificationStrategy, verifySignature}, call
     });
 };
 
-const verifyDID_JWT = ({jwt, rootOfTrustVerificationStrategy, verifySignature}, callback) => {
+const verifyDID_JWT = ({jwt, rootOfTrustVerificationStrategy}, callback) => {
     parseJWTSegments(jwt, (parseError, jwtContent) => {
         if (parseError) return callback(parseError);
 

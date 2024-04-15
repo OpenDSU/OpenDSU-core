@@ -1,4 +1,4 @@
-function PollRequestManager(fetchFunction,  connectionTimeout = 10000, pollingTimeout = 1000){
+function PollRequestManager(fetchFunction,  connectionTimeout = 10000){
 
 	const requests = new Map();
 

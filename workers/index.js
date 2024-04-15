@@ -12,7 +12,7 @@ function getWebWorkerBootScript() {
                 })()
                 `
             ],
-            { type: "application/javascript" }
+            {type: "application/javascript"}
         )
     );
 }
@@ -51,7 +51,7 @@ function createPoolOfWebWorkers(options = {}) {
 
 function createPoolOfNodeWorkers(options = {}) {
     const worker_threads = "worker_threads";
-    const { isMainThread } = require(worker_threads);
+    const {isMainThread} = require(worker_threads);
 
     if (!isMainThread) {
         return;
@@ -61,7 +61,7 @@ function createPoolOfNodeWorkers(options = {}) {
 
     return require("syndicate").createWorkerPool({
         bootScript: getNodeWorkerBootScript(),
-        workerOptions: { eval: true },
+        workerOptions: {eval: true},
         ...options,
     });
 }
@@ -90,7 +90,7 @@ function callbackForWorker(callback) {
 
 function runTask(functionName, payload, callback) {
     // task is executed if there is a worker available
-    const isExecuted = this.workerPool.runTaskImmediately({ functionName, payload }, callbackForWorker(callback));
+    const isExecuted = this.workerPool.runTaskImmediately({functionName, payload}, callbackForWorker(callback));
 
     if (!isExecuted) {
         try {
@@ -104,7 +104,7 @@ function runTask(functionName, payload, callback) {
 
 function addTask(functionName, payload, callback) {
     // task is queued if there is no worker available
-    this.workerPool.addTask({ functionName, payload }, callbackForWorker(callback));
+    this.workerPool.addTask({functionName, payload}, callbackForWorker(callback));
 }
 
 
@@ -113,7 +113,7 @@ function addTask(functionName, payload, callback) {
  */
 class CrossEnvironmentWorkerPool {
     constructor(options) {
-        const { ENVIRONMENT_TYPES } = require("../moduleConstants.js");
+        const {ENVIRONMENT_TYPES} = require("../moduleConstants.js");
         this.workerPool = undefined;
         this.environmentType = undefined;
 
@@ -129,10 +129,14 @@ class CrossEnvironmentWorkerPool {
         }
     }
 
+    get environment() {
+        return this.environmentType;
+    }
+
     runSyncFunction(apiSpaceName, functionName, ...params) {
         const currentFunctionName = "runSyncFunction";
         const callback = params.pop();
-        const payload = { apiSpaceName, functionName, params };
+        const payload = {apiSpaceName, functionName, params};
 
         if (typeof callback !== 'function') {
             console.error(`[workers] function ${currentFunctionName} must receive a callback!`);
@@ -145,7 +149,7 @@ class CrossEnvironmentWorkerPool {
     runSyncFunctionOnlyByWorker(apiSpaceName, functionName, ...params) {
         const currentFunctionName = "runSyncFunctionOnlyFromWorker";
         const callback = params.pop();
-        const payload = { apiSpaceName, functionName, params };
+        const payload = {apiSpaceName, functionName, params};
 
         if (typeof callback !== 'function') {
             console.error(`[workers] function ${currentFunctionName} must receive a callback!`);
@@ -153,10 +157,6 @@ class CrossEnvironmentWorkerPool {
         }
 
         addTask.call(this, "runSyncFunctionOnlyFromWorker", payload, callback);
-    }
-
-    get environment() {
-        return this.environmentType;
     }
 }
 

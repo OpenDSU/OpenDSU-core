@@ -15,10 +15,10 @@ assert.callback('Writing DSU with SReadSSI via SC', (testFinished) => {
             if (err) {
                 throw err;
             }
-            const sc = openDSU.loadAPI("sc").getSecurityContext();
+            openDSU.loadAPI("sc").getSecurityContext();
             setTimeout(async () => {
                 const seedDSU = await $$.promisify(resolver.createSeedDSU)(domain);
-                const seedSSI = await $$.promisify(seedDSU.getKeySSIAsString)();
+                await $$.promisify(seedDSU.getKeySSIAsString)();
                 const mountedDSU = await $$.promisify(resolver.createSeedDSU)(domain);
                 const mountedDSUSeedSSI = await $$.promisify(mountedDSU.getKeySSIAsObject)();
                 const mountedDSUSreadSSI = await $$.promisify(mountedDSUSeedSSI.derive)();

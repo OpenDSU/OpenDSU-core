@@ -5,10 +5,7 @@ const dc = require("double-check");
 const assert = dc.assert;
 const openDSU = require('../../index');
 $$.__registerModule("opendsu", openDSU);
-const keySSISpace = openDSU.loadAPI("keyssi");
-const resolver = openDSU.loadAPI("resolver");
 const enclaveAPI = openDSU.loadAPI("enclave");
-const DOMAIN = "default";
 const FILEPATH = "/folder/file1";
 const INITIAL_FILE_CONTENT = "some content";
 const NEW_FILE_CONTENT = "some other content";
@@ -22,14 +19,14 @@ assert.callback('LightDBEnclave load DSU version test', (testFinished) => {
             "enable": ["enclave", "mq"]
         }
         const domain = "testdomain";
-        await tir.launchConfigurableApiHubTestNodeAsync({domains: [{name: domain, config: vaultDomainConfig}], rootFolder: folder});
+        await tir.launchConfigurableApiHubTestNodeAsync({
+            domains: [{name: domain, config: vaultDomainConfig}],
+            rootFolder: folder
+        });
 
         const DB_NAME = "test_db";
         const lightDBEnclaveClient = enclaveAPI.initialiseLightDBEnclave(DB_NAME)
-        const TABLE = "test_table";
-        const addedRecord = {data: 1};
         let seedDSU;
-        let loadedDSU;
         try {
             await $$.promisify(lightDBEnclaveClient.createDatabase)(DB_NAME);
             await $$.promisify(lightDBEnclaveClient.grantWriteAccess)($$.SYSTEM_IDENTIFIER);

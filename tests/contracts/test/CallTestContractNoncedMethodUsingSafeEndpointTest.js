@@ -5,7 +5,7 @@ const assert = dc.assert;
 
 const contracts = require("../../../contracts");
 
-const { launchApiHubTestNodeWithContractAsync } = require("../utils");
+const {launchApiHubTestNodeWithContractAsync} = require("../utils");
 
 assert.callback(
     "Call a nonced method using the opendsu contract's generateSafeCommand",

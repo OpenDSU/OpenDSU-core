@@ -5,8 +5,6 @@ const dc = require("double-check");
 const assert = dc.assert;
 
 const resolver = require('../../../resolver');
-const keySSI = require("../../../keyssi")
-
 
 assert.callback('Create DSU on already configured domain', (testfinished) => {
 
@@ -41,7 +39,7 @@ function createdsu(domain, keySSICallback) {
         }
 
         await dsu.safeBeginBatchAsync();
-        dsu.writeFile("somePath", "someText", async (err)=>{
+        dsu.writeFile("somePath", "someText", async (err) => {
             if (err) {
                 throw err;
             }

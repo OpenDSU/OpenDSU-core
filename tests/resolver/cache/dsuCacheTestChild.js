@@ -11,14 +11,14 @@ const resolver = opendsu.loadApi('resolver');
 const INFO_PATH = '/info';
 const STATUS_PATH = '/status';
 $$.LEGACY_BEHAVIOUR_ENABLED = true;
-const getShipment = function(id){
+const getShipment = function (id) {
     return {
         id: Math.floor(Math.random() * 10000000),
         orderId: id
     }
 }
 
-const createMockStatusDSU = function(status, callback){
+const createMockStatusDSU = function (status, callback) {
     const statuSSI = keyssi.createTemplateSeedSSI('default');
     resolver.createDSU(statuSSI, (err, shipmentDSU) => {
         if (err)
@@ -36,7 +36,7 @@ const createMockStatusDSU = function(status, callback){
     });
 }
 
-const createMockShipmentDSU = function(orderId, callback){
+const createMockShipmentDSU = function (orderId, callback) {
     const shipmentKey = keyssi.createTemplateSeedSSI('default');
     resolver.createDSU(shipmentKey, (err, shipmentDSU) => {
         if (err)
@@ -64,7 +64,7 @@ const createMockShipmentDSU = function(orderId, callback){
     });
 }
 
-const updateShipmentStatus = function(shipmentSSI, newStatus, callback){
+const updateShipmentStatus = function (shipmentSSI, newStatus, callback) {
     resolver.loadDSU(shipmentSSI, (err, shipmentDsu) => {
         if (err)
             return callback(err);
@@ -108,14 +108,14 @@ const updateShipmentStatus = function(shipmentSSI, newStatus, callback){
 process.on('message', (args) => {
     const {id, terminate, updates, updateTimeout} = args;
 
-    if (terminate){
+    if (terminate) {
         console.log(`SENDER: Received termination notice. Shutting down listener due to: ${terminate}`);
         process.exit(0);
     }
 
     createMockShipmentDSU(id, (err, shipmentSSI) => {
         if (err)
-            return callback(err);
+            return process.send({err})
         shipmentSSI.derive((err, shipmentReadSSI) => {
             if (err) {
                 return process.send({err})

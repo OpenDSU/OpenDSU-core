@@ -21,7 +21,7 @@ assert.callback("DB Indexing test", (testFinishCallback) => {
             })
         }
 
-        tir.launchApiHubTestNode(no_retries, folder, function (err, port) {
+        tir.launchApiHubTestNode(no_retries, folder, function (err) {
             if (err) {
                 throw err;
             }
@@ -29,9 +29,9 @@ assert.callback("DB Indexing test", (testFinishCallback) => {
             let storageSSI = keySSIApis.createSeedSSI("default");
 
             let mydb = db.getWalletDB(storageSSI, "testDb");
-            mydb.insertRecord("test", "key1", {value: "v0"}, function (err, res) {
-                mydb.updateRecord("test", "key1", {value: "v1"}, function (err, res) {
-                    mydb.updateRecord("test", "key1", {value: "v2"}, async function (err, res) {
+            mydb.insertRecord("test", "key1", {value: "v0"}, function () {
+                mydb.updateRecord("test", "key1", {value: "v1"}, function () {
+                    mydb.updateRecord("test", "key1", {value: "v2"}, async function () {
                         await testPersistence(mydb.getShareableSSI());
                     });
                 });

@@ -6,9 +6,9 @@ module.exports = function (maxGroupSize, maxQueuingTime, groupingFunction) {
     let waitingIntervalId;
 
     let startWaitingMessages = () => {
-        if(pipeIsWaiting === false){
+        if (pipeIsWaiting === false) {
             pipeIsWaiting = true;
-            waitingIntervalId = setInterval(async()=>{
+            waitingIntervalId = setInterval(async () => {
                 if (this.queue.length > 0) {
                     await checkPipeMessages(true);
                 }
@@ -16,14 +16,14 @@ module.exports = function (maxGroupSize, maxQueuingTime, groupingFunction) {
         }
     }
 
-    let stopWaitingMessages = () =>{
+    let stopWaitingMessages = () => {
         pipeIsWaiting = false;
-        if(waitingIntervalId){
+        if (waitingIntervalId) {
             clearInterval(waitingIntervalId);
         }
     }
 
-    this.addInQueue =  async (messages) => {
+    this.addInQueue = async (messages) => {
 
         if (!Array.isArray(messages)) {
             messages = [messages]
@@ -38,17 +38,17 @@ module.exports = function (maxGroupSize, maxQueuingTime, groupingFunction) {
     }
 
     this.onNewGroup = (__newGroupCallback) => {
-         newGroupCallback = __newGroupCallback;
+        newGroupCallback = __newGroupCallback;
     };
 
-    let checkPipeMessages = async (forceFlush) =>{
+    let checkPipeMessages = async (forceFlush) => {
 
         let messageGroup = await $$.promisify(groupingFunction)(this.queue);
 
         if (messageGroup.length < this.queue.length || maxGroupSize <= this.queue.length || forceFlush) {
             messageGroup = [...messageGroup];
             //TODO we are loosing messages that are not properly digested
-            this.queue.splice(0,messageGroup.length);
+            this.queue.splice(0, messageGroup.length);
             stopWaitingMessages();
             await newGroupCallback(messageGroup);
         }
@@ -56,5 +56,4 @@ module.exports = function (maxGroupSize, maxQueuingTime, groupingFunction) {
     }
 
     startWaitingMessages();
-
 }

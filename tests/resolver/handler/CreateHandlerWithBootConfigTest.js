@@ -5,7 +5,7 @@ const dc = require("double-check");
 const assert = dc.assert;
 
 const resolver = require("../../../resolver");
-const { BOOT_CONFIG_FILE, CONSTITUTION_FOLDER } = require("../../../moduleConstants");
+const {BOOT_CONFIG_FILE} = require("../../../moduleConstants");
 const keySSI = require("../../../keyssi");
 
 assert.callback(
@@ -21,7 +21,7 @@ assert.callback(
                 }
 
                 const domain = "default";
-                createDSU(domain, async (err, { dsu: dsuToMount, keySSI: dsuToMountKeySSI } = {}) => {
+                createDSU(domain, async (err, {dsu: dsuToMount, keySSI: dsuToMountKeySSI} = {}) => {
                     if (err) {
                         throw err;
                     }
@@ -35,7 +35,7 @@ assert.callback(
                         await dsuToMount.safeBeginBatchAsync();
                         await writeFile(BOOT_CONFIG_FILE, bootConfigContent);
                         await dsuToMount.commitBatchAsync();
-                        const { dsu: mainDSU, keySSI: mainDsuKeySSI } = await $$.promisify(createDSU)(domain);
+                        const {dsu: mainDSU, keySSI: mainDsuKeySSI} = await $$.promisify(createDSU)(domain);
 
                         await mainDSU.safeBeginBatchAsync();
                         await $$.promisify(mainDSU.mount)("/code", dsuToMountKeySSI);
@@ -71,7 +71,7 @@ function createDSU(domain, callback) {
                 throw err;
             }
 
-            callback(undefined, { dsu, keySSI });
+            callback(undefined, {dsu, keySSI});
         });
     });
 }

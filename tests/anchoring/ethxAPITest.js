@@ -4,11 +4,10 @@ const dc = require("double-check");
 const tir = require("../../../../psknode/tests/util/tir");
 const openDSU = require('../../index');
 $$.__registerModule("opendsu", openDSU);
-const scAPI = openDSU.loadAPI("sc");
 const crypto = openDSU.loadAPI("crypto")
 
 assert.callback("ETHx API test", (callback) => {
-    dc.createTestFolder('ethx', async (err, folder) => {
+    dc.createTestFolder('ethx', async () => {
         const domain = "default";
         const config = {
             domains: [{

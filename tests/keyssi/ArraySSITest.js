@@ -2,13 +2,10 @@ require('../../../../builds/output/testsRuntime');
 
 const assert = require('double-check').assert;
 const keySSISpace = require('../../keyssi');
-const crypto = require('../../crypto');
-
 assert.callback('Build array SSI test', (callback) => {
     const arraySSI = keySSISpace.createArraySSI('default', ['openDsu', 16], 'vn0');
 
     const vn = arraySSI.getVn();
-    const hint = arraySSI.getHint();
     const type = arraySSI.getTypeName();
     const DLDomain = arraySSI.getDLDomain();
 

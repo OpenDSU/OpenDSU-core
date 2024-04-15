@@ -11,8 +11,6 @@ const DOMAIN = "default";
 const FILEPATH = "/folder/file1";
 const MOUNT_PATH = "/mount"
 const INITIAL_FILE_CONTENT = "initial content";
-const NEW_FILE_CONTENT = "new content";
-const fs = require("fs");
 assert.callback('Mount test', (testFinished) => {
     dc.createTestFolder('hasNewVersion', async (err, folder) => {
         await tir.launchConfigurableApiHubTestNodeAsync({rootFolder: folder});
@@ -24,9 +22,9 @@ assert.callback('Mount test', (testFinished) => {
         await rootDSUInstance.commitBatchAsync(batchId);
         await mountedDSUInstance.safeBeginBatchAsync();
         let error;
-        try{
+        try {
             batchId = await rootDSUInstance.safeBeginBatchAsync();
-        }catch (e) {
+        } catch (e) {
             error = e;
         }
 
@@ -35,9 +33,9 @@ assert.callback('Mount test', (testFinished) => {
         await mountedDSUInstance.cancelBatchAsync()
         batchId = await rootDSUInstance.safeBeginBatchAsync();
         await rootDSUInstance.writeFileAsync(FILEPATH, INITIAL_FILE_CONTENT, {});
-        try{
+        try {
             const mountedBatchId = await mountedDSUInstance.safeBeginBatchAsync();
-        }catch (e) {
+        } catch (e) {
             error = e;
         }
         assert.true(typeof error !== "undefined", "Expected to have error");

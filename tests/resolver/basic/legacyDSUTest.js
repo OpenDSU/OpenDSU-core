@@ -5,7 +5,6 @@ const dc = require("double-check");
 const assert = dc.assert;
 const openDSU = require('../../../index');
 $$.__registerModule("opendsu", openDSU);
-const keySSISpace = openDSU.loadAPI("keyssi");
 const resolver = openDSU.loadAPI("resolver");
 const DOMAIN = "default";
 const FILEPATH = "/folder/file1";

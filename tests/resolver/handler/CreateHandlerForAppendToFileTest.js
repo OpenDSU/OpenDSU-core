@@ -4,13 +4,13 @@ const dc = require("double-check");
 const assert = dc.assert;
 
 const resolver = require("../../../resolver");
-const { createTestFolderWithDSU, isHashLinkSSI } = require("./utils");
+const {createTestFolderWithDSU, isHashLinkSSI} = require("./utils");
 $$.LEGACY_BEHAVIOUR_ENABLED = true;
 assert.callback(
     "getHandler appendToFile",
     (testFinished) => {
-        createTestFolderWithDSU("dsu-appendToFile", (keySSI, dsu) => {
-            resolver.getDSUHandler(keySSI).writeFile("dummy", "dummy-content", (error, initialFolders) => {
+        createTestFolderWithDSU("dsu-appendToFile", (keySSI) => {
+            resolver.getDSUHandler(keySSI).writeFile("dummy", "dummy-content", (error) => {
                 if (error) {
                     throw error;
                 }

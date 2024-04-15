@@ -1,5 +1,5 @@
 require("../../../../../builds/output/testsRuntime");
-const {assertBlockFailure, getNonEncryptedAndEncryptedDSUTester} = require("./utils");
+const {getNonEncryptedAndEncryptedDSUTester} = require("./utils");
 $$.LEGACY_BEHAVIOUR_ENABLED = true;
 const dc = require("double-check");
 const {assert} = dc;

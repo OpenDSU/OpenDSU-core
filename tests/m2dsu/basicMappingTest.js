@@ -17,7 +17,7 @@ assert.callback('basicMappingTest', (testFinished) => {
             const mappingEngine = m2dsu.getMappingEngine(persistenceDSU);
 
             //this function tell if the mapping function can be applied
-            const decisionFN = (message) => {
+            const decisionFN = () => {
                 return true;
             };
 
@@ -26,7 +26,7 @@ assert.callback('basicMappingTest', (testFinished) => {
             const fileContent = "just some date to be written into the file";
 
             //the function that will be called in order to execute the mapping
-            const mapping = async function (message) {
+            const mapping = async function () {
                 let dsu = await this.createDSU("test1", "seed");
                 const getKeySSI = dsu.getKeySSIAsString;
                 keySSI = await getKeySSI();

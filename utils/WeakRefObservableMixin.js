@@ -1,16 +1,17 @@
 const constants = require("../moduleConstants");
+
 function ObservableMixin(target) {
     let observers = {};
 
-    target.on = function(eventType, callback){
+    target.on = function (eventType, callback) {
         let arr = observers[eventType];
-        if(!arr){
+        if (!arr) {
             arr = observers[eventType] = [];
         }
         arr.push(new WeakRef(callback));
     }
 
-    target.dispatchEvent = function(eventType, message){
+    target.dispatchEvent = function (eventType, message) {
         let arr = observers[eventType];
         if (!arr) {
             //no handlers registered
@@ -22,22 +23,22 @@ function ObservableMixin(target) {
             return;
         }
 
-        arr.forEach( c => {
+        arr.forEach(c => {
             let callback = c.deref();
-            if(!callback){
+            if (!callback) {
                 return;
             }
-            try{
+            try {
                 callback(message);
-            }catch(err){
+            } catch (err) {
                 console.error(err);
                 reportDevRelevantInfo(`Caught an error during the delivery of ${eventType} to ${c.toString()}`);
             }
         });
     }
 
-    target.removeAllObservers = function (eventType){
-        if(observers[eventType]){
+    target.removeAllObservers = function (eventType) {
+        if (observers[eventType]) {
             delete observers[eventType];
         } else {
             reportDevRelevantInfo("No observers found in the list of known observers.");

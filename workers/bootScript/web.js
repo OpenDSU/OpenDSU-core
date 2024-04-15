@@ -1,14 +1,14 @@
 module.exports = () => {
     addEventListener('message', (event) => {
-        const { functionName, payload } = event.data;
+        const {functionName, payload} = event.data;
 
         console.log(`[workers] web worker activated by function "${functionName}"`);
 
         try {
             const result = require("opendsu").loadAPI("workers").getFunctionsRegistry()[functionName](payload);
-            postMessage({ result });
+            postMessage({result});
         } catch (error) {
-            postMessage({ error });
+            postMessage({error});
         }
     });
 

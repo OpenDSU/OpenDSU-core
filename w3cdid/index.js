@@ -45,7 +45,7 @@ function resolveNameDID(domain, publicName, secret, callback) {
     }
     const identifier = `did:ssi:name:${domain}:${publicName}`;
     if (secret) {
-        resolveDID(identifier, (err, didDocument) => {
+        resolveDID(identifier, (err) => {
             if (err) {
                 createIdentity("ssi:name", domain, publicName, secret, callback);
             } else {
@@ -151,7 +151,7 @@ function registerDIDMethod(method, implementation) {
 
 function generateSystemDIDFromSecret(secret) {
     getKeyDIDFromSecret(secret, (err, didDocument) => {
-        if(err){
+        if (err) {
             console.error("Failed to create the system DID", err);
             throw err;
         }
@@ -159,6 +159,7 @@ function generateSystemDIDFromSecret(secret) {
         $$.SYSTEM_IDENTIFIER = didDocument.getIdentifier();
     });
 }
+
 function initSystemDID() {
     if (process.env.SSO_SECRETS_ENCRYPTION_KEY) {
         generateSystemDIDFromSecret(process.env.SSO_SECRETS_ENCRYPTION_KEY);
@@ -190,7 +191,6 @@ module.exports = {
     getKeyDIDFromSecret,
     CryptographicSkills: require("./CryptographicSkills/CryptographicSkills"),
     W3CDIDMixin: require('./W3CDID_Mixin'),
-    W3CCVCMixin: require('./W3CVC_Mixin'),
     getCommunicationHub: require("./hubs/CommunicationHub").getCommunicationHub,
     getTypicalBusinessLogicHub: require("./hubs/TypicalBusinessLogicHub").getTypicalBusinessLogicHub,
     SecretsHandler: require("./utils/SecretsHandler.js")

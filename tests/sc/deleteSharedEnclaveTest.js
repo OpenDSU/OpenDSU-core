@@ -6,7 +6,6 @@ const assert = dc.assert;
 const openDSU = require('../../index');
 $$.__registerModule("opendsu", openDSU);
 const scAPI = openDSU.loadAPI("sc");
-const keySSISpace = openDSU.loadAPI("keyssi");
 
 assert.callback('Delete shared enclave test', (testFinished) => {
     dc.createTestFolder('createDSU', async (err, folder) => {
@@ -16,7 +15,10 @@ assert.callback('Delete shared enclave test', (testFinished) => {
                 "option": {}
             }
         }
-        await tir.launchConfigurableApiHubTestNodeAsync({domains: [{name: "vault", config: vaultDomainConfig}], rootFolder: folder});
+        await tir.launchConfigurableApiHubTestNodeAsync({
+            domains: [{name: "vault", config: vaultDomainConfig}],
+            rootFolder: folder
+        });
         const sc = scAPI.getSecurityContext();
         sc.on("initialised", async () => {
             const enclaveAPI = openDSU.loadAPI("enclave");

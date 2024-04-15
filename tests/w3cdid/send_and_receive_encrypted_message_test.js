@@ -5,8 +5,6 @@ const dc = require("double-check");
 const assert = dc.assert;
 const openDSU = require("../../index");
 $$.__registerModule("opendsu", openDSU);
-const keySSI = openDSU.loadAPI("keyssi");
-const resolver = openDSU.loadAPI("resolver");
 const scAPI = openDSU.loadAPI("sc");
 const w3cDID = openDSU.loadAPI("w3cdid");
 
@@ -66,7 +64,7 @@ assert.callback(
                     testFinished();
                 });
 
-                senderDIDDocument.sendMessage(dataToSend, receiverDIDDocument, (err) => {
+                senderDIDDocument.sendMessage(dataToSend, receiverDIDDocument, () => {
                     console.log("Sent message", dataToSend);
                 });
             });

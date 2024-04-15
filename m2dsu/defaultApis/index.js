@@ -251,8 +251,8 @@ registry.defineApi("loadDSU", async function (keySSI, options) {
 
 //an api that returns an OpenDSU Resolver instance that has promisified methods
 // to be used in mappings easier
-registry.defineApi("getResolver", function (domain, ssiType, options) {
-    return new Promise((resolve, reject) => {
+registry.defineApi("getResolver", function () {
+    return new Promise((resolve) => {
 
         const resolverInherited = ["createDSUx",
             "createSeedDSU",

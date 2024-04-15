@@ -1,20 +1,19 @@
 require("../../../../builds/output/testsRuntime");
-const testIntegration = require("../../../../psknode/tests/util/tir");
 const dc = require("double-check");
 const assert = dc.assert;
 const bindAutoPendingFunctions = require("../../utils/BindAutoPendingFunctions").bindAutoPendingFunctions;
 
 
-assert.callback('Testing the pending call behavior, delay initialization', async (testfinished) => {
+assert.callback('Testing the pending call behavior, delay initialization', async () => {
 
     function TestingCache() {
 
         const init = () => {
-            setTimeout(()=>{
+            setTimeout(() => {
                 this.finishInitialisation();
             }, 3000)
         }
-        this.get = (key, callback) => {
+        this.get = () => {
 
         };
 

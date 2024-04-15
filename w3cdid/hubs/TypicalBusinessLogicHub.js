@@ -1,5 +1,5 @@
 const {createOpenDSUErrorWrapper} = require("../../error");
-const getCheckVariableFunction = function (envVariableName, hubContext, selector,  callback) {
+const getCheckVariableFunction = function (envVariableName, hubContext, selector, callback) {
     if (hubContext[selector]) {
         hubContext.self.finishInitialisation();
         return callback(undefined, hubContext[selector]);
@@ -26,6 +26,7 @@ const setVariable = function (envVariableName, value, hubContext, selector, call
         callback(undefined);
     });
 };
+
 function TypicalBusinessLogicHub() {
     const openDSU = require("opendsu");
     const didAPI = openDSU.loadAPI("w3cdid");

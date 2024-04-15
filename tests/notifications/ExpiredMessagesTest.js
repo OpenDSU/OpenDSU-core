@@ -23,7 +23,7 @@ dc.createTestFolder("ODSU_StaleMessagesTest", (err, testFolder) => {
 			const createKeySSI = (domain) => {
 				domain = domain || 'default';
 				return new Promise((resolve, reject) => {
-					keySSISpace.createTemplateSeedSSI('default', (err, templateKeySSI) => {
+					keySSISpace.createTemplateSeedSSI(domain, (err, templateKeySSI) => {
 						if (err) {
 							return reject(err);
 						}

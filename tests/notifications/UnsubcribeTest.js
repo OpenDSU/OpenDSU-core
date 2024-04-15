@@ -22,7 +22,7 @@ dc.createTestFolder("ODSU_UnsubscribeTest", (err, testFolder) => {
 			const createKeySSI = (domain) => {
 				domain = domain || 'default';
 				return new Promise((resolve, reject) => {
-					keySSISpace.createTemplateSeedSSI('default', (err, templateKeySSI) => {
+					keySSISpace.createTemplateSeedSSI(domain, (err, templateKeySSI) => {
 						if (err) {
 							return reject(err);
 						}
@@ -60,7 +60,7 @@ dc.createTestFolder("ODSU_UnsubscribeTest", (err, testFolder) => {
 					observable.on('error', (err) => {
 						throw err;
 					})
-					observable.on('message', (message) => {
+					observable.on('message', () => {
 						messageReceived = true;
 					})
 

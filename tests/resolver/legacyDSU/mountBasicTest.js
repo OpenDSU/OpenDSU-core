@@ -12,7 +12,6 @@ const FILEPATH = "/folder/file1";
 const MOUNT_PATH = "/mount"
 const INITIAL_FILE_CONTENT = "initial content";
 const NEW_FILE_CONTENT = "new content";
-const fs = require("fs");
 assert.callback('Mount test', (testFinished) => {
     dc.createTestFolder('hasNewVersion', async (err, folder) => {
         await tir.launchConfigurableApiHubTestNodeAsync({rootFolder: folder});

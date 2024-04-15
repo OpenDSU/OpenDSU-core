@@ -1,8 +1,8 @@
 require("../../../../../builds/output/testsRuntime");
-const { getNonEncryptedAndEncryptedDSUTester} = require("./utils");
+const {getNonEncryptedAndEncryptedDSUTester} = require("./utils");
 $$.LEGACY_BEHAVIOUR_ENABLED = true;
 const dc = require("double-check");
-const { assert } = dc;
+const {assert} = dc;
 
 assert.callback(
     "VersionlessDSU files with mounts and unmounts test",

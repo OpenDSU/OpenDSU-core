@@ -3,7 +3,7 @@ require("../../../../../builds/output/testsRuntime");
 const dc = require("double-check");
 const assert = dc.assert;
 
-const { testHandlerMethod } = require("./utils");
+const {testHandlerMethod} = require("./utils");
 $$.LEGACY_BEHAVIOUR_ENABLED = true;
 assert.callback(
     "getHandler readDir",
@@ -16,8 +16,7 @@ assert.callback(
             (handlerResponse, loadedDSUResponse) => {
                 assert.arraysMatch([handlerResponse], [loadedDSUResponse]);
                 testFinished();
-            }
-        );
+            });
     },
     10000
 );

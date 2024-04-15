@@ -11,7 +11,7 @@ const keyssispace = require("../../../index").loadApi("keyssi");
 assert.callback('The creation of DSU with existing SSI and not defined domain will fail', (testfinished) => {
 
     dc.createTestFolder('createDSU', (err, folder) => {
-        testIntegration.launchApiHubTestNode(10, folder, (err) => {
+        testIntegration.launchApiHubTestNode(10, folder, () => {
             const domain = undefined;
             const seedSSI = keyssispace.buildTemplateSeedSSI(domain);
 
@@ -19,7 +19,7 @@ assert.callback('The creation of DSU with existing SSI and not defined domain wi
                 if (err) {
                     throw err;
                 }
-                createdsuexisiting(seedSSI, (err, dsu) => {
+                createdsuexisiting(seedSSI, (err) => {
                     printOpenDSUError(err);
                     assert.notEqual(typeof err, 'undefined');
                     testfinished()

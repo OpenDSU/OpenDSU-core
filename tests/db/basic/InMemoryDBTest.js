@@ -20,17 +20,17 @@ const inMemoryDBTest = {
     },
 
     insertRecords: function () {
-        this.db.insertRecord("test", "key1", {value: 0, text: "abc"}, (err, res) => {
+        this.db.insertRecord("test", "key1", {value: 0, text: "abc"}, (err) => {
             if (err) {
                 throw err;
             }
 
-            this.db.insertRecord("test", "key2", {value: 1, text: "bcde"}, (err, res) => {
+            this.db.insertRecord("test", "key2", {value: 1, text: "bcde"}, (err) => {
                 if (err) {
                     throw err;
                 }
 
-                this.db.insertRecord("test", "key3", {value: 2, text: "231254"}, (err, res) => {
+                this.db.insertRecord("test", "key3", {value: 2, text: "231254"}, (err) => {
                     if (err) {
                         throw err;
                     }

@@ -5,7 +5,6 @@ const dc = require("double-check");
 const tir = require("../../../../psknode/tests/util/tir");
 const openDSU = require('../../index');
 $$.__registerModule("opendsu", openDSU);
-const scAPI = openDSU.loadAPI("sc");
 const crypto = openDSU.loadAPI("crypto")
 
 assert.callback("FSx API test", (callback) => {
@@ -24,8 +23,11 @@ assert.callback("FSx API test", (callback) => {
 
         const bdns = openDSU.loadAPI("bdns");
         let defaultBdns = await $$.promisify(bdns.getRawInfo)("default");
-        defaultBdns.anchoringServices[0] = {"url":defaultBdns.anchoringServices[0], "headers":{"token":"tokenValue"}};
-        bdns.setBDNSHosts({default:defaultBdns, vault:defaultBdns});
+        defaultBdns.anchoringServices[0] = {
+            "url": defaultBdns.anchoringServices[0],
+            "headers": {"token": "tokenValue"}
+        };
+        bdns.setBDNSHosts({default: defaultBdns, vault: defaultBdns});
 
         const anchoring = openDSU.loadAPI("anchoring");
         const anchoringX = anchoring.getAnchoringX();

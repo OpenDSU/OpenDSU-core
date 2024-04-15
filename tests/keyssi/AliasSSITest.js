@@ -8,7 +8,7 @@ const keySSISpace = openDSU.loadAPI("keyssi");
 
 assert.callback('Create Alias SSI test', (callback) => {
     const specificString = "some string";
-    keySSISpace.createAliasSSI(specificString,  (err, aliasSSI) => {
+    keySSISpace.createAliasSSI(specificString, (err, aliasSSI) => {
         if (err) {
             throw err;
         }

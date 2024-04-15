@@ -7,7 +7,6 @@ const assert = dc.assert;
 const openDSU = require("../../index");
 $$.__registerModule("opendsu", openDSU);
 const enclaveAPI = openDSU.loadAPI("enclave");
-const scAPI = openDSU.loadAPI("sc");
 
 // assert.callback(
 //     "VersionlessDSUEnclave Test with initialiseVersionlessDSUEnclave",
@@ -59,13 +58,6 @@ const scAPI = openDSU.loadAPI("sc");
 // );
 assert.callback('Get all records test', (testFinished) => {
     dc.createTestFolder('createDSU', async (err, folder) => {
-        const vaultDomainConfig = {
-            "anchoring": {
-                "type": "FS",
-                "option": {}
-            }
-        }
-
         try {
             await $$.promisify(launchApiHubTestNode)(10, folder);
             const TABLE = "test_table";

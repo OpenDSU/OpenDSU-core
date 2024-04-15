@@ -1,24 +1,25 @@
 const constants = require("../moduleConstants");
+
 function ObservableMixin(target) {
     let observers = {};
 
-    target.on = function(eventType, callback){
+    target.on = function (eventType, callback) {
         let arr = observers[eventType];
-        if(!arr){
+        if (!arr) {
             arr = observers[eventType] = [];
         }
         arr.push(callback);
     }
 
-    target.off = function(eventType, callback){
+    target.off = function (eventType, callback) {
         let arr = observers[eventType];
-        if(!arr){
+        if (!arr) {
             //nothing to do...
             reportDevRelevantInfo("Off-ing an unknown observer");
             return;
         }
         let index = observers[eventType].indexOf(callback);
-        if(index === -1){
+        if (index === -1) {
             reportDevRelevantInfo("Observer not found into the list of known observers.");
             return;
         }
@@ -26,7 +27,7 @@ function ObservableMixin(target) {
         observers[eventType].splice(index, 1);
     }
 
-    target.dispatchEvent = function(eventType, message){
+    target.dispatchEvent = function (eventType, message) {
         let arr = observers[eventType];
         if (!arr) {
             //no handlers registered
@@ -39,19 +40,19 @@ function ObservableMixin(target) {
             return;
         }
 
-        arr.forEach( c => {
-            try{
+        arr.forEach(c => {
+            try {
                 c(message);
-            }catch(err){
-				console.error(err);
+            } catch (err) {
+                console.error(err);
                 reportDevRelevantInfo(`Caught an error during the delivery of ${eventType} to ${c.toString()}`);
             }
 
         });
     }
 
-    target.removeAllObservers = function (eventType){
-        if(observers[eventType]){
+    target.removeAllObservers = function (eventType) {
+        if (observers[eventType]) {
             delete observers[eventType];
         } else {
             reportDevRelevantInfo("No observers found in the list of known observers.");

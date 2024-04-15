@@ -18,7 +18,7 @@ assert.callback("read write key test", (testFinishCallback) => {
                     mydb.readKey("undefined", (err, content) => {
                         assert.true(typeof content === "undefined", "Expected undefined");
                         mydb.readKey("null", (err, content) => {
-                            assert.true( content === null, "Expected null");
+                            assert.true(content === null, "Expected null");
                             mydb.readKey("object", (err, res) => {
                                 assert.true(typeof res.content !== "undefined", "Expected an object");
                                 assert.true(res.content === "some content");

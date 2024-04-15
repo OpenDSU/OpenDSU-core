@@ -87,31 +87,6 @@ function CryptographicSkillsMixin(target) {
         return crypto.ecies_decrypt(receiverPrivateKey, encEnvelope, target.getConfigForIES());
     };
 
-    const saveNewKeyPairInSC = async (didDocument, compatibleSSI) => {
-        const securityContext = openDSU.loadAPI("sc").getSecurityContext();
-
-        try {
-            await $$.promisify(securityContext.addPrivateKeyForDID)(
-                didDocument,
-                compatibleSSI.getPrivateKey("raw")
-            );
-            // await $$.promisify(securityContext.addPublicKeyForDID)(
-            //   didDocument,
-            //   compatibleSSI.getPublicKey("raw")
-            // );
-        } catch (e) {
-            throw createOpenDSUErrorWrapper(`Failed to save new private key and public key in security context`, e);
-        }
-
-        try {
-            await $$.promisify(didDocument.addPublicKey)(
-                compatibleSSI.getPublicKey("raw")
-            );
-        } catch (e) {
-            throw createOpenDSUErrorWrapper(`Failed to save new private key and public key in security context`, e);
-        }
-    };
-
     target.encryptMessage = (privateKeys, didFrom, didTo, message, callback) => {
         const senderSeedSSI = keySSISpace.createTemplateSeedSSI(didFrom.getDomain());
         senderSeedSSI.initialize(didFrom.getDomain(), privateKeys[0]);
@@ -133,19 +108,6 @@ function CryptographicSkillsMixin(target) {
 
                 callback(undefined, encryptedMessage);
             };
-
-            // let compatibleSSI;
-            // try {
-            //     compatibleSSI = await $$.promisify(publicKeySSI.generateCompatiblePowerfulKeySSI)();
-            // } catch (e) {
-            //     return callback(createOpenDSUErrorWrapper(`Failed to create compatible seed ssi`, e));
-            // }
-            //
-            // try {
-            //     await saveNewKeyPairInSC(didFrom, compatibleSSI);
-            // } catch (e) {
-            //     return callback(createOpenDSUErrorWrapper(`Failed to save compatible seed ssi`, e));
-            // }
 
             __encryptMessage(senderSeedSSI);
         });

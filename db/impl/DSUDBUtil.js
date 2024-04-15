@@ -47,7 +47,7 @@ module.exports = {
                         if (err) {
                             return callback(createOpenDSUErrorWrapper("Failed to begin batch", err));
                         }
-                        res.mount("/data", writableDSU.getCreationSSI(), function (err, resSSI) {
+                        res.mount("/data", writableDSU.getCreationSSI(), function (err) {
                             if (err) {
                                 const mountError = createOpenDSUErrorWrapper("Failed to mount writable DSU in wrapper DSU while initialising shared database " + dbName, err)
                                 res.cancelBatch(error => {
@@ -136,7 +136,7 @@ module.exports = {
 
                     let mainDSUKeySSI;
                     try {
-                        mainDSUKeySSI = await $$promisify(mainDSU.readFile)(DB_KEY_SSI_PATH);
+                        mainDSUKeySSI = await $$.promisify(mainDSU.readFile)(DB_KEY_SSI_PATH);
                     } catch (e) {
                         mainDSUKeySSI = undefined;
                     }
@@ -182,7 +182,7 @@ module.exports = {
 
             let mainDSUKeySSI;
             try {
-                mainDSUKeySSI = await $$promisify(mainDSU.readFile)(DB_KEY_SSI_PATH);
+                mainDSUKeySSI = await $$.promisify(mainDSU.readFile)(DB_KEY_SSI_PATH);
             } catch (e) {
                 mainDSUKeySSI = undefined;
             }
@@ -210,8 +210,6 @@ module.exports = {
 
             return callback(undefined, storageDSU, keySSI);
         })
-    },
-    ensure_MultiUserDB_DSU_Initialisation: function (keySSI, dbName, userId, callback) {
     },
     initialiseVersionlessDB: function (dbName, keySSI, callback) {
         $$.LEGACY_BEHAVIOUR_ENABLED = true;

@@ -2,23 +2,20 @@ require("../../../../../builds/output/testsRuntime");
 const dc = require("double-check");
 const assert = dc.assert;
 const db = require("../../../db");
-const tir = require("../../../../../psknode/tests/util/tir");
-const keySSIApis = require("../../../keyssi");
-const crypto = require("../../../crypto");
 $$.LEGACY_BEHAVIOUR_ENABLED = true;
 let obj = {
     start: function (callback) {
         this.callback = callback;
-        dc.createTestFolder("createDSU", (err, folder)=>{
+        dc.createTestFolder("createDSU", (err) => {
             if (err) {
                 throw err;
             }
 
             // tir.launchVirtualMQNode(100, folder,(err, port) => {
-                let keySSIApis = require("../../../keyssi");
-                let storageSSI = keySSIApis.createSeedSSI("vault");
-                this.db = db.getWalletDB(storageSSI, "testDb");
-                this.insertRecords();
+            let keySSIApis = require("../../../keyssi");
+            let storageSSI = keySSIApis.createSeedSSI("vault");
+            this.db = db.getWalletDB(storageSSI, "testDb");
+            this.insertRecords();
             // });
         })
     },
@@ -30,7 +27,7 @@ let obj = {
         const TaskCounter = require("swarmutils").TaskCounter;
 
         console.time("insert records");
-        const tc = new TaskCounter(()=>{
+        const tc = new TaskCounter(() => {
             console.timeEnd("insert records");
             return this.addIndexes();
         })
@@ -45,7 +42,7 @@ let obj = {
                 value: crypto.generateRandom(32).toString("hex")
             }
 
-            this.db.insertRecord("test", key, record, (err, rec) => {
+            this.db.insertRecord("test", key, record, () => {
                 tc.decrement();
             });
         }
@@ -54,7 +51,7 @@ let obj = {
     getRecords: function () {
         console.time("get records");
 
-        const getRecordsRecursively = (index) =>  {
+        const getRecordsRecursively = (index) => {
             if (index === this.keys.length) {
                 console.timeEnd("get records");
                 return this.addIndexes();
@@ -82,7 +79,7 @@ let obj = {
     showValuesLessThan: function () {
         let value = this.keys[this.keys.length / 2];
         console.time("query time")
-        this.db.filter("test", `value <= ${value}`, "asc", 1, (err, res) => {
+        this.db.filter("test", `value <= ${value}`, "asc", 1, (err) => {
             if (err) {
                 throw err;
             }

@@ -13,10 +13,6 @@ function W3CDID_Mixin(target, enclave) {
     const openDSU = require("opendsu");
     const dbAPI = openDSU.loadAPI("db");
     const crypto = openDSU.loadAPI("crypto");
-    target.findPrivateKeysInSecurityContext = function (callback) {
-
-    };
-
     const __ensureEnclaveExistsThenExecute = (fnName, ...args) => {
         const callback = args[args.length - 1];
         if (typeof enclave === "undefined") {
@@ -151,7 +147,7 @@ function W3CDID_Mixin(target, enclave) {
 
             target.decryptMessage(message, (decryptError, decryptedMessage) => {
                 mqHandler.deleteMessage(encryptedMessage.messageId, (err) => {
-                    if(decryptError){
+                    if (decryptError) {
                         //if we fail to decrypt a message, we delete and skip it
                         return;
                     }
@@ -190,10 +186,10 @@ function W3CDID_Mixin(target, enclave) {
                 return callback(createOpenDSUErrorWrapper(`Failed to parse received message`, e));
             }
 
-            target.decryptMessage(message, (decryptError, decryptedMessage)=>{
-                if(err){
+            target.decryptMessage(message, (decryptError, decryptedMessage) => {
+                if (err) {
                     return mqHandler.deleteMessage(encryptedMessage.messageId, (err) => {
-                        if(err){
+                        if (err) {
                             //if we fail to auto delete the message that failed to decrypt we call the callback with the original decrypt error
                             return callback(decryptError);
                         }
@@ -224,24 +220,6 @@ function W3CDID_Mixin(target, enclave) {
 
     target.getEnclave = () => {
         return enclave;
-    }
-
-    target.on = function (callback) {
-    };
-
-    target.revokeDID = function (callback) {
-    };
-
-    target.revokeKey = function (key, callback) {
-    };
-
-    target.getControllerKey = function (callback) {
-    };
-
-    target.getPublicKeys = function (callback) {
-    };
-
-    target.getDomain = function () {
     }
 }
 

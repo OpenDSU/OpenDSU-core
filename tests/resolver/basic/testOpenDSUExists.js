@@ -17,7 +17,7 @@ assert.callback('Test dsu exists test', (testFinished) => {
         assert.true(exists, "DSU exists");
         const seedSSI = await $$.promisify(keySSISpace.createSeedSSI)(DOMAIN);
         exists = await $$.promisify(resolver.dsuExists)(seedSSI);
-        assert.equal(exists,false, "DSU exists");
+        assert.equal(exists, false, "DSU exists");
         testFinished();
     });
 }, 50000);

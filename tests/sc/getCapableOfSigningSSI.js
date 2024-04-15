@@ -1,5 +1,4 @@
 require("../../../../builds/output/testsRuntime");
-const testIntegration = require("../../../../psknode/tests/util/tir");
 
 const dc = require("double-check");
 const tir = require("../../../../psknode/tests/util/tir");
@@ -24,7 +23,6 @@ assert.callback('Get capable of signing SSI', (testfinished) => {
         });
 
         const domain = 'default';
-        const keySSISpace = require("opendsu").loadAPI("keyssi");
         const resolver = require("opendsu").loadAPI("resolver");
         const scApi = require("opendsu").loadAPI("sc");
         const seedDSU = await $$.promisify(resolver.createSeedDSU)(domain)

@@ -1,7 +1,5 @@
-
-
-function DemoPKDocument(enclave, identifier){
-    this.sign = function(hash, callback){
+function DemoPKDocument(enclave, identifier) {
+    this.sign = function (hash, callback) {
         // Convert the hash to a Buffer instance in order to
         // remain compatible with the other DID document types
         hash = Buffer.from(hash);
@@ -11,7 +9,7 @@ function DemoPKDocument(enclave, identifier){
         return hash;
     };
 
-    this.verify = function(hash, signature, callback){
+    this.verify = function (hash, signature, callback) {
         if (Buffer.isBuffer(signature)) {
             signature = signature.toString();
         }
@@ -20,16 +18,14 @@ function DemoPKDocument(enclave, identifier){
 
     let domainName;
 
-    this.setDomain = function(name) {
+    this.setDomain = function (name) {
         domainName = name;
     }
 
     function getApiHubEndpoint() {
-        return new Promise(async (resolve, reject) => {
+        return new Promise(async (resolve) => {
             const opendsu = require("opendsu");
             const getBaseURL = require("../../utils/getBaseURL");
-            const consts = opendsu.constants;
-            const system = opendsu.loadApi("system");
             // return system.getEnvironmentVariable(consts.BDNS_ROOT_HOSTS);
             if (domainName) {
                 const bdns = opendsu.loadApi('bdns');
@@ -53,7 +49,7 @@ function DemoPKDocument(enclave, identifier){
         let url = `${apiHubEndpoint}/mq/send-message/${encodeURI(toOtherDID)}`;
         let options = message;
 
-        let request = http.doPost(url, options, (err, response) => {
+        http.doPost(url, options, (err) => {
             if (err) {
                 return callback(OpenDSUSafeCallback(callback)(createOpenDSUErrorWrapper(`Failed to send message`, err)));
             }
@@ -68,7 +64,7 @@ function DemoPKDocument(enclave, identifier){
         const http = opendsu.loadApi("http");
         let didIdentifier = this.getIdentifier();
         let createChannelUrl = `${endpoint}/mq/create-channel/${encodeURI(didIdentifier)}`;
-        http.doPost(createChannelUrl, "", (err, response) => {
+        http.doPost(createChannelUrl, "", (err) => {
             if (err) {
                 if (err.statusCode === 409) {
                     //channels already exists. no problem :D
@@ -96,24 +92,23 @@ function DemoPKDocument(enclave, identifier){
         });
     };
 
-    this.getIdentifier = function(){
+    this.getIdentifier = function () {
         return `did:demo:${identifier}`;
     }
 
     return this;
 }
 
-function DEMO_DIDMethod(){
-    let aliasDocument = require("../proposals/aliasDocument");
-    this.create = function(enclave, identifier, callback){
+function DEMO_DIDMethod() {
+    this.create = function (enclave, identifier, callback) {
         callback(null, new DemoPKDocument(enclave, identifier));
     }
 
-    this.resolve = function(enclave, tokens, callback){
+    this.resolve = function (enclave, tokens, callback) {
         callback(null, new DemoPKDocument(enclave, tokens[2]));
     }
 }
 
-module.exports.create_demo_DIDMethod = function(){
+module.exports.create_demo_DIDMethod = function () {
     return new DEMO_DIDMethod();
 }

@@ -12,10 +12,10 @@ const keyssispace = openDSU.loadApi("keyssi");
 assert.callback('Create DSU on partial supported domain will fail', (testfinished) => {
 
     dc.createTestFolder('createDSU', (err, folder) => {
-        testIntegration.launchApiHubTestNode(10, folder, (err) => {
+        testIntegration.launchApiHubTestNode(10, folder, () => {
             const domain = 'default';
             prepareBDNSContext(folder);
-            createDSU(domain, (err, dsu) => {
+            createDSU(domain, (err) => {
                 assert.notEqual(typeof err, 'undefined', "DSU should not be created");
                 assert.true(err.message.indexOf(`The provided domain <${domain}> is not configured`) !== -1, "Error message should reflect unsupported domain");
 

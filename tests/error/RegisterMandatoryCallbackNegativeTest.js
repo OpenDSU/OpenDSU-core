@@ -12,7 +12,7 @@ assert.callback(
 
     const result = errorSpace.registerMandatoryCallback(cb);
 
-    errorSpace.observeUserRelevantMessages('error', (message) => {
+    errorSpace.observeUserRelevantMessages('error', () => {
       callback();
     });
 

@@ -10,14 +10,14 @@ assert.callback("DB query test that returns more than one result", (testFinishCa
         const databaseName = "queryTestDB";
         const tableName = "test";
 
-        async function testPersistence(sreadSSI, records){
+        async function testPersistence(sreadSSI, records) {
             console.log("Persistence DSU is:", await $$.promisify(sreadSSI.getAnchorId)());
 
             let mydb = db.getSharedDB(sreadSSI, databaseName);
-            mydb.on("initialised", ()=>{
+            mydb.on("initialised", () => {
                 console.log("Db initialised. Starting to run the filter");
                 mydb.filter(tableName, "content like /abc/g", (err, res) => {
-                    if(err){
+                    if (err) {
                         throw err;
                     }
                     console.log("Filter result", res);
@@ -30,7 +30,7 @@ assert.callback("DB query test that returns more than one result", (testFinishCa
             });
         }
 
-        tir.launchApiHubTestNode(no_retries, folder,  async (err, port) => {
+        tir.launchApiHubTestNode(no_retries, folder, async (err) => {
             if (err) {
                 throw err;
             }
@@ -39,18 +39,18 @@ assert.callback("DB query test that returns more than one result", (testFinishCa
 
             let mydb = db.getWalletDB(storageSSI, databaseName);
             let confirmedInsertedRecords = [];
-            mydb.insertRecord(tableName, "firstRecord", {content:"abc", meta:"something"}, function(err,res){
-                if(err){
+            mydb.insertRecord(tableName, "firstRecord", {content: "abc", meta: "something"}, function (err, res) {
+                if (err) {
                     throw err;
                 }
                 confirmedInsertedRecords.push(res);
-                mydb.insertRecord(tableName, "secondRecord", {content:"def", meta:"different"}, function(err,res){
-                    if(err){
+                mydb.insertRecord(tableName, "secondRecord", {content: "def", meta: "different"}, function (err, res) {
+                    if (err) {
                         throw err;
                     }
                     confirmedInsertedRecords.push(res);
-                    mydb.insertRecord(tableName, "thirdRecord", {content:"abcd"}, async function (err, res){
-                        if(err){
+                    mydb.insertRecord(tableName, "thirdRecord", {content: "abcd"}, async function (err, res) {
+                        if (err) {
                             throw err;
                         }
                         confirmedInsertedRecords.push(res);

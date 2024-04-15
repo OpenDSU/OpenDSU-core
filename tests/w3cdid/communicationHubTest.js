@@ -7,8 +7,6 @@ const dc = require("double-check");
 const assert = dc.assert;
 const openDSU = require('../../index');
 $$.__registerModule("opendsu", openDSU);
-const keySSISpace = openDSU.loadAPI("keyssi");
-const resolver = openDSU.loadAPI("resolver");
 const scAPI = openDSU.loadAPI("sc");
 const w3cDID = openDSU.loadAPI("w3cdid");
 
@@ -63,10 +61,10 @@ assert.callback('communicationHub test', async (testFinished) => {
 
             let error;
             for (let i = 0; i < NO_SENT_MESSAGES; i++) {
-                 const message = {
-                     messageType: i % 2 === 0 ? FIRST_MESSAGE_TYPE : SECOND_MESSAGE_TYPE,
-                     data: require("crypto").randomBytes(32).toString("base64")
-                 }
+                const message = {
+                    messageType: i % 2 === 0 ? FIRST_MESSAGE_TYPE : SECOND_MESSAGE_TYPE,
+                    data: require("crypto").randomBytes(32).toString("base64")
+                }
                 try {
                     await $$.promisify(senderDID.sendMessage)(JSON.stringify(message), receiverDID);
                 } catch (e) {

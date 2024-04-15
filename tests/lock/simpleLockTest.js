@@ -21,10 +21,10 @@ assert.callback('SimpleLockTest', (testFinished) => {
 
             assert.true(aquiredLock, "Failed to acquire lock");
 
-            let secondAttempt = await lock.lockAsync(lockID, crypto.encodeBase58(crypto.generateRandom(32)), period*10);
+            let secondAttempt = await lock.lockAsync(lockID, crypto.encodeBase58(crypto.generateRandom(32)), period * 10);
             assert.false(secondAttempt, "This should fail. The expected result is false");
 
-            setTimeout(async ()=>{
+            setTimeout(async () => {
                 let secret = crypto.encodeBase58(crypto.generateRandom(32));
                 let attemptToLockAfterExpiration = await lock.lockAsync(lockID, secret, period);
                 assert.true(attemptToLockAfterExpiration, "Failed to acquire a lock after previous lock expiration");
@@ -32,16 +32,16 @@ assert.callback('SimpleLockTest', (testFinished) => {
                 await lock.unlockAsync(lockID, secret);
 
                 let errCaught = {};
-                try{
+                try {
                     await lock.unlockAsync(lockID, secret);
-                }catch(err){
+                } catch (err) {
                     errCaught = err;
                 }
 
-                assert.true(errCaught.rootCause==="missingData", "we should get an error back if we try to remove a lock that is not there");
+                assert.true(errCaught.rootCause === "missingData", "we should get an error back if we try to remove a lock that is not there");
 
                 testFinished();
-            }, period*2);
+            }, period * 2);
 
         });
     });

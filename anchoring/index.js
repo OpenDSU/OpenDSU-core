@@ -127,26 +127,9 @@ function createDigitalProof(SSICapableOfSigning, newSSIIdentifier, lastSSIIdenti
     });
 }
 
-const callContractMethod = (domain, method, ...args) => {
-    const callback = args.pop();
-    const contracts = require("opendsu").loadApi("contracts");
-    contracts.callContractMethod(domain, "anchoring", method, args, callback);
-}
-
 const createNFT = (nftKeySSI, callback) => {
     addVersion(nftKeySSI, callback)
 }
-
-const transferTokenOwnership = (nftKeySSI, ownershipSSI, callback) => {
-    // TODO: to be implemented
-    callContractMethod(domain, "transferTokenOwnership", ...args);
-}
-
-const getLatestVersion = (domain, ...args) => {
-    // TODO: to be implemented
-    callContractMethod(domain, "getLatestVersion", ...args);
-}
-
 
 function getAnchoringX(){
     //todo: See below
@@ -179,13 +162,7 @@ async function getNextVersionNumberAsync(keySSI){
 }
 
 module.exports = {
-/*    createAnchor,*/
     createNFT,
-/*    appendToAnchor,*/
-    transferTokenOwnership,
-    /*getAllVersions,
-    getLastVersion,
-    getLatestVersion,*/
     getAnchoringBehaviour,
     getAnchoringX,
     getAnchoringImplementation:getAnchoringX,

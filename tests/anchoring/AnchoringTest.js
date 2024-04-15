@@ -1,6 +1,5 @@
 require("../../../../builds/output/testsRuntime");
 const testIntegration = require("../../../../psknode/tests/util/tir");
-const keySSIResolver = require("key-ssi-resolver");
 const dc = require("double-check");
 const {assert, createTestFolder} = dc;
 
@@ -14,14 +13,10 @@ assert.callback("Resolver DSU Creation with different domains", (callback) => {
             if (err) {
                 throw err;
             }
-            let keySSI;
-
             resolver.createDSU(keySSISpace.buildTemplateSeedSSI("default"), {}, (err, dsu) => {
                 assert.true(typeof err === 'undefined', 'No error while creating the DSU');
-                dsu.getKeySSIAsString((err, _keySSI) => {
-                    keySSI = _keySSI;
-
-                    dsu.getKeySSIAsObject((err, keySSIObject) => {
+                dsu.getKeySSIAsString(() => {
+                    dsu.getKeySSIAsObject(() => {
                         assertFileWasWritten(dsu, '/file1.txt', 'Lorem 1', () => {
                             assertFileWasWritten(dsu, '/file2.txt', 'Lorem 2', () => {
                                 assertFileWasAnchored(dsu, '/file1.txt', 'Lorem 1', () => {
@@ -43,7 +38,7 @@ function assertFileWasWritten(dsu, filename, data, callback) {
         if (err) {
             return callback(err);
         }
-        dsu.writeFile(filename, data, async (err, hash) => {
+        dsu.writeFile(filename, data, async (err) => {
             assert.true(typeof err === 'undefined', 'DSU is writable');
 
             await dsu.commitBatchAsync();

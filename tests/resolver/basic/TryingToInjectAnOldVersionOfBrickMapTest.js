@@ -9,7 +9,7 @@ const utils = require('./utils');
 
 assert.callback(`Trying to inject an old version of BrickMap in the latest BrickMap of current DSU`, async (testDone) => {
     const fs = require('fs');
-    const env = await utils.mockEnvironment({ folder: 'inject-old-brickMap-test_' });
+    const env = await utils.mockEnvironment({folder: 'inject-old-brickMap-test_'});
 
     await $$.promisify(tir.launchApiHubTestNode)(10, env.basePath);
 
@@ -18,17 +18,17 @@ assert.callback(`Trying to inject an old version of BrickMap in the latest Brick
     const encrypt = false;
 
     // it creates a DSU
-    const dsu = await $$.promisify(resolver.createDSUx)(env.domain, 'seed', { addLog: false });
+    const dsu = await $$.promisify(resolver.createDSUx)(env.domain, 'seed', {addLog: false});
     const keySSI = await $$.promisify(dsu.getKeySSIAsObject)();
     await dsu.safeBeginBatchAsync();
     // it writes a file in DSU
-    await $$.promisify(dsu.writeFile)('/example.txt', initialData, { encrypt });
+    await $$.promisify(dsu.writeFile)('/example.txt', initialData, {encrypt});
     await dsu.commitBatchAsync();
     let [brickMap] = await utils.extractLatestBrickMap(env);
 
     await dsu.safeBeginBatchAsync();
     // it writes a new version of the same file
-    await $$.promisify(dsu.writeFile)('/example.txt', expectedData, { encrypt });
+    await $$.promisify(dsu.writeFile)('/example.txt', expectedData, {encrypt});
     await dsu.commitBatchAsync();
     const oldBrickMap = brickMap;
     [brickMap] = await utils.extractLatestBrickMap(env);

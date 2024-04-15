@@ -16,37 +16,28 @@ assert.callback('Cloud enclave test', (testFinished) => {
     dc.createTestFolder('cloudEnclave', async (err, folder) => {
         const vaultDomainConfig = {
             "anchoring": {
-                "type": "FS",
-                "option": {}
-            },
-            "enable": ["enclave", "mq"]
+                "type": "FS", "option": {}
+            }, "enable": ["enclave", "mq"]
         }
 
         const domain = "mqtestdomain";
         process.env.CLOUD_ENCLAVE_SECRET = "some secret";
         await tir.launchConfigurableApiHubTestNodeAsync({
-            domains: [{name: domain, config: vaultDomainConfig}],
-            rootFolder: folder
+            domains: [{name: domain, config: vaultDomainConfig}], rootFolder: folder
         });
 
         const configFolder = path.join(folder, "conf");
         const testEnclaveFolder1 = path.join(configFolder, "testEnclave1");
         const testEnclaveFolder2 = path.join(configFolder, "testEnclave2");
         const testEnclaveConfig1 = {
-            domain,
-            name: "testEnclave1",
-            persistence: {
-                type: "loki",
-                options: [path.join(testEnclaveFolder1, "testEnclave1DB")]
+            domain, name: "testEnclave1", persistence: {
+                type: "loki", options: [path.join(testEnclaveFolder1, "testEnclave1DB")]
             }
         }
 
         const testEnclaveConfig2 = {
-            domain,
-            name: "testEnclave2",
-            persistence: {
-                type: "loki",
-                options: [path.join(testEnclaveFolder2, "testEnclave2DB")]
+            domain, name: "testEnclave2", persistence: {
+                type: "loki", options: [path.join(testEnclaveFolder2, "testEnclave2DB")]
             }
         }
 

@@ -19,7 +19,7 @@ function KeyDID_Method() {
             secret = undefined;
         }
 
-        if(privateKey && secret){
+        if (privateKey && secret) {
             return callback(Error("Only one of privateKey or secret should be provided"));
         }
 

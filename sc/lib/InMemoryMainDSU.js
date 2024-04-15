@@ -96,7 +96,7 @@ function InMemoryMainDSU() {
         callback();
     }
 
-    this.commitBatchAsync = async (batchId) => {
+    this.commitBatchAsync = async () => {
         convertUpdateFnToAsync(this.commitBatch);
     }
 

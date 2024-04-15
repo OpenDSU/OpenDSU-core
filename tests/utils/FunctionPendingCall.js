@@ -1,5 +1,4 @@
 require("../../../../builds/output/testsRuntime");
-const testIntegration = require("../../../../psknode/tests/util/tir");
 const dc = require("double-check");
 const assert = dc.assert;
 const PendingCallMixin = require("../../utils/PendingCallMixin");
@@ -19,7 +18,7 @@ assert.callback('Testing the pending call behavior, delay initialization', (test
             this.executePendingCalls();
         };
 
-        if (this.constructor !== TestingCache ){
+        if (this.constructor !== TestingCache) {
             throw 'TestingCache() must be called with new'
         }
 
@@ -30,8 +29,7 @@ assert.callback('Testing the pending call behavior, delay initialization', (test
                 return this.addPendingCall(() => {
                     callback(this.c1)
                 })
-            }
-            else {
+            } else {
                 callback(this.c1)
             }
         };
@@ -54,14 +52,17 @@ assert.callback('Testing the pending call behavior, delay initialization', (test
 
     const dict = new TestingCache()
 
-    dict.getInfo((result) =>  {assert.equal(result['name'], 'John')})
+    dict.getInfo((result) => {
+        assert.equal(result['name'], 'John')
+    })
 
-    dict.setInfo('name', 0, 'lastname', () => {}  )
+    dict.setInfo('name', 0, 'lastname', () => {
+    })
 
     dict.getInfo((result) => {
 
         assert.equal(result['name'], 'name')
-        if (dict.c1){
+        if (dict.c1) {
             assert.true(true)
         }
         testfinished()

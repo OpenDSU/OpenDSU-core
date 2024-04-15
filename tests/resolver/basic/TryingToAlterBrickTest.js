@@ -9,7 +9,7 @@ const utils = require('./utils');
 $$.LEGACY_BEHAVIOUR_ENABLED = true;
 assert.callback(`Alter the content of a raw brick`, async (testDone) => {
     const fs = require('fs');
-    const env = await utils.mockEnvironment({ folder: 'alter-brick-test_' });
+    const env = await utils.mockEnvironment({folder: 'alter-brick-test_'});
 
     const rawData = 'lorem data';
     const injectedData = 'injected data';
@@ -18,7 +18,7 @@ assert.callback(`Alter the content of a raw brick`, async (testDone) => {
 
     // it creates and writes in DSU
     const dsu = await $$.promisify(resolver.createDSUx)(env.domain, 'seed');
-    await $$.promisify(dsu.writeFile)('/example.txt', rawData, { encrypt: false });
+    await $$.promisify(dsu.writeFile)('/example.txt', rawData, {encrypt: false});
 
     // get the victim brick
     const bricks = await utils.extractBricks(env);
@@ -41,7 +41,7 @@ assert.callback(`Alter the content of a raw brick`, async (testDone) => {
 async function checkDataCorruption(dsu, file, message) {
     try {
         const alteredData = await $$.promisify(dsu.readFile)(file);
-        console.log({ utf8: alteredData.toString() });
+        console.log({utf8: alteredData.toString()});
         assert.true(false, 'Data corruption happened and not detected when overriding the content!');
     } catch (err) {
         console.log(message);

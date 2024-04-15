@@ -11,10 +11,6 @@ dc.createTestFolder("ODSU_PublishStressTest", (err, testFolder) => {
 
 
 	assert.callback('Test mass publishing without subscribers', (callback) => {
-
-		let messageReceived = false;
-		let messageSent = false;
-
 		tir.launchApiHubTestNode(10, testFolder, async (err) => {
 			assert.true(err === null || typeof err === "undefined", "Failed to launch MQNode");
 			const keySSISpace = require('./../../keyssi');
@@ -27,7 +23,7 @@ dc.createTestFolder("ODSU_PublishStressTest", (err, testFolder) => {
 			const createKeySSI = (domain) => {
 				domain = domain || 'default';
 				return new Promise((resolve, reject) => {
-					keySSISpace.createTemplateSeedSSI('default', (err, templateKeySSI) => {
+					keySSISpace.createTemplateSeedSSI(domain, (err, templateKeySSI) => {
 						if (err) {
 							return reject(err);
 						}

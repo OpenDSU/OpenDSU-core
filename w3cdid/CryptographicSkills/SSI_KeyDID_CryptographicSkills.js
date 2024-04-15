@@ -1,5 +1,6 @@
 const didDocumentsFactory = require("../didDocumentsFactory");
 const didMethodsNames = require("../didMethodsNames");
+
 function SSI_KeyDID_CryptographicSkills() {
     const CryptoGraphicSkillsMixin = require("./CryptographicSkillsMixin");
     CryptoGraphicSkillsMixin(this);

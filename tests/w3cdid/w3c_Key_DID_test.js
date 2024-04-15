@@ -10,7 +10,6 @@ const w3cDID = openDSU.loadAPI("w3cdid");
 const crypto = openDSU.loadAPI("crypto");
 
 assert.callback('W3C Key DID test', (testFinished) => {
-    const domain = 'default';
     let sc;
 
     dc.createTestFolder('createDSU', async (err, folder) => {
@@ -20,7 +19,10 @@ assert.callback('W3C Key DID test', (testFinished) => {
                 "option": {}
             }
         }
-        await tir.launchConfigurableApiHubTestNodeAsync({domains: [{name: "vault", config: vaultDomainConfig}], rootFolder: folder});
+        await tir.launchConfigurableApiHubTestNodeAsync({
+            domains: [{name: "vault", config: vaultDomainConfig}],
+            rootFolder: folder
+        });
         sc = scAPI.getSecurityContext();
         sc.on("initialised", async () => {
             try {

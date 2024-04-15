@@ -9,13 +9,13 @@ const { createTestFolderWithDSU, isHashLinkSSI } = require("./utils");
 assert.callback(
     "getHandler rename",
     (testFinished) => {
-        createTestFolderWithDSU("dsu-rename", (keySSI, dsu) => {
+        createTestFolderWithDSU("dsu-rename", (keySSI) => {
             resolver.getDSUHandler(keySSI).listFiles("/", (error, initialFiles) => {
                 if (error) {
                     throw error;
                 }
 
-                resolver.getDSUHandler(keySSI).writeFile("old-name", "dummy-content", (error, result) => {
+                resolver.getDSUHandler(keySSI).writeFile("old-name", "dummy-content", (error) => {
                     if (error) {
                         throw error;
                     }

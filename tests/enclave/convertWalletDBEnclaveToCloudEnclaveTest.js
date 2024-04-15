@@ -55,14 +55,14 @@ assert.callback('Convert WalletDBEnclave to CloudEnclave test', (testFinished) =
                 let error;
                 let cloudEnclave;
                 [error, cloudEnclave] = await $$.call(enclaveAPI.convertWalletDBEnclaveToCloudEnclave, walletDBEnclave, serverDIDs[0]);
-                if(error){
+                if (error) {
                     throw error;
                 }
 
                 let cloudEnclaveRecord;
                 await $$.promisify(cloudEnclave.grantReadAccess)("some_did", TABLE);
                 [error, cloudEnclaveRecord] = await $$.call(cloudEnclave.getRecord, "some_did", TABLE, "pk1");
-                if(error){
+                if (error) {
                     throw error;
                 }
 
@@ -74,7 +74,7 @@ assert.callback('Convert WalletDBEnclave to CloudEnclave test', (testFinished) =
             })
         }
         const sc = scAPI.getSecurityContext();
-        if(sc.isInitialised()){
+        if (sc.isInitialised()) {
             return runAssertions();
         }
 

@@ -1,8 +1,8 @@
 require("../../../../../builds/output/testsRuntime");
-const { getNonEncryptedAndEncryptedDSUTester, getDSUTesters } = require("./utils");
+const {getNonEncryptedAndEncryptedDSUTester} = require("./utils");
 
 const dc = require("double-check");
-const { assert } = dc;
+const {assert} = dc;
 assert.callback(
     "VersionlessDSU mounts test",
     getNonEncryptedAndEncryptedDSUTester(async (dsuTester) => {
@@ -26,7 +26,7 @@ assert.callback(
         // write file to dsuToMount
         const FILE_CONTENT = "demo-content";
         let batchId = await dsuToMount.startOrAttachBatchAsync()
-        await $$.promisify(dsuToMount.writeFile)("demo.txt", FILE_CONTENT, { ignoreMounts: true });
+        await $$.promisify(dsuToMount.writeFile)("demo.txt", FILE_CONTENT, {ignoreMounts: true});
         await dsuToMount.commitBatchAsync(batchId);
         await dsuTester.callMethodWithResultComparison("readFile", ["/mount-path/demo.txt"]);
 
@@ -37,7 +37,7 @@ assert.callback(
 
         // mount inner DSU
         await dsuTester.callStandardDSUMethod("mount", ["/mount-path/inner-mount", dsuKeySSIToMount2]);
-        
+
         // 
 
         await dsuTester.callVersionlessDSUMethod("createFolder", ["/mount-path/inner-mount/demo"]);

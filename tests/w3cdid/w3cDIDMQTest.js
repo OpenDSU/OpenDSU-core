@@ -5,7 +5,6 @@ const dc = require("double-check");
 const assert = dc.assert;
 
 const w3cDID = require('../../w3cdid');
-const keySSI = require("../../keyssi")
 const openDSU = require("../../index");
 const scAPI = openDSU.loadAPI("sc");
 
@@ -19,7 +18,10 @@ assert.callback('w3cDID MQ test', (testFinished) => {
             },
             "enable": ["mq"]
         }
-        await tir.launchConfigurableApiHubTestNodeAsync({domains: [{name: "vault", config: vaultDomainConfig}], rootFolder: folder});
+        await tir.launchConfigurableApiHubTestNodeAsync({
+            domains: [{name: "vault", config: vaultDomainConfig}],
+            rootFolder: folder
+        });
         let sc = scAPI.getSecurityContext();
         sc.on("initialised", async () => {
             w3cDID.createIdentity("demo", (err, firstDIDDocument) => {

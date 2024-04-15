@@ -20,10 +20,12 @@ assert.callback('Shared enclave db test', (testFinished) => {
         }
 
         try {
-            await tir.launchConfigurableApiHubTestNodeAsync({domains: [{name: "vault", config: vaultDomainConfig}], rootFolder: folder});
+            await tir.launchConfigurableApiHubTestNodeAsync({
+                domains: [{name: "vault", config: vaultDomainConfig}],
+                rootFolder: folder
+            });
             const seedDSU = await $$.promisify(resolver.createSeedDSU)("vault");
             const keySSI = await $$.promisify(seedDSU.getKeySSIAsString)();
-            const mainEnclave = dbAPI.getMainEnclave();
             const walletDBEnclave = enclaveAPI.initialiseWalletDBEnclave(keySSI);
             const enclaveDID = await $$.promisify(walletDBEnclave.getDID)();
             const mainDSU = await $$.promisify(scAPI.getMainDSU)();
@@ -43,7 +45,6 @@ assert.callback('Shared enclave db test', (testFinished) => {
             env[openDSU.constants.SHARED_ENCLAVE.DID] = enclaveDID;
             await $$.promisify(mainDSU.writeFile)("/environment.json", JSON.stringify(env));
             await $$.promisify(mainDSU.refresh)()
-            const files = await $$.promisify(mainDSU.listFiles)("/")
             env = await $$.promisify(mainDSU.readFile)("/environment.json");
             env = JSON.parse(env.toString());
 

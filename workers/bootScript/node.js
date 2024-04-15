@@ -1,17 +1,17 @@
 module.exports = () => {
     const worker_threads = "worker_threads";
-    const { parentPort } = require(worker_threads);
+    const {parentPort} = require(worker_threads);
 
     parentPort.postMessage("ready");
 
-    parentPort.on("message", ({ functionName, payload }) => {
+    parentPort.on("message", ({functionName, payload}) => {
         console.log(`[workers] node worker activated by function "${functionName}"`);
 
         try {
             const result = require("opendsu").loadAPI("workers").getFunctionsRegistry()[functionName](payload);
-            parentPort.postMessage({ result });
+            parentPort.postMessage({result});
         } catch (error) {
-            parentPort.postMessage({ error });
+            parentPort.postMessage({error});
         }
     });
 

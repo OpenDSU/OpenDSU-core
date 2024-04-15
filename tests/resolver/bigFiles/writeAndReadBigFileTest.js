@@ -24,6 +24,7 @@ function generateRandomFile(filePath, fileSize) {
         const step = 1000;
         let i = fileSize;
         write();
+
         function write() {
             let ok = true;
             do {
@@ -69,14 +70,14 @@ async function writeDataToBricks(keySSI, data) {
 async function writeBigFileToDSU(originalFilePath, originalFileSize, dsu, templateSeedSSI) {
     const hashLinks = [];
 
-    const originalFileReadStream = fs.createReadStream(originalFilePath, { highWaterMark: FILE_CHUNK_SIZE });
+    const originalFileReadStream = fs.createReadStream(originalFilePath, {highWaterMark: FILE_CHUNK_SIZE});
     for await (const chunk of originalFileReadStream) {
         const chunkHashLinks = await writeDataToBricks(templateSeedSSI, chunk);
         chunkHashLinks.forEach((hashLink) => hashLinks.push(hashLink));
     }
 
     const sizeSSI = keySSIApi.createSizeSSI(DOMAIN, originalFileSize, FILE_CHUNK_SIZE);
-    hashLinks.unshift({ size: sizeSSI.getIdentifier() });
+    hashLinks.unshift({size: sizeSSI.getIdentifier()});
 
     console.log("FINAL hashlinks", hashLinks);
 
@@ -96,15 +97,15 @@ function streamToBuffer(stream) {
 
 async function compareOriginalFileWithOneFromDSU(originalFilePath, chunkSize, dsu) {
     const originalFileSize = fs.statSync(originalFilePath).size;
-    const originalFileReadStream = fs.createReadStream(originalFilePath, { highWaterMark: chunkSize });
+    const originalFileReadStream = fs.createReadStream(originalFilePath, {highWaterMark: chunkSize});
     let startIndex = 0;
     for await (const originalChunk of originalFileReadStream) {
         // not all time is the highWaterMark enforced, so we need to get the byteLength of the chunk that was actually read
         const actualChunkSize = originalChunk.byteLength;
-        const streamRange = { start: startIndex, end: startIndex + actualChunkSize - 1 };
+        const streamRange = {start: startIndex, end: startIndex + actualChunkSize - 1};
         console.log(`Checking chunk start: ${streamRange.start}, end: ${streamRange.end}, size: ${actualChunkSize}`);
 
-        const { totalSize, stream: dsuFileStream } = await $$.promisify(dsu.createBigFileReadStreamWithRange)(
+        const {totalSize, stream: dsuFileStream} = await $$.promisify(dsu.createBigFileReadStreamWithRange)(
             DSU_ADDED_FILE_PATH,
             streamRange
         );
@@ -138,7 +139,7 @@ assert.callback(
         await generateRandomFile(originalFilePath, ORIGINAL_FILE_SIZE);
 
         const hashLinks = [];
-        const originalFileReadStream = fs.createReadStream(originalFilePath, { highWaterMark: FILE_CHUNK_SIZE });
+        const originalFileReadStream = fs.createReadStream(originalFilePath, {highWaterMark: FILE_CHUNK_SIZE});
         for await (const chunk of originalFileReadStream) {
             const chunkHashLinks = await writeDataToBricks(templateSeedSSI, chunk);
             chunkHashLinks.forEach((hashLink) => hashLinks.push(hashLink));
@@ -212,8 +213,8 @@ assert.callback(
         console.log(`Finished writing file to DSU at ${DSU_ADDED_FILE_PATH}`);
 
         try {
-            const streamRange = { start: 0, end: ORIGINAL_FILE_SIZE - 1 };
-            const { totalSize, stream } = await $$.promisify(dsu.createBigFileReadStreamWithRange)(
+            const streamRange = {start: 0, end: ORIGINAL_FILE_SIZE - 1};
+            await $$.promisify(dsu.createBigFileReadStreamWithRange)(
                 DSU_ADDED_FILE_PATH,
                 streamRange
             );

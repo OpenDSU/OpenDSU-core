@@ -202,7 +202,7 @@ function Enclave_Mixin(target, did) {
         target.storageDB.deleteRecord(table, pk, callback);
     }
 
-    target.beginBatch = (forDID) => {
+    target.beginBatch = () => {
         target.storageDB.beginBatch();
     }
 
@@ -238,7 +238,7 @@ function Enclave_Mixin(target, did) {
         return await target.storageDB.cancelBatchAsync(...args);
     }
 
-    target.batchInProgress = (forDID) => {
+    target.batchInProgress = () => {
         return target.storageDB.batchInProgress();
     }
 

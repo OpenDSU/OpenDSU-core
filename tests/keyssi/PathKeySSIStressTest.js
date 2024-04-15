@@ -16,7 +16,10 @@ assert.callback('PathKeySSI stress test', (testFinished) => {
                 "option": {}
             }
         }
-        await tir.launchConfigurableApiHubTestNodeAsync({domains: [{name: "vault", config: vaultDomainConfig}], rootFolder: folder});
+        await tir.launchConfigurableApiHubTestNodeAsync({
+            domains: [{name: "vault", config: vaultDomainConfig}],
+            rootFolder: folder
+        });
 
         const mainEnclave = enclaveAPI.initialiseWalletDBEnclave();
         mainEnclave.on("initialised", async () => {
@@ -27,7 +30,7 @@ assert.callback('PathKeySSI stress test', (testFinished) => {
                 const initialPathKeySSI = await $$.promisify(keySSISpace.createPathKeySSI)("vault", `0/something`);
                 for (let i = 0; i < NO_KEYSSIS; i++) {
                     const path = crypto.generateRandom(32).toString("hex");
-                    const pathKeySSI = await $$.promisify(keySSISpace.createPathKeySSI)("vault", `0/${path}`);
+                    await $$.promisify(keySSISpace.createPathKeySSI)("vault", `0/${path}`);
                 }
                 const sReadSSI = await $$.promisify(mainEnclave.getReadForKeySSI)(undefined, initialPathKeySSI);
                 console.log(sReadSSI.getIdentifier(true));

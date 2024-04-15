@@ -21,12 +21,14 @@ assert.callback('LightDB access control test', (testFinished) => {
         }
 
         const domain = "vault";
-        await tir.launchConfigurableApiHubTestNodeAsync({domains: [{name: domain, config: vaultDomainConfig}], rootFolder: folder});
+        await tir.launchConfigurableApiHubTestNodeAsync({
+            domains: [{name: domain, config: vaultDomainConfig}],
+            rootFolder: folder
+        });
         const runAssertions = async () => {
             try {
                 const DB_NAME = "db";
                 const lokiAdapterClient = enclaveAPI.initialiseLightDBEnclave(DB_NAME)
-                const addedRecord = {data: 1};
                 let userDID = await $$.promisify(w3cDID.createIdentity)("ssi:name", domain, "user");
                 userDID = userDID.getIdentifier();
                 try {

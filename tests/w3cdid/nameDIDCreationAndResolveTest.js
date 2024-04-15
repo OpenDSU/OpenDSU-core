@@ -26,24 +26,24 @@ assert.callback('key DID SSI test', (testFinished) => {
                 const publicName = "publicName";
                 const newPublicName = "newPublicName";
                 const initialSecret = "secret";
-                const wrongSecret = "wrongsecret";
                 let [err, didDocument] = await $$.call(w3cDID.resolveNameDID, domain, publicName, initialSecret);
                 assert.true(err == undefined);
                 assert.true(didDocument !== undefined);
                 console.log(didDocument.getIdentifier());
 
                 let [error, newDidDocument] = await $$.call(w3cDID.resolveNameDID, domain, newPublicName, initialSecret);
+                assert.true(error == undefined);
                 console.log(didDocument.getIdentifier(), newDidDocument.getIdentifier());
                 let initialSignature;
                 const dataToSign = "someData";
                 [err, initialSignature] = await $$.call(didDocument.sign, dataToSign);
-                console.log(err);
+                assert.true(err === undefined);
+                assert.true(initialSignature !== undefined);
 
                 const enclaveAPI = openDSU.loadAPI("enclave");
                 const enclave = enclaveAPI.initialiseMemoryEnclave();
                 enclave.on("initialised", () => {
-                    scAPI.setMainEnclave(enclave, async (err, sc) => {
-
+                    scAPI.setMainEnclave(enclave, async (err) => {
                         assert.true(err == undefined, "Failed to set main enclave");
                         let result, signature;
                         [err, result] = await $$.call(w3cDID.registerNameDIDSecret, domain, publicName, initialSecret);

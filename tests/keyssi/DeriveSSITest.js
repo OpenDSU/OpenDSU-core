@@ -2,7 +2,6 @@ require('../../../../builds/output/testsRuntime');
 
 const assert = require('double-check').assert;
 const keySSISpace = require('../../keyssi');
-const crypto = require('../../crypto');
 
 assert.callback('Derive from seedSSI', (callback) => {
     const templateSeedSSI = keySSISpace.createTemplateSeedSSI('default');

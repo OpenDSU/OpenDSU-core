@@ -5,7 +5,7 @@ const assert = dc.assert;
 
 const contracts = require("../../../contracts");
 
-const { launchApiHubTestNodeWithContractAsync } = require("../utils");
+const {launchApiHubTestNodeWithContractAsync} = require("../utils");
 
 assert.callback(
     "Use info contract to get the list of available contracts and their methods",
@@ -18,7 +18,7 @@ assert.callback(
 
             const generateSafeCommand = $$.promisify(contracts.generateSafeCommand);
 
-            const { optimisticResult: contractsInfo } = await generateSafeCommand(domain, contract, "getContracts");
+            const {optimisticResult: contractsInfo} = await generateSafeCommand(domain, contract, "getContracts");
             console.log("contractsInfo", contractsInfo);
 
             const hasContractNameAndMethods = contractsInfo.every(

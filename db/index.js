@@ -5,10 +5,6 @@ function getBasicDB(storageStrategy, conflictSolvingStrategy, options) {
     return new BasicDB(storageStrategy, conflictSolvingStrategy, options);
 }
 
-function getMultiUserDB(keySSI, dbName) {
-    throw "Not implemented yet";
-}
-
 let getSharedDB = function (keySSI, dbName, options) {
     let SingleDSUStorageStrategy = require("./storageStrategies/SingleDSUStorageStrategy").SingleDSUStorageStrategy;
     let storageStrategy = new SingleDSUStorageStrategy();
@@ -117,7 +113,6 @@ module.exports = {
         return getSharedDB(keySSI, dbName);
     },
     getSimpleWalletDB,
-    getMultiUserDB,
     getSharedDB,
     getInMemoryDB,
     getEnclaveDB,

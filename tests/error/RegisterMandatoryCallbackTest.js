@@ -10,7 +10,7 @@ assert.callback(
       console.log('running');
     }
     const result = errorSpace.registerMandatoryCallback(testFunction, 1000);
-    errorSpace.observeUserRelevantMessages('error', (message) => {
+    errorSpace.observeUserRelevantMessages('error', () => {
       assert.true(false);
     });
     result();

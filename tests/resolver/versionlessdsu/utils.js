@@ -1,5 +1,3 @@
-const {launchConfigurableApiHubTestNodeAsync} = require("../../../../../psknode/tests/util/tir");
-
 const dc = require("double-check");
 const {assert} = dc;
 const path = require("path");
@@ -49,6 +47,7 @@ class TwoDSUTester {
     methodShouldBeBatched(methodName) {
         return methodName === "writeFile" || methodName === "addFile" || methodName === "addFiles" || methodName === "delete" || methodName === "rename" || methodName === "copy" || methodName === "createFolder" || methodName === "mount" || methodName === "unmount";
     }
+
     async callMethod(methodName, params) {
         const callParams = params ? params : [];
         let isStandardRequestFailed = false;
@@ -204,10 +203,10 @@ class TwoDSUTester {
         }
 
         if (Array.isArray(standardDSUResult) || Array.isArray(versionlessDSUResult)) {
-            try{
+            try {
 
-            assert.arraysMatch(standardDSUResult, versionlessDSUResult);
-            }catch (e) {
+                assert.arraysMatch(standardDSUResult, versionlessDSUResult);
+            } catch (e) {
                 console.log(e);
                 console.log(standardDSUResult);
                 console.log(versionlessDSUResult);
@@ -226,10 +225,10 @@ class TwoDSUTester {
     async callMethodWithResultComparison(methodName, params) {
         const callMethodResults = await this.callMethod(methodName, params);
         const [standardDSUResult, versionlessDSUResult] = callMethodResults;
-        try{
+        try {
 
-        this.compareMethodResults(methodName, standardDSUResult, versionlessDSUResult);
-        }catch (e) {
+            this.compareMethodResults(methodName, standardDSUResult, versionlessDSUResult);
+        } catch (e) {
             console.log(e);
             console.log(standardDSUResult);
             console.log(versionlessDSUResult);
@@ -344,7 +343,12 @@ async function getDSUTesters(useStandardDSUForInnerDSUConfig) {
             "option": {}
         }
     }
-    const {port} = await tir.launchConfigurableApiHubTestNodeAsync({domains: [{name: "vault", config: vaultDomainConfig}], rootFolder: testFolder});
+    const {port} = await tir.launchConfigurableApiHubTestNodeAsync({
+        domains: [{
+            name: "vault",
+            config: vaultDomainConfig
+        }], rootFolder: testFolder
+    });
 
     const dsuTesters = [];
     for (const encrypted of [false, true]) {

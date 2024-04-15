@@ -48,7 +48,7 @@ const brickExistsOnServer = (hashLinkSSI, callback) => {
 
                 throw Error(`Failed to parse response from server. Expected "true" or "false" but got ${exists}`);
             }).catch(e => {
-                throw Error(`Failed to check brick <${brickHash}>: e.message`);
+                throw Error(`Failed to check brick <${brickHash}>: ${e.message}`);
             })
         };
 

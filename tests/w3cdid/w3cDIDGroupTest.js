@@ -7,7 +7,6 @@ const assert = dc.assert;
 const openDSU = require("../../index");
 $$.__registerModule("opendsu", openDSU);
 const w3cDID = openDSU.loadAPI("w3cdid");
-const scAPI = openDSU.loadAPI("sc");
 
 const DOMAIN = "default";
 const DOMAIN_CONFIG = {
@@ -106,7 +105,6 @@ assert.callback(
                 }, {name: DOMAIN, config: DOMAIN_CONFIG}], rootFolder: folder
             });
 
-            const resolver = openDSU.loadAPI("resolver");
             const scAPI = openDSU.loadAPI("sc");
 
             let sc = scAPI.getSecurityContext();

@@ -1,5 +1,6 @@
 const didDocumentsFactory = require("../didDocumentsFactory");
 const didMethodsNames = require("../didMethodsNames");
+
 function GroupDID_CryptographicSkills() {
     const CryptoGraphicSkillsMixin = require("./CryptographicSkillsMixin");
     CryptoGraphicSkillsMixin(this);

@@ -8,7 +8,6 @@ const tir = require("../../../../../psknode/tests/util/tir");
 
 
 const dc = require("double-check");
-const testIntegration = require("../../../../../psknode/tests/util/tir");
 const assert = dc.assert;
 
 const keyssi = require('opendsu').loadApi('keyssi');

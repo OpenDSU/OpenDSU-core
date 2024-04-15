@@ -15,7 +15,7 @@ assert.callback('Trying to create a new anchor for an existing ConstDSU', (testF
             }
 
             const domain = 'default';
-            createDSU(domain, (err, keySSI, dsuHashLink) => {
+            createDSU(domain, (err) => {
                 assert.true(typeof err !== "undefined", "Expected error when trying to create an existing DSU");
                 testFinished();
             });
@@ -25,12 +25,12 @@ assert.callback('Trying to create a new anchor for an existing ConstDSU', (testF
 
 
 function createDSU(domain, keySSICallback) {
-    resolver.createArrayDSU(domain, ["username"+Date.now(), "password"],(err, dsu) => {
+    resolver.createArrayDSU(domain, ["username" + Date.now(), "password"], (err, dsu) => {
         if (err) {
             throw err;
         }
-        dsu.writeFile("/filename", "filecontent", (err)=>{
-            if(err){
+        dsu.writeFile("/filename", "filecontent", (err) => {
+            if (err) {
                 throw err;
             }
             dsu.getKeySSIAsString((err, keySSI) => {

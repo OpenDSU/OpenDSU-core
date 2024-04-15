@@ -5,10 +5,7 @@ const dc = require("double-check");
 const assert = dc.assert;
 const openDSU = require('../../index');
 $$.__registerModule("opendsu", openDSU);
-const keySSISpace = openDSU.loadAPI("keyssi");
 const resolver = openDSU.loadAPI("resolver");
-const scAPI = openDSU.loadAPI("sc");
-const w3cDID = openDSU.loadAPI("w3cdid");
 
 assert.callback('Anchoring the same ConstSSI multiple times', (testFinished) => {
     const domain = 'default';

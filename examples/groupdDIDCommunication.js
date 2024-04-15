@@ -7,8 +7,6 @@ $$.__registerModule("opendsu", openDSU);
 const w3cDID = openDSU.loadAPI("w3cdid");
 
 //load db API from "opendsu"
-const dbAPI = openDSU.loadAPI("db");
-
 const DOMAIN_CONFIG = {
     enable: ["mq"]
 };
@@ -27,13 +25,6 @@ tir.launchConfigurableApiHubTestNode({
     }
 
     const dataToSend = "some data";
-
-    let enclave;
-    try{
-        enclave = await $$.promisify(dbAPI.getMainEnclave)();
-    }catch (e) {
-        return console.log(e);
-    }
 
     let firstMember;
     let secondMember;
