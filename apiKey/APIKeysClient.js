@@ -19,7 +19,7 @@ function APIKeysClient(baseUrl) {
         }
 
         const response = await fetch(`${BASE_URL}${endpoint}`, options);
-        if(!response.ok){
+        if (!response.ok) {
             throw new Error(`Failed to fetch ${endpoint} with status ${response.status}`);
         }
         return response.text();

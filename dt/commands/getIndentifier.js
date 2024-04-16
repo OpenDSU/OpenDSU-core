@@ -6,14 +6,14 @@
 /**
  */
 const Command = require('./Command');
-const { _err } = require('./utils');
+const {_err} = require('./utils');
 
 /**
  * Returns the identifier for the current source object
  *
  * @class GetIdentifierCommand
  */
-class GetIdentifierCommand extends Command{
+class GetIdentifierCommand extends Command {
     constructor(varStore) {
         super(varStore);
     }
@@ -24,8 +24,8 @@ class GetIdentifierCommand extends Command{
      * @param {function(err, boolean)} callback
      * @protected
      */
-    _parseCommand(command, next, callback){
-        if (!callback){
+    _parseCommand(command, next, callback) {
+        if (!callback) {
             callback = next;
             next = undefined;
         }
@@ -57,12 +57,12 @@ class GetIdentifierCommand extends Command{
                 : callback(undefined, identifier));
 
         // if its a KeySSI
-        try{
+        try {
             let identifier = arg ? bar.getIdentifier() : bar;
             if (!identifier)
                 return callback(`Could not get identifier`);
             callback(undefined, identifier);
-        } catch (e){
+        } catch (e) {
             _err(`Could not get identifier`, e, callback);
         }
     }

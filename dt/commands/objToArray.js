@@ -6,19 +6,19 @@
 /**
  */
 const Command = require('./Command');
-const { _err } = require('./utils');
+const {_err} = require('./utils');
 
 /**
  * Util Command to convert objects to and array with their values
  * @class ObjToArrayCommand
  */
-class ObjToArrayCommand extends Command{
+class ObjToArrayCommand extends Command {
     constructor(varStore, source) {
         super(varStore, source, false);
     }
 
-    _parseCommand(command, next, callback){
-        if (!callback){
+    _parseCommand(command, next, callback) {
+        if (!callback) {
             callback = next;
             next = undefined;
         }
@@ -38,11 +38,11 @@ class ObjToArrayCommand extends Command{
             callback = options;
             options = undefined;
         }
-        try{
+        try {
             const obj = JSON.parse(arg);
             if (typeof obj !== 'object')
                 return callback(`Provided argument is not an object`);
-            if (Array.isArray(obj)){
+            if (Array.isArray(obj)) {
                 console.log(`Object was already an array ${arg}`);
                 callback(undefined, obj);
             }

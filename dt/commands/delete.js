@@ -7,7 +7,7 @@
 /**
  */
 const Command = require('./Command');
-const { _err } = require('./utils');
+const {_err} = require('./utils');
 
 /**
  * Deletes everything in the specified path of the DSU
@@ -16,7 +16,7 @@ const { _err } = require('./utils');
  */
 class DeleteCommand extends Command {
     constructor(varStore) {
-        super(varStore,undefined, false);
+        super(varStore, undefined, false);
     }
 
     /**
@@ -26,7 +26,7 @@ class DeleteCommand extends Command {
      * @return {string|object} the command argument
      * @protected
      */
-    _parseCommand(command, next, callback){
+    _parseCommand(command, next, callback) {
         callback(undefined, command[0]);
     }
 
@@ -37,8 +37,8 @@ class DeleteCommand extends Command {
      * @param {function(err, Archive)} callback
      * @protected
      */
-    _runCommand(arg, bar, options, callback){
-        if (typeof options === 'function'){
+    _runCommand(arg, bar, options, callback) {
+        if (typeof options === 'function') {
             callback = options;
             options = undefined
         }

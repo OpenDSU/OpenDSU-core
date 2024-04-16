@@ -93,14 +93,14 @@ function RemotePersistence() {
 
                 smartUrl.doGet((err, data) => {
                     if (err) {
-                        if(err.rootCause === require("./../moduleConstants").ERROR_ROOT_CAUSE.MISSING_DATA_ERROR){
+                        if (err.rootCause === require("./../moduleConstants").ERROR_ROOT_CAUSE.MISSING_DATA_ERROR) {
                             return resolve();
                         }
                         return reject(err);
                     }
 
-                    if(actionName === "get-all-versions"){
-                        if(data === ""){
+                    if (actionName === "get-all-versions") {
+                        if (data === "") {
                             return resolve();
                         }
                     }

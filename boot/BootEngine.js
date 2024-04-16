@@ -5,7 +5,7 @@ function BootEngine(getKeySSI) {
     getKeySSI = promisify(getKeySSI);
 
     const openDSU = require("opendsu");
-    const { constants } = openDSU;
+    const {constants} = openDSU;
     const resolver = openDSU.loadApi("resolver");
     const pskPath = require("swarmutils").path;
 
@@ -74,7 +74,7 @@ function BootEngine(getKeySSI) {
                 return;
             }
 
-            const { runtimeBundles, constitutionBundles } = bootConfig;
+            const {runtimeBundles, constitutionBundles} = bootConfig;
 
             if (typeof runtimeBundles !== "undefined" && !Array.isArray(runtimeBundles)) {
                 return callback(new Error("runtimeBundles is not array"));

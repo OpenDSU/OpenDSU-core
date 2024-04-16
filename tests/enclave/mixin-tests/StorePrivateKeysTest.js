@@ -16,7 +16,10 @@ assert.callback('Store private keys on WalletDB test', (testFinished) => {
                 "option": {}
             }
         }
-        await tir.launchConfigurableApiHubTestNodeAsync({ domains: [{ name: "vault", config: vaultDomainConfig }], rootFolder: folder });
+        await tir.launchConfigurableApiHubTestNodeAsync({
+            domains: [{name: "vault", config: vaultDomainConfig}],
+            rootFolder: folder
+        });
         const sc = scAPI.getSecurityContext();
         sc.on("initialised", async () => {
             const walletDBEnclave = enclaveAPI.initialiseWalletDBEnclave();
@@ -29,7 +32,7 @@ assert.callback('Store private keys on WalletDB test', (testFinished) => {
                     walletDBEnclave.storePrivateKey("", privateKey, type, keyAlias, (err, rec) => {
                         assert.true(err == undefined, "Error occured");
                         assert.objectsAreEqual(privateKey, rec.privateKey, "Records do not match");
-                        
+
                         walletDBEnclave.storePrivateKey("", privateKey, type, (err, rec) => {
                             assert.true(err == undefined, "Error occured");
                             assert.true(rec.pk !== undefined, "Alias not generated")

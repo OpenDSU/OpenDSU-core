@@ -50,7 +50,7 @@ function Query(queryArray) {
             }
             getNextRecordForValue(sortedValues[currentIndex], (err, record) => {
                 if (record === null || err) {
-                    if(err){
+                    if (err) {
                         console.log("We caught an error during record retrieval and we are skipping to the next from the list.", err);
                     }
                     getNextRecord(currentIndex + 1);

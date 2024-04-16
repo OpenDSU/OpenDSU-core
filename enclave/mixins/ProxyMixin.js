@@ -45,7 +45,7 @@ function ProxyMixin(target) {
             encryptedRecord = undefined;
         }
 
-        if(!encryptedRecord){
+        if (!encryptedRecord) {
             encryptedRecord = plainRecord;
         }
         target.__putCommandObject(commandNames.INSERT_RECORD, forDID, table, pk, encryptedRecord, callback);
@@ -57,7 +57,7 @@ function ProxyMixin(target) {
             encryptedRecord = plainRecord;
         }
 
-        if(!encryptedRecord){
+        if (!encryptedRecord) {
             encryptedRecord = plainRecord;
         }
         target.__putCommandObject(commandNames.UPDATE_RECORD, forDID, table, pk, encryptedRecord, callback);
@@ -90,7 +90,7 @@ function ProxyMixin(target) {
                 return callback(createOpenDSUErrorWrapper(`Failed to filter records in table ${table}`, err));
             }
 
-            if(typeof records === "string") {
+            if (typeof records === "string") {
                 try {
                     records = JSON.parse(records);
                 } catch (e) {

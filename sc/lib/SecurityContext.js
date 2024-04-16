@@ -44,8 +44,7 @@ function SecurityContext(target, PIN) {
                 keySSIApi.parse(sharedEnclaveKeySSI);
                 sharedEnclave = enclaveAPI.createEnclave(sharedEnclaveType, sharedEnclaveKeySSI);
                 return sharedEnclave;
-            }
-            catch (err) {
+            } catch (err) {
                 pinNeeded = true;
                 sharedEnclave = new Promise((res) => {
                     target.on("pinSet", async () => {
@@ -54,7 +53,7 @@ function SecurityContext(target, PIN) {
                         res(sharedEnclave)
                     })
                 })
-                return;
+
             }
         } else {
             const decodedBase58 = crypto.decodeBase58(sharedEnclaveKeySSI);
@@ -62,8 +61,7 @@ function SecurityContext(target, PIN) {
             const keySSI = crypto.encodeBase58(decryptedKey);
             try {
                 sharedEnclave = enclaveAPI.createEnclave(sharedEnclaveType, keySSI);
-            }
-            catch (e) {
+            } catch (e) {
                 throw Error(e);
             }
         }
@@ -305,8 +303,7 @@ function SecurityContext(target, PIN) {
         return new Promise((res) => {
             if (initialised) {
                 res(pinNeeded);
-            }
-            else {
+            } else {
                 target.on("initialised", async () => {
                     res(pinNeeded)
                 })

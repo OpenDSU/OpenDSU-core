@@ -13,9 +13,9 @@ const domain = "default";
 dc.createTestFolder("apihubStorage", async (err, folder) => {
     await $$.promisify(tir.launchApiHubTestNode)(100, folder)
     let enclave;
-    try{
+    try {
         enclave = await $$.promisify(dbAPI.getMainEnclave)();
-    }catch (e) {
+    } catch (e) {
         return console.log(e);
     }
     let didDocument;

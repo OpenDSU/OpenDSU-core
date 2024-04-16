@@ -7,7 +7,7 @@ const handle = (dsu, req, res, requestedPath) => {
     try {
         const query = requestedPath.substr(requestedPath.indexOf("?") + 1);
         const queryParams = querystring.parse(query);
-        console.log({ queryParams });
+        console.log({queryParams});
         uploader = Uploader.configureUploader(queryParams, dsu);
     } catch (e) {
         res.setHeader("Content-Type", "application/json");

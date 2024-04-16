@@ -15,7 +15,7 @@ function addVersion(anchorId, newHashLinkId, callback) {
         }
 
         // when the anchor is first created, no version is created yet
-        if(newHashLinkId) {
+        if (newHashLinkId) {
             hashLinkIds.push(newHashLinkId);
         }
         cache.put(anchorId, hashLinkIds, callback);

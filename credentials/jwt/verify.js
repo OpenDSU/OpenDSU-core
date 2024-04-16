@@ -15,7 +15,7 @@ const {parseJWTSegments, asymmetricalDecryption, getIssuerFormat} = require("../
  * @param callback
  */
 function verifyEncryptedCredential(jwtPayload, callback) {
-    const verifyResult = { verifyResult: true, verifiableCredential: [] };
+    const verifyResult = {verifyResult: true, verifiableCredential: []};
     const encryptedCredentials = jwtPayload.vp.verifiableCredential;
     const audience = jwtPayload.aud;
     if (!audience) {
@@ -72,7 +72,7 @@ function verifyEncryptedCredential(jwtPayload, callback) {
  */
 function verifyRootsOfTrust(jwtPayload, rootsOfTrust, callback) {
     const jwtVcList = jwtPayload.vp.verifiableCredential;
-    let verifyResult = { verifyResult: true, verifiableCredential: [] };
+    let verifyResult = {verifyResult: true, verifiableCredential: []};
 
     const chain = (index) => {
         if (index === jwtVcList.length) {

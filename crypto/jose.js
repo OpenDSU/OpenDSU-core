@@ -13,7 +13,7 @@ const pskcrypto = require("pskcrypto");
  * @returns {Promise} A promise that resolves with the signed JWT.
  */
 const createSignedHmacJWT = (payload, secretKey) => {
-    if(typeof secretKey === "string"){
+    if (typeof secretKey === "string") {
         secretKey = $$.Buffer.from(secretKey);
     }
     return new pskcrypto.joseAPI.SignJWT(payload)
@@ -35,7 +35,7 @@ const createHmacKey = async () => {
  * @param {string} secretKey - The secret key to verify the JWT with.
  */
 const verifyAndRetrievePayloadHmacJWT = async (jwt, secretKey) => {
-    if(typeof secretKey === "string"){
+    if (typeof secretKey === "string") {
         secretKey = $$.Buffer.from(secretKey);
     }
     return await pskcrypto.joseAPI.jwtVerify(jwt, secretKey);

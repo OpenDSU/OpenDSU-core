@@ -87,7 +87,7 @@ async function registerDSU(mappingInstance, dsu) {
         mappingInstance.registeredDSUs = [];
     }
 
-    if(dsu.batchInProgress()){
+    if (dsu.batchInProgress()) {
         $$.debug.logDSUEvent(dsu, `Already in batch mode in active mapping execution`);
         return promisifyDSUAPIs(dsu);
     }
@@ -96,10 +96,10 @@ async function registerDSU(mappingInstance, dsu) {
     const openDSU = require("opendsu");
     const SSITypes = openDSU.constants.KEY_SSI_FAMILIES;
     const resolver = openDSU.loadAPI("resolver");
-    if(keySSI.getFamilyName() === SSITypes.CONST_SSI_FAMILY){
+    if (keySSI.getFamilyName() === SSITypes.CONST_SSI_FAMILY) {
         $$.debug.logDSUEvent(dsu, `Const DSU in active mapping execution`);
         const dsuExists = await $$.promisify(resolver.dsuExists)(keySSI);
-        if(dsuExists){
+        if (dsuExists) {
             $$.debug.logDSUEvent(dsu, `Const DSU already exists in active mapping execution`);
             return promisifyDSUAPIs(dsu);
         }
@@ -114,21 +114,21 @@ async function registerDSU(mappingInstance, dsu) {
     return promisifyDSUAPIs(dsu);
 }
 
-registry.defineApi("testIfDSUExists", async function(keySSI, callback){
+registry.defineApi("testIfDSUExists", async function (keySSI, callback) {
     const keySSISpace = require("opendsu").loadApi("keyssi");
     const anchoringX = require("opendsu").loadApi("anchoring").getAnchoringX();
-    if(typeof keySSI !== "object"){
+    if (typeof keySSI !== "object") {
         keySSI = keySSISpace.parse(keySSI);
     }
     let anchorId = await $$.promisify(keySSI.getAnchorId)();
     let alreadyExists = false;
     let error;
-    try{
+    try {
         let versions = await $$.promisify(anchoringX.getAllVersions)(anchorId);
-        if(versions && versions.length > 0){
+        if (versions && versions.length > 0) {
             alreadyExists = true;
         }
-    }catch(err){
+    } catch (err) {
         error = err;
     }
     return callback(error, alreadyExists);
@@ -138,12 +138,12 @@ registry.defineApi("loadConstSSIDSU", async function (constSSI, options) {
 
     let dsu = await $$.weakDSUCache.get(constSSI);
     const resolver = await this.getResolver();
-    if(!dsu){
+    if (!dsu) {
         let exists = await $$.promisify(this.testIfDSUExists)(constSSI);
         try {
             dsu = await resolver.loadDSU(constSSI);
         } catch (e) {
-            if(exists){
+            if (exists) {
                 throw createOpenDSUErrorWrapper("Failed to load Const DSU that exists", e);
             }
         }
@@ -170,7 +170,7 @@ registry.defineApi("loadArraySSIDSU", async function (domain, arr) {
     let dsu = await $$.weakDSUCache.get(keySSI);
     let exists = await $$.promisify(this.testIfDSUExists)(keySSI);
 
-    if(dsu){
+    if (dsu) {
         return {dsu: await registerDSU(this, dsu), alreadyExists: exists};
     }
 
@@ -195,7 +195,7 @@ registry.defineApi("loadArraySSIDSU", async function (domain, arr) {
 registry.defineApi("createDSU", async function (domain, ssiType, options) {
     const template = require("opendsu").loadApi("keyssi").createTemplateKeySSI(ssiType, domain);
     let resolver = await this.getResolver();
-    if(!options){
+    if (!options) {
         options = {};
     }
     options.addLog = false;
@@ -207,9 +207,9 @@ registry.defineApi("createDSU", async function (domain, ssiType, options) {
 registry.defineApi("createPathSSI", async function (domain, path) {
     const scAPI = require("opendsu").loadAPI("sc");
     let enclave;
-    try{
+    try {
         enclave = await $$.promisify(scAPI.getSharedEnclave)();
-    }catch (e) {
+    } catch (e) {
         enclave = await $$.promisify(scAPI.getMainEnclave)();
     }
     const pathKeySSI = await $$.promisify(enclave.createPathKeySSI)(domain, path);
@@ -222,10 +222,10 @@ registry.defineApi("createPathSSIDSU", async function (domain, path, options) {
     const seedSSI = await this.createPathSSI(domain, path, options);
 
     let resolver = await this.getResolver();
-    if(await $$.promisify(this.testIfDSUExists)(seedSSI)){
+    if (await $$.promisify(this.testIfDSUExists)(seedSSI)) {
         throw createOpenDSUErrorWrapper("PathSSIDSU already exists");
     }
-    if(!options){
+    if (!options) {
         options = {};
     }
     options.addLog = false;
@@ -236,7 +236,7 @@ registry.defineApi("createPathSSIDSU", async function (domain, path, options) {
 
 registry.defineApi("loadDSU", async function (keySSI, options) {
     let dsu = await $$.weakDSUCache.get(keySSI);
-    if(!dsu){
+    if (!dsu) {
         let resolver = await this.getResolver();
         dsu = await resolver.loadDSU(keySSI, options);
         if (!dsu) {
@@ -276,15 +276,15 @@ registry.defineApi("getResolver", function () {
 
             for (let i = 0; i < promisify.length; i++) {
                 let methodName = promisify[i];
-                if(methodName==="loadDSU"){
-                    instance[methodName] = async function(keySSI, ...args){
+                if (methodName === "loadDSU") {
+                    instance[methodName] = async function (keySSI, ...args) {
                         let instance = await $$.weakDSUCache.get(keySSI);
-                        if(instance){
+                        if (instance) {
                             return instance;
                         }
                         return await $$.promisify(resolver[methodName])(keySSI, ...args);
                     }
-                }else{
+                } else {
                     instance[methodName] = $$.promisify(resolver[methodName]);
                 }
             }
@@ -303,34 +303,34 @@ registry.defineApi("getResolver", function () {
 
 
 registry.defineApi("recoverDSU", function (ssi, recoveryFnc, callback) {
-    if(!this.storageService.loadDSURecoveryMode){
+    if (!this.storageService.loadDSURecoveryMode) {
         return callback(new Error("Not able to run recovery mode due to misconfiguration of mapping engine."));
     }
 
-    this.storageService.loadDSURecoveryMode(ssi, async (dsu, callback)=>{
+    this.storageService.loadDSURecoveryMode(ssi, async (dsu, callback) => {
         //because in the recoveryFnc the content get "recovered" we need to control the batch for those operations
         let batchId = await dsu.startOrAttachBatchAsync();
-        recoveryFnc(dsu, async(err, dsu)=>{
-            if(err) {
+        recoveryFnc(dsu, async (err, dsu) => {
+            if (err) {
                 return callback(err);
             }
-            dsu.commitBatch(batchId, (err)=>{
-                if(err){
+            dsu.commitBatch(batchId, (err) => {
+                if (err) {
                     return callback(err);
                 }
                 return callback(err, dsu);
             });
         });
-    }, async (err, dsu)=>{
-        if(err){
+    }, async (err, dsu) => {
+        if (err) {
             return callback(err);
         }
 
         let registeredDSU = await registerDSU(this, dsu);
-        setTimeout(()=>{
+        setTimeout(() => {
             callback(undefined, registeredDSU);
         }, 3000);
-        return;
+
     });
 });
 

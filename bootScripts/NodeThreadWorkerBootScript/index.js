@@ -1,6 +1,6 @@
 const http = require("http");
 const worker_threads = "worker_threads";
-const { parentPort, workerData } = require(worker_threads);
+const {parentPort, workerData} = require(worker_threads);
 let cookie = workerData.cookie;
 const openDSU = require("opendsu");
 const resolver = openDSU.loadApi("resolver");
@@ -42,7 +42,7 @@ const initialiseEnclave = (enclaveType, keySSI) => {
 
 function boot() {
     const sendErrorAndExit = (error) => {
-        parentPort.postMessage({ error });
+        parentPort.postMessage({error});
         setTimeout(() => {
             process.exit(1);
         }, 100);
@@ -64,19 +64,19 @@ function boot() {
         return sendErrorAndExit("missing authorizationKey");
     }
 
-    let { seed, authorizationKey, cacheContainerPath, walletAnchorId } = workerData;
+    let {seed, authorizationKey, cacheContainerPath, walletAnchorId} = workerData;
     let dsuCodeFileCacheHandler; // used to construct local FS cache from DSU mounted at /code
 
     const startHttpServer = (dsu) => {
         let httpServer = http.createServer(function (req, res) {
-            const { method, url } = req;
+            const {method, url} = req;
 
             if (!req.headers || req.headers.authorization !== authorizationKey) {
                 res.statusCode = 403;
                 return res.end("Unauthorized request");
             }
 
-            if(req.headers.cookie){
+            if (req.headers.cookie) {
                 cookie = req.headers.cookie;
             }
 
@@ -117,7 +117,7 @@ function boot() {
 
         httpServer.listen(0, function () {
             const serverPort = httpServer.address().port;
-            parentPort.postMessage({ port: serverPort, status: "started" });
+            parentPort.postMessage({port: serverPort, status: "started"});
         });
     };
 
@@ -128,10 +128,10 @@ function boot() {
         const seedSSI = keySSISpace.parse(seed);
         const isWallet = seedSSI.getTypeName() === SSITypes.WALLET_SSI;
         const http = openDSU.loadAPI("http");
-        http.registerInterceptor((data, callback)=>{
+        http.registerInterceptor((data, callback) => {
             let {url, headers} = data;
             if (cookie) {
-                if(!headers){
+                if (!headers) {
                     headers = {};
                 }
                 headers.cookie = cookie;
@@ -204,7 +204,7 @@ function boot() {
             startHttpServer(dsu);
         });
     } catch (error) {
-        parentPort.postMessage({ error, status: "failed" });
+        parentPort.postMessage({error, status: "failed"});
         process.exit(-1);
     }
 }

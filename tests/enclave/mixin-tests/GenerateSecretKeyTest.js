@@ -16,7 +16,10 @@ assert.callback('Generate secret key on WalletDB test', (testFinished) => {
                 "option": {}
             }
         }
-        await tir.launchConfigurableApiHubTestNodeAsync({ domains: [{ name: "vault", config: vaultDomainConfig }], rootFolder: folder });
+        await tir.launchConfigurableApiHubTestNodeAsync({
+            domains: [{name: "vault", config: vaultDomainConfig}],
+            rootFolder: folder
+        });
         const sc = scAPI.getSecurityContext();
         sc.on("initialised", async () => {
             const walletDBEnclave = enclaveAPI.initialiseWalletDBEnclave();
@@ -28,7 +31,7 @@ assert.callback('Generate secret key on WalletDB test', (testFinished) => {
                         assert.true(err == undefined, "Error occured");
                         assert.objectsAreEqual(keyAlias, rec.pk, "Records do not match");
                         assert.true(rec.secretKey.length == 32);
-                        
+
                         walletDBEnclave.generateSecretKey("", (err, rec) => {
                             assert.true(err == undefined, "Error occured");
                             assert.true(rec.pk !== undefined, "Alias not generated")

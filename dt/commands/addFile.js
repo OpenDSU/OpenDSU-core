@@ -6,7 +6,7 @@
 /**
  */
 const Command = require('./Command');
-const { _err } = require('./utils');
+const {_err} = require('./utils');
 
 /**
  * Copies a File from disk or from a source DSU when provided
@@ -17,7 +17,7 @@ const { _err } = require('./utils');
  *
  * @class AddFileCommand
  */
-class AddFileCommand extends Command{
+class AddFileCommand extends Command {
     constructor(varStore, source) {
         super(varStore, source, true);
     }
@@ -35,8 +35,8 @@ class AddFileCommand extends Command{
      * </pre>
      * @protected
      */
-    _parseCommand(command, next, callback){
-        if (!callback){
+    _parseCommand(command, next, callback) {
+        if (!callback) {
             callback = next;
             next = undefined;
         }

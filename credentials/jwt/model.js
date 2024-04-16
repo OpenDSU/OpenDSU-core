@@ -1,4 +1,4 @@
-const { JWT_DEFAULTS, JWT_ERRORS, getDefaultJWTOptions } = require('../constants');
+const {JWT_DEFAULTS, JWT_ERRORS, getDefaultJWTOptions} = require('../constants');
 const utils = require('../utils');
 
 /**
@@ -7,16 +7,16 @@ const utils = require('../utils');
  * @returns {{typ: string, alg: string}}
  */
 function getRequiredJWTHeader(options) {
-	const { alg, typ, kid } = options; // can be extended with other attributes
+    const {alg, typ, kid} = options; // can be extended with other attributes
 
-	return {
-		alg: alg || JWT_DEFAULTS.ALG,
-		typ: typ || JWT_DEFAULTS.TYP,
-		// Used in case of asymmetric encryption of the signature.
-		// Kid is actually the did of the verifier who can validate the signature.
-		// This is part of signatureValidationStrategy proposal
-		kid: kid
-	};
+    return {
+        alg: alg || JWT_DEFAULTS.ALG,
+        typ: typ || JWT_DEFAULTS.TYP,
+        // Used in case of asymmetric encryption of the signature.
+        // Kid is actually the did of the verifier who can validate the signature.
+        // This is part of signatureValidationStrategy proposal
+        kid: kid
+    };
 }
 
 /**
@@ -25,12 +25,12 @@ function getRequiredJWTHeader(options) {
  * @returns {{sub, nbf, iss, exp, iat, aud, nonce}}
  */
 function getRequiredJWTPayloadModel(options) {
-	let { sub, iss, nbf, exp, iat, aud, jti, nonce } = options; // can be extended with other attributes
+    let {sub, iss, nbf, exp, iat, aud, jti, nonce} = options; // can be extended with other attributes
 
-	// jti: Unique identifier; can be used to prevent the JWT from being replayed (allows a token to be used only once)
-	return {
-		sub, iss, nbf, exp, iat, aud, jti, nonce
-	};
+    // jti: Unique identifier; can be used to prevent the JWT from being replayed (allows a token to be used only once)
+    return {
+        sub, iss, nbf, exp, iat, aud, jti, nonce
+    };
 }
 
 /**
@@ -40,19 +40,19 @@ function getRequiredJWTPayloadModel(options) {
  * @param callback
  */
 function defaultJWTBuilder(issuer, options, callback) {
-	options = Object.assign({}, getDefaultJWTOptions(), options);
+    options = Object.assign({}, getDefaultJWTOptions(), options);
 
-	issuer = utils.getReadableIdentity(issuer);
-	if (!issuer) return callback(JWT_ERRORS.INVALID_ISSUER_FORMAT);
+    issuer = utils.getReadableIdentity(issuer);
+    if (!issuer) return callback(JWT_ERRORS.INVALID_ISSUER_FORMAT);
 
-	const issuerFormat = utils.getIssuerFormat(issuer);
-	if (!issuerFormat) return callback(JWT_ERRORS.INVALID_ISSUER_FORMAT);
+    const issuerFormat = utils.getIssuerFormat(issuer);
+    if (!issuerFormat) return callback(JWT_ERRORS.INVALID_ISSUER_FORMAT);
 
-	options.iss = issuer;
-	const jwtHeader = getRequiredJWTHeader(options);
-	const jwtPayload = getRequiredJWTPayloadModel(options);
+    options.iss = issuer;
+    const jwtHeader = getRequiredJWTHeader(options);
+    const jwtPayload = getRequiredJWTPayloadModel(options);
 
-	callback(undefined, { jwtHeader, jwtPayload, options });
+    callback(undefined, {jwtHeader, jwtPayload, options});
 }
 
 /**
@@ -61,19 +61,19 @@ function defaultJWTBuilder(issuer, options, callback) {
  * @param callback {Function}
  */
 function defaultJWTParser(encodedJWT, callback) {
-	utils.parseJWTSegments(encodedJWT, (err, result) => {
-		if (err) {
-			return callback(err);
-		}
+    utils.parseJWTSegments(encodedJWT, (err, result) => {
+        if (err) {
+            return callback(err);
+        }
 
-		const { jwtHeader, jwtPayload } = result;
-		if (!jwtHeader.typ || !jwtHeader.alg) return callback(JWT_ERRORS.INVALID_JWT_HEADER);
-		if (!jwtPayload.iss) return callback(JWT_ERRORS.INVALID_JWT_ISSUER);
+        const {jwtHeader, jwtPayload} = result;
+        if (!jwtHeader.typ || !jwtHeader.alg) return callback(JWT_ERRORS.INVALID_JWT_HEADER);
+        if (!jwtPayload.iss) return callback(JWT_ERRORS.INVALID_JWT_ISSUER);
 
-		callback(undefined, result);
-	});
+        callback(undefined, result);
+    });
 }
 
 module.exports = {
-	defaultJWTBuilder, defaultJWTParser
+    defaultJWTBuilder, defaultJWTParser
 };

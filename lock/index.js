@@ -1,7 +1,7 @@
 const constants = require("../moduleConstants").ERROR_ROOT_CAUSE;
 
 function handlePromise(promise, message) {
-   return promise.then(res => {
+    return promise.then(res => {
         let rootCause;
         switch (res.status) {
             case 200 :
@@ -20,10 +20,10 @@ function handlePromise(promise, message) {
             default:
                 rootCause = constants.UNKNOWN_ERROR;
         }
-       let err = new Error(message);
-       err.code = res.status;
-       err = createOpenDSUErrorWrapper(message, err, rootCause);
-       throw err;
+        let err = new Error(message);
+        err.code = res.status;
+        err = createOpenDSUErrorWrapper(message, err, rootCause);
+        throw err;
     }).catch(err => {
         if (err.rootCause) {
             throw err;

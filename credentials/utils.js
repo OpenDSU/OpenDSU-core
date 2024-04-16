@@ -281,7 +281,7 @@ function asymmetricalDecryption(verifier, encryptedData, callback) {
  * @returns {boolean}
  */
 function validateClaims(environmentDataClaims, jwtClaims) {
-    if(!environmentDataClaims) return true;
+    if (!environmentDataClaims) return true;
 
     const envDataClaimsKeys = Object.keys(environmentDataClaims);
     for (let index = 0; index < envDataClaimsKeys.length; ++index) {

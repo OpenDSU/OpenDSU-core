@@ -4,7 +4,7 @@ const dc = require("double-check");
 const assert = dc.assert;
 
 const resolver = require("../../../resolver");
-const { createTestFolderWithDSU, isHashLinkSSI } = require("./utils");
+const {createTestFolderWithDSU, isHashLinkSSI} = require("./utils");
 
 assert.callback(
     "getHandler rename",

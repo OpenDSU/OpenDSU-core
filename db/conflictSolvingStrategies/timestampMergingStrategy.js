@@ -1,3 +1,3 @@
-module.exports.TimestampMergingStrategy = function(){
+module.exports.TimestampMergingStrategy = function () {
 
 }

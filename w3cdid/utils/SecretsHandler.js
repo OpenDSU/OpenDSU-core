@@ -8,7 +8,7 @@ function SecretsHandler() {
     let didDocument;
     this.setDIDDocument = async (currentDID) => {
         didDocument = await $$.promisify(w3cdid.resolveDID)(currentDID);
-        return;
+
     }
 
     function base58DID(did) {
@@ -119,7 +119,7 @@ function SecretsHandler() {
             let creds = JSON.parse(decryptedSecret);
             return creds;
         }
-        return;
+
     }
 
     this.storeDIDSecret = storeSecret;

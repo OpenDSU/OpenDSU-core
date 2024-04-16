@@ -6,20 +6,20 @@
 /**
  */
 const Command = require('./Command');
-const { _getKeySSISpace, _err } = require('./utils');
+const {_getKeySSISpace, _err} = require('./utils');
 
 /**
  * Derives the provided keySSI
  *
  * @class DeriveCommand
  */
-class DeriveCommand extends Command{
+class DeriveCommand extends Command {
     constructor(varStore) {
         super(varStore);
     }
 
     _parseCommand(command, next, callback) {
-        if (!callback){
+        if (!callback) {
             callback = next;
             next = undefined;
         }
@@ -42,7 +42,7 @@ class DeriveCommand extends Command{
             options = undefined;
         }
 
-        try{
+        try {
             const keySSI = _getKeySSISpace().parse(bar);
             keySSI.derive((err, derivedKeySSI) => {
                 if (err) {

@@ -26,7 +26,7 @@ function AnchoringAbstractBehaviour(persistenceStrategy) {
             }
 
             let fakeLastVersionForAnchorId = fakeLastVersion[_anchorId];
-            if(fakeLastVersionForAnchorId){
+            if (fakeLastVersionForAnchorId) {
                 unmarkAnchorForRecovery(_anchorId);
                 return callback(undefined);
             }
@@ -78,7 +78,7 @@ function AnchoringAbstractBehaviour(persistenceStrategy) {
                         data = [];
                     }
 
-                    if(!self.testIfRecoveryActiveFor(_anchorId)){
+                    if (!self.testIfRecoveryActiveFor(_anchorId)) {
                         const historyOfKeySSI = data.map(el => keySSISpace.parse(el));
                         const signer = determineSigner(anchorIdKeySSI, historyOfKeySSI);
                         const signature = anchorValueSSIKeySSI.getSignature();
@@ -99,14 +99,14 @@ function AnchoringAbstractBehaviour(persistenceStrategy) {
                         }
                     }
 
-                    persistenceStrategy.appendAnchor(_anchorId, anchorValueSSIKeySSI.getIdentifier(), (err, res)=>{
+                    persistenceStrategy.appendAnchor(_anchorId, anchorValueSSIKeySSI.getIdentifier(), (err, res) => {
                         unmarkAnchorForRecovery(_anchorId);
                         callback(err, res);
                     });
                 }
 
                 let fakeHistoryAvailable = fakeHistory[_anchorId];
-                if(fakeHistoryAvailable){
+                if (fakeHistoryAvailable) {
                     return verifySignaturesAndAppend(undefined, fakeHistoryAvailable);
                 }
 
@@ -127,12 +127,12 @@ function AnchoringAbstractBehaviour(persistenceStrategy) {
     }
 
     self.getAllVersions = function (anchorId, options, callback) {
-        if(typeof options === "function"){
+        if (typeof options === "function") {
             callback = options;
             options = undefined;
         }
 
-        if(!options){
+        if (!options) {
             options = {};
         }
 
@@ -147,9 +147,9 @@ function AnchoringAbstractBehaviour(persistenceStrategy) {
             }
 
 
-            if(!options.realHistory){
+            if (!options.realHistory) {
                 let fakeHistoryAvailable = fakeHistory[anchorId];
-                if(fakeHistoryAvailable){
+                if (fakeHistoryAvailable) {
                     return callback(undefined, fakeHistoryAvailable);
                 }
             }
@@ -174,7 +174,7 @@ function AnchoringAbstractBehaviour(persistenceStrategy) {
                 const historyOfKeySSI = data.map(el => keySSISpace.parse(el));
                 const config = require("opendsu").loadApi("config");
                 const trustLevel = config.get("trustLevel");
-                if(trustLevel === 0){
+                if (trustLevel === 0) {
                     const progressiveHistoryOfKeySSI = [];
                     let previousSignedHashLinkKeySSI = null;
                     for (let i = 0; i <= historyOfKeySSI.length - 1; i++) {
@@ -209,7 +209,7 @@ function AnchoringAbstractBehaviour(persistenceStrategy) {
             }
 
             let fakeLastVersionForAnchorId = fakeLastVersion[anchorId];
-            if(fakeLastVersionForAnchorId){
+            if (fakeLastVersionForAnchorId) {
                 return callback(undefined, fakeLastVersionForAnchorId);
             }
 
@@ -232,19 +232,19 @@ function AnchoringAbstractBehaviour(persistenceStrategy) {
         });
     }
 
-    self.markAnchorForRecovery = function(anchorId, anchorFakeHistory, anchorFakeLastVersion){
+    self.markAnchorForRecovery = function (anchorId, anchorFakeHistory, anchorFakeLastVersion) {
         fakeHistory[anchorId] = anchorFakeHistory;
         fakeLastVersion[anchorId] = anchorFakeLastVersion;
     }
 
-    let unmarkAnchorForRecovery = function(anchorId){
+    let unmarkAnchorForRecovery = function (anchorId) {
         fakeHistory[anchorId] = undefined;
         delete fakeHistory[anchorId];
         fakeLastVersion[anchorId] = undefined;
         delete fakeLastVersion[anchorId];
     }
 
-    self.testIfRecoveryActiveFor = function(anchorId){
+    self.testIfRecoveryActiveFor = function (anchorId) {
         return !!fakeHistory[anchorId];
     }
 

@@ -1,4 +1,4 @@
-let { ENVIRONMENT_TYPES } = require("../moduleConstants.js");
+let {ENVIRONMENT_TYPES} = require("../moduleConstants.js");
 
 function getBootScript() {
     switch ($$.environmentType) {

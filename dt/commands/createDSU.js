@@ -6,15 +6,15 @@
 /**
  */
 const Command = require('./Command');
-const { _err, _getResolver, DSU_TYPE, KEY_TYPE } = require('./utils');
+const {_err, _getResolver, DSU_TYPE, KEY_TYPE} = require('./utils');
 const genKey = require('./genKey');
 
 /**
  * @param {DSU_TYPE} dsuType
  * @return {KEY_TYPE}
  */
-const _getKeyType = function(dsuType){
-    switch (dsuType){
+const _getKeyType = function (dsuType) {
+    switch (dsuType) {
         case DSU_TYPE.CONST:
             return KEY_TYPE.ARRAY;
         case DSU_TYPE.WALLET:
@@ -34,7 +34,7 @@ const _getKeyType = function(dsuType){
  * @param {string[]} arg
  * @param {function(err, KeySSI)} callback
  */
-const _createSSI = function(varStore, arg, callback){
+const _createSSI = function (varStore, arg, callback) {
     const argToArray = (arg) => {
         return `${arg.type} ${arg.domain} ${typeof arg.args === 'string' ? arg.args : JSON.stringify(arg.hint ? {
             hint: arg.hint,
@@ -51,7 +51,7 @@ const _createSSI = function(varStore, arg, callback){
  * @param {object} opts DSU Creation Options
  * @param {function(err, Archive)} callback
  */
-const _createWalletDSU = function(varStore, arg, opts, callback){
+const _createWalletDSU = function (varStore, arg, opts, callback) {
     _createSSI(varStore, arg, (err, keySSI) => {
         _getResolver().createDSUForExistingSSI(keySSI, opts, (err, dsu) => {
             if (err)
@@ -67,7 +67,7 @@ const _createWalletDSU = function(varStore, arg, opts, callback){
  * @param {object} opts DSU Creation Options
  * @param {function(err, Archive)} callback
  */
-const _createDSU = function(varStore, arg, opts, callback){
+const _createDSU = function (varStore, arg, opts, callback) {
     _createSSI(varStore, arg, (err, keySSI) => {
         _getResolver().createDSU(keySSI, opts, (err, dsu) => {
             if (err)
@@ -83,7 +83,7 @@ const _createDSU = function(varStore, arg, opts, callback){
  * @param {object} opts DSU Creation Options
  * @param {function(err, Archive)} callback
  */
-const _createConstDSU = function(varStore, arg,opts , callback){
+const _createConstDSU = function (varStore, arg, opts, callback) {
     _createSSI(varStore, arg, (err, keySSI) => {
         _getResolver().createDSUForExistingSSI(keySSI, opts, (err, dsu) => {
             if (err)
@@ -99,7 +99,7 @@ const _createConstDSU = function(varStore, arg,opts , callback){
  *
  * @class CreateDSUCommand
  */
-class CreateDSUCommand extends Command{
+class CreateDSUCommand extends Command {
     constructor(varStore, source) {
         super(varStore, source, false);
     }
@@ -118,8 +118,8 @@ class CreateDSUCommand extends Command{
      * </pre>
      * @protected
      */
-    _parseCommand(command, next, callback){
-        if (!callback){
+    _parseCommand(command, next, callback) {
+        if (!callback) {
             callback = next;
             next = undefined;
         }
@@ -130,12 +130,12 @@ class CreateDSUCommand extends Command{
                 args: command.length === 1 ? command[0] : JSON.parse(command.join(' '))
             }
             arg.type = _getKeyType(arg.dsuType);
-            if (typeof arg.args === 'object' && arg.args.args){
+            if (typeof arg.args === 'object' && arg.args.args) {
                 arg.hint = arg.args.hint;
                 arg.args = arg.args.args;
             }
             callback(undefined, arg)
-        } catch (e){
+        } catch (e) {
             _err(`could not parse json ${command}`, e, callback);
         }
     }
@@ -155,23 +155,23 @@ class CreateDSUCommand extends Command{
      * @protected
      */
     _runCommand(arg, bar, options, callback) {
-        if(!callback){
+        if (!callback) {
             callback = options;
             options = bar;
             bar = undefined;
         }
-        if (typeof options === 'function'){
+        if (typeof options === 'function') {
             callback = options;
             options = undefined;
         }
-        const cb = function(err, dsu){
+        const cb = function (err, dsu) {
             if (err)
                 return _err(`Could not create DSU with ${JSON.stringify(arg)}`, err, callback);
             console.log(`${arg.dsuType} DSU created`);
             callback(undefined, dsu);
         }
 
-        switch (arg.dsuType){
+        switch (arg.dsuType) {
             case DSU_TYPE.SEED:
                 return _createDSU(this.varStore, arg, cb)
             case DSU_TYPE.CONST:

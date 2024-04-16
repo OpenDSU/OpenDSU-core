@@ -9,11 +9,11 @@
 function FileService(options) {
     const isBrowser = $$.environmentType === 'browser';
 
-    function constructUrlBase(prefix){
+    function constructUrlBase(prefix) {
         let url, protocol, host;
         prefix = prefix || "";
         let appName = '';
-        if (isBrowser){
+        if (isBrowser) {
             let location = window.location;
             const paths = location.pathname.split("/");
             while (paths.length > 0) {
@@ -33,19 +33,19 @@ function FileService(options) {
         }
     }
 
-    this.getWalletSeed = function(callback){
+    this.getWalletSeed = function (callback) {
         this.getAppSeed(options.slots.primary, callback);
     }
 
-    this.getAppSeed = function(appName, callback){
+    this.getAppSeed = function (appName, callback) {
         this.getFile(appName, options.seedFileName, (err, data) => {
             if (err)
                 return OpenDSUSafeCallback(callback)(createOpenDSUErrorWrapper(err));
-           Utf8ArrayToStr(data, callback);
+            Utf8ArrayToStr(data, callback);
         });
     }
 
-    function doGet(url, options, callback){
+    function doGet(url, options, callback) {
         if (typeof options === "function") {
             callback = options;
             options = {};
@@ -69,7 +69,7 @@ function FileService(options) {
      * @param {string} fileName
      * @param {function(err, U8intArray)} callback
      */
-    this.getFile = function(appName, fileName, callback){
+    this.getFile = function (appName, fileName, callback) {
         const suffix = `${appName}/${fileName}`;
         const base = constructUrlBase();
         const joiner = suffix !== '/' && base[base.length - 1] !== '/' && suffix[0] !== '/'
@@ -86,12 +86,12 @@ function FileService(options) {
      * @param innerFolder
      * @param callback
      */
-    this.getFolderContentAsJSON = function(innerFolder, callback){
-        if (typeof innerFolder === 'function'){
+    this.getFolderContentAsJSON = function (innerFolder, callback) {
+        if (typeof innerFolder === 'function') {
             callback = innerFolder;
             innerFolder = undefined;
         }
-        let url = constructUrlBase("directory-summary/") + (innerFolder ? `/${innerFolder}` : '') ;
+        let url = constructUrlBase("directory-summary/") + (innerFolder ? `/${innerFolder}` : '');
         doGet(url, (err, data) => {
             if (err)
                 return OpenDSUSafeCallback(callback)(createOpenDSUErrorWrapper(err));
@@ -110,7 +110,7 @@ function FileService(options) {
             return callback(undefined, array.toString());
         var bb = new Blob([array]);
         var f = new FileReader();
-        f.onload = function(e) {
+        f.onload = function (e) {
             callback(undefined, e.target.result);
         };
         f.readAsText(bb);

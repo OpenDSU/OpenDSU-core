@@ -38,6 +38,7 @@ function getCompareFunctionForObjects(sortOrder, fieldName) {
         return compareFn(firstObj[fieldName], secondObj[fieldName]);
     }
 }
+
 module.exports = {
     getCompareFunction,
     getCompareFunctionForObjects

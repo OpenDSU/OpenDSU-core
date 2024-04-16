@@ -5,7 +5,7 @@ const mergeMappings = (dest, source) => {
     for (let ssiType in source) {
         if (typeof dest[ssiType] === "undefined") {
             dest[ssiType] = source[ssiType];
-        }else{
+        } else {
             dest[ssiType] = {...dest[ssiType], ...source[ssiType]};
         }
     }
@@ -20,7 +20,7 @@ const getKeySSIsMappingFromPathKeys = (pathKeyMap, callback) => {
         return callback(undefined, keySSIMap);
     }
     const TaskCounter = require("swarmutils").TaskCounter;
-    const taskCounter = new TaskCounter(()=>{
+    const taskCounter = new TaskCounter(() => {
         return callback(undefined, keySSIMap);
     })
     taskCounter.increment(paths.length);
@@ -82,7 +82,7 @@ const getKeySSIMapping = (keySSI, callback) => {
     }
     const keySSIsMap = {};
 
-    getDerivedKeySSIs(keySSI, (err, _derivedKeySSIsObj)=>{
+    getDerivedKeySSIs(keySSI, (err, _derivedKeySSIsObj) => {
         if (err) {
             return callback(err);
         }

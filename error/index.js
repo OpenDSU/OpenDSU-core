@@ -1,7 +1,7 @@
 const constants = require("../moduleConstants");
 
-function detectRootCauseType(arr, priorityList){
-    for(let errorType of priorityList){
+function detectRootCauseType(arr, priorityList) {
+    for (let errorType of priorityList) {
         const index = arr.findIndex(e => {
             return e.rootCause && e.rootCause !== errorType
         });
@@ -110,7 +110,7 @@ function createOpenDSUErrorWrapper(message, err, otherErrors, rootCause) {
             message = "Wrong usage of createErrorWrapper";
         }
     }
-    if(otherErrors && !Array.isArray(otherErrors) && typeof otherErrors !== "string"){
+    if (otherErrors && !Array.isArray(otherErrors) && typeof otherErrors !== "string") {
         otherErrors = [otherErrors];
     }
     return ErrorWrapper(message, err, otherErrors, rootCause);
@@ -151,16 +151,16 @@ function OpenDSUSafeCallback(callback) {
 let observable = require("./../utils/observable").createObservable();
 
 function reportUserRelevantError(message, err) {
-  genericDispatchEvent(constants.NOTIFICATION_TYPES.ERROR, message, err);
+    genericDispatchEvent(constants.NOTIFICATION_TYPES.ERROR, message, err);
 }
 
 function reportUserRelevantWarning(message, err) {
-  genericDispatchEvent(constants.NOTIFICATION_TYPES.WARN, message, err);
+    genericDispatchEvent(constants.NOTIFICATION_TYPES.WARN, message, err);
 }
 
 
 function reportUserRelevantInfo(message, err) {
-  genericDispatchEvent(constants.NOTIFICATION_TYPES.INFO, message, err);
+    genericDispatchEvent(constants.NOTIFICATION_TYPES.INFO, message, err);
 }
 
 function reportDevRelevantInfo(message, err) {
@@ -171,7 +171,7 @@ function genericDispatchEvent(type, message, err) {
     observable.dispatchEvent(type, {message, err});
     console.log(message, err ? err : "");
     if (err && typeof err.debug_message != "undefined") {
-      printErrorWrapper(err, false);
+        printErrorWrapper(err, false);
     }
 }
 
@@ -219,13 +219,14 @@ function observeUserRelevantMessages(type, callback) {
 }
 
 if (typeof window !== "undefined") {
-    window.onerror = (msg, url, line, call, err)=>{
+    window.onerror = (msg, url, line, call, err) => {
         observable.dispatchEvent("unhandled", err);
         console.log(msg, url, line, call);
     }
 
     window.addEventListener("error", window.onerror)
 }
+
 function printErrorWrapper(ew, showIntermediateErrors) {
     let level = 0;
     console.log("Top level error:", ew.debug_message, ew.debug_stack);

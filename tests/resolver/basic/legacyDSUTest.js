@@ -27,9 +27,9 @@ assert.callback('LegacyDSU test', (testFinished) => {
         assert.equal(content.toString(), INITIAL_FILE_CONTENT);
         await firstSeedDSUInstance.writeFileAsync(FILEPATH, NEW_FILE_CONTENT, {});
         let error;
-        try{
+        try {
             await secondDSUInstance.safeBeginBatchAsync();
-        }catch (e) {
+        } catch (e) {
             error = e;
         }
         assert.true(error !== undefined, "Should have thrown an error");

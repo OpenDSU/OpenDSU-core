@@ -52,7 +52,7 @@ function IndexedDBCache(storeName, lifetime) {
             try {
                 transaction = db.transaction(storeName, "readwrite");
                 store = transaction.objectStore(storeName);
-            }catch (e) {
+            } catch (e) {
                 callback(e);
                 return next();
             }
@@ -72,10 +72,10 @@ function IndexedDBCache(storeName, lifetime) {
                 }
                 next();
             }
-            transaction.onabort = function() {
+            transaction.onabort = function () {
                 console.log("Error", transaction.error);
             };
-            req.onerror = function (){
+            req.onerror = function () {
                 next();
             }
         });
@@ -85,41 +85,41 @@ function IndexedDBCache(storeName, lifetime) {
     self.set = self.put;
 
     self.delete = (key, callback) => {
-            self.addSerialPendingCall((next) => {
-                let transaction;
-                let store;
-                try {
-                    transaction = db.transaction(storeName, "readwrite");
-                    store = transaction.objectStore(storeName);
-                }catch (e) {
-                    callback(e);
-                    next();
-                    return;
-                }
-                let req = store.delete(key);
-                transaction.oncomplete = () => {
-                    if (typeof callback === "function") {
-                        callback(undefined, key);
-                    }
-                    next();
-                }
-                transaction.onabort = function() {
-                    console.log("Error", transaction.error);
-                };
-                req.onerror = function (){
-                    next();
-                }
-            });
-    }
-
-    self.clear = (callback)=>{
         self.addSerialPendingCall((next) => {
             let transaction;
             let store;
             try {
                 transaction = db.transaction(storeName, "readwrite");
                 store = transaction.objectStore(storeName);
-            }catch (e) {
+            } catch (e) {
+                callback(e);
+                next();
+                return;
+            }
+            let req = store.delete(key);
+            transaction.oncomplete = () => {
+                if (typeof callback === "function") {
+                    callback(undefined, key);
+                }
+                next();
+            }
+            transaction.onabort = function () {
+                console.log("Error", transaction.error);
+            };
+            req.onerror = function () {
+                next();
+            }
+        });
+    }
+
+    self.clear = (callback) => {
+        self.addSerialPendingCall((next) => {
+            let transaction;
+            let store;
+            try {
+                transaction = db.transaction(storeName, "readwrite");
+                store = transaction.objectStore(storeName);
+            } catch (e) {
                 callback(e);
                 next();
                 return;
@@ -131,10 +131,10 @@ function IndexedDBCache(storeName, lifetime) {
                 }
                 next();
             }
-            transaction.onabort = function() {
+            transaction.onabort = function () {
                 console.log("Error", transaction.error);
             };
-            req.onerror = function (){
+            req.onerror = function () {
                 next();
             }
         });
@@ -142,4 +142,4 @@ function IndexedDBCache(storeName, lifetime) {
 }
 
 
-module.exports.IndexedDBCache  = IndexedDBCache;
+module.exports.IndexedDBCache = IndexedDBCache;

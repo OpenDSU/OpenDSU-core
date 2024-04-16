@@ -69,7 +69,7 @@ function WalletDBEnclave(keySSI, did) {
             }
             if (!privateKey) {
                 let batchId;
-                try{
+                try {
                     batchId = await this.storageDB.startOrAttachBatchAsync();
                 } catch (e) {
                     this.dispatchEvent("error", e);
@@ -126,7 +126,7 @@ function WalletDBEnclave(keySSI, did) {
         return initialised;
     };
 
-    this.onCommitBatch = (forDID, callback, once)=>{
+    this.onCommitBatch = (forDID, callback, once) => {
         this.storageDB.onCommitBatch(callback, once);
     }
 

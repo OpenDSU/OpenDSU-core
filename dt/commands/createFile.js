@@ -14,7 +14,7 @@ const {_getFS, _err} = require('./utils');
  *
  * @class CreateFileCommand
  */
-class CreateFileCommand extends Command{
+class CreateFileCommand extends Command {
     constructor(varStore) {
         super(varStore);
     }
@@ -26,9 +26,9 @@ class CreateFileCommand extends Command{
      * @return {string|object} the command argument
      * @protected
      */
-    _parseCommand(command, next, callback){
+    _parseCommand(command, next, callback) {
         command = typeof command === 'string' ? command.split(' ') : command;
-        callback(undefined,  {
+        callback(undefined, {
             path: command.shift(),
             content: command.join(' ')
         });
@@ -48,7 +48,7 @@ class CreateFileCommand extends Command{
      * @param {function(err, string)} callback
      * @protected
      */
-    _runCommand(arg, bar, options, callback){
+    _runCommand(arg, bar, options, callback) {
         if (typeof options === 'function') {
             callback = options;
             options = undefined;

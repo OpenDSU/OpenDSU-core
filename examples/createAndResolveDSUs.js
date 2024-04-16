@@ -24,9 +24,9 @@ tir.launchConfigurableApiHubTestNode({
     }
 
     let enclave;
-    try{
+    try {
         enclave = await $$.promisify(dbAPI.getMainEnclave)();
-    }catch (e) {
+    } catch (e) {
         return console.log(e);
     }
 

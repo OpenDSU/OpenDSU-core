@@ -20,7 +20,7 @@ function generateCodeChallenge(verifier) {
 }
 
 function decodeBase64EncodedData(data) {
-   return $$.Buffer.from(data, "base64").toString();
+    return $$.Buffer.from(data, "base64").toString();
 }
 
 module.exports = {

@@ -1,4 +1,4 @@
-const { Readable } = require('stream');
+const {Readable} = require('stream');
 const util = require('util');
 
 /**
@@ -14,6 +14,7 @@ function FileReadableStreamAdapter(file, options) {
     this.fileStreamReader = file.stream().getReader();
     Readable.call(this, options);
 }
+
 util.inherits(FileReadableStreamAdapter, Readable);
 
 /**

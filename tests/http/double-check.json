@@ -1,3 +1,5 @@
 {
-  "ignore": ["doGetWithProxy.js"]
+  "ignore": [
+    "doGetWithProxy.js"
+  ]
 }

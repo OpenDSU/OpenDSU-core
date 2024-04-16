@@ -4,7 +4,7 @@
  * @param {string} [options.volume=external-volume]
  * @param {string} [options.folder=test]
  */
-async function mockEnvironment({ domain, volume, folder } = {}) {
+async function mockEnvironment({domain, volume, folder} = {}) {
     const path = require('path');
     const dc = require('double-check');
 
@@ -38,7 +38,7 @@ async function mockEnvironment({ domain, volume, folder } = {}) {
     };
 }
 
-async function extractBricks({ brickStoragePath }) {
+async function extractBricks({brickStoragePath}) {
     const fs = require('fs');
     const path = require('path');
 
@@ -67,8 +67,8 @@ async function extractBricks({ brickStoragePath }) {
     return (await Promise.all(promises)).sort((b1, b2) => b2.stats.mtime - b1.stats.mtime);
 }
 
-async function extractLatestBrickMap({ brickStoragePath }) {
-    const bricks = await extractBricks({ brickStoragePath });
+async function extractLatestBrickMap({brickStoragePath}) {
+    const bricks = await extractBricks({brickStoragePath});
     const lastBrickMap = bricks[0];
     bricks.shift();
     return [lastBrickMap, bricks];
@@ -82,7 +82,7 @@ async function extractLatestBrickMap({ brickStoragePath }) {
  * @param {string} env.domain
  * @param {Object} vault
  */
-async function fillCacheEntirely({ domain, vault }) {
+async function fillCacheEntirely({domain, vault}) {
     const resolver = require('../../../resolver');
 
     const limit = 3 * 1000 + 1;

@@ -30,7 +30,7 @@ const brickExistsOnServer = (hashLinkSSI, callback) => {
             let smartUrl = new SmartUrl(storage);
             smartUrl = smartUrl.concatWith(`/bricking/${dlDomain}/brick-exists/${brickHash}`);
             return smartUrl.fetch().then(async (response) => {
-                if(response.status === 404){
+                if (response.status === 404) {
                     return false;
                 }
                 if (response.status !== 200) {
@@ -42,7 +42,7 @@ const brickExistsOnServer = (hashLinkSSI, callback) => {
                     return true;
                 }
 
-                if(exists === "false"){
+                if (exists === "false") {
                     return false;
                 }
 

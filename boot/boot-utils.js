@@ -1,12 +1,12 @@
 function handleMessage(message, onHandleMessage) {
     // console.log("[worker] Received message", message);
 
-    const { fn, api, args } = message;
+    const {fn, api, args} = message;
     const callback = (error, result) => {
         console.log(`[worker] finished work ${message}`, error, result);
 
-         // in order to ensure result serializability we JSON.stringify it if isn't a Buffer
-         if (!$$.Buffer.isBuffer(result)) {
+        // in order to ensure result serializability we JSON.stringify it if isn't a Buffer
+        if (!$$.Buffer.isBuffer(result)) {
             result = JSON.stringify(result);
         }
 

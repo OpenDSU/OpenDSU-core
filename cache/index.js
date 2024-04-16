@@ -3,12 +3,12 @@ const config = require("opendsu").loadApi("config");
 const constants = require("../moduleConstants");
 
 const IndexedDBCache = require("./IndexeDBCache").IndexedDBCache;
-const FSCache        = require("./FSCache").FSCache;
-const MemoryCache    = require("./MemoryCache").MemoryCache;
+const FSCache = require("./FSCache").FSCache;
+const MemoryCache = require("./MemoryCache").MemoryCache;
 
 let memoryCache = true;
-if($$){
-    $$.enableClassicVaultCache = function(){
+if ($$) {
+    $$.enableClassicVaultCache = function () {
         memoryCache = false;
     }
 }
@@ -35,13 +35,13 @@ function getCacheForVault(storeName, lifetime) {
     return stores[storeName];
 }
 
-function getMemoryCache(storeName){
+function getMemoryCache(storeName) {
     return stores[storeName] = new MemoryCache();
 }
 
-function getWeakRefMemoryCache(storeName){
+function getWeakRefMemoryCache(storeName) {
     let cache = stores[storeName];
-    if(!cache){
+    if (!cache) {
         cache = new MemoryCache(true);
         stores[storeName] = cache;
     }

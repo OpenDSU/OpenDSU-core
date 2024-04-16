@@ -23,7 +23,10 @@ assert.callback('Build DSU test', (testFinished) => {
             return data.split(/\r?\n/).filter(cmd => !!cmd.trim());
         };
 
-        await tir.launchConfigurableApiHubTestNodeAsync({domains: [{name: "vault", config: vaultDomainConfig}], rootFolder: folder});
+        await tir.launchConfigurableApiHubTestNodeAsync({
+            domains: [{name: "vault", config: vaultDomainConfig}],
+            rootFolder: folder
+        });
         process.env.BUILD_SECRET = "secret";
         process.env.SSO_SECRETS_ENCRYPTION_KEY = "+WG9HhIoXGGSVq6cMlhy2P3vuiqz1O/WAaiF5JhXmnc="
         await $$.promisify(dt.initialiseBuildWallet)();

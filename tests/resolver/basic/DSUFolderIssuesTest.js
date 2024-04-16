@@ -1,5 +1,5 @@
 require("../../../../../builds/output/testsRuntime");
-const { launchApiHubTestNode } = require("../../../../../psknode/tests/util/tir");
+const {launchApiHubTestNode} = require("../../../../../psknode/tests/util/tir");
 
 const dc = require("double-check");
 const assert = dc.assert;

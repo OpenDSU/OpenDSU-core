@@ -1,4 +1,4 @@
-const { fetch, doPost } = require("../http");
+const {fetch, doPost} = require("../http");
 const promiseRunner = require("../utils/promise-runner");
 
 class DomainNotSupportedError extends Error {
@@ -9,7 +9,7 @@ class DomainNotSupportedError extends Error {
 }
 
 function getCommandHash(command) {
-    const { domain, contractName, methodName, params, type, blockNumber, timestamp } = command;
+    const {domain, contractName, methodName, params, type, blockNumber, timestamp} = command;
 
     const objectToHash = {
         domain,
@@ -72,7 +72,7 @@ async function getNoncedCommandBody(domain, contract, method, params, blockNumbe
 
     const hash = getCommandHash(commandBody);
     let signature = await $$.promisify(signerDID.sign)(hash);
-    
+
     if (Buffer.isBuffer(signature)) {
         signature = signature.toString('hex')
     }

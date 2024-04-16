@@ -9,7 +9,7 @@ function InMemoryMainDSU() {
     obj["environment.json"] = obj["/environment.json"];
 
     const preventUpdateOutsideBatch = (updateFn, ...args) => {
-        if($$.LEGACY_BEHAVIOUR_ENABLED){
+        if ($$.LEGACY_BEHAVIOUR_ENABLED) {
             return updateFn(...args);
         }
 
@@ -64,7 +64,7 @@ function InMemoryMainDSU() {
     }
 
     this.safeBeginBatch = (wait, callback) => {
-        if(typeof wait === "function"){
+        if (typeof wait === "function") {
             callback = wait;
             wait = false;
         }
@@ -79,7 +79,7 @@ function InMemoryMainDSU() {
         return this.safeBeginBatch(true, callback);
     }
 
-    this.startOrAttachBatchAsync = ()=>{
+    this.startOrAttachBatchAsync = () => {
         return convertGetFunctionToAsync(this.startOrAttachBatch);
     }
 
@@ -88,7 +88,7 @@ function InMemoryMainDSU() {
     }
 
     this.commitBatch = (batchId, callback) => {
-        if(typeof callback === "undefined"){
+        if (typeof callback === "undefined") {
             callback = batchId;
             batchId = undefined;
         }
@@ -100,7 +100,7 @@ function InMemoryMainDSU() {
         convertUpdateFnToAsync(this.commitBatch);
     }
 
-    this.refresh = (callback)=>{
+    this.refresh = (callback) => {
         callback();
     }
 }

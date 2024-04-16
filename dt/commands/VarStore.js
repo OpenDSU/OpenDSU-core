@@ -4,18 +4,18 @@
  */
 
 
-const VarStore = function(){
+const VarStore = function () {
     const _memory = {};
     let _hasVars = false;
     const self = this;
 
-    this.define = function(name, value){
+    this.define = function (name, value) {
         _memory[name] = value;
         _hasVars = true;
         console.log(`Variable ${name} defined as ${value}`)
     }
 
-    const tryReplace = function(value){
+    const tryReplace = function (value) {
         for (let name in _memory)
             if (value.includes(name)) {
                 value = value.replace(name, _memory[name]);
@@ -24,7 +24,7 @@ const VarStore = function(){
         return value;
     }
 
-    this.checkVariables = function(args){
+    this.checkVariables = function (args) {
         if (!_hasVars)
             return args;
         if (typeof args === 'string')

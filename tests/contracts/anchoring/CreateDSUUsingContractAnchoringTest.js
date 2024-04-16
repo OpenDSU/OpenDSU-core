@@ -4,9 +4,9 @@ const dc = require("double-check");
 const assert = dc.assert;
 
 const resolver = require("../../../resolver");
-const { createTemplateKeySSI } = require("../../../keyssi");
+const {createTemplateKeySSI} = require("../../../keyssi");
 
-const { launchApiHubTestNodeWithContractAsync } = require("../utils");
+const {launchApiHubTestNodeWithContractAsync} = require("../utils");
 
 assert.callback(
     "Create DSU with anchoring configuration set to use anchoring contract",

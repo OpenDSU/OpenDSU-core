@@ -17,7 +17,10 @@ assert.callback('Generate DID on WalletDB test', (testFinished) => {
             }
         }
         const domain = "generateDIDTestdomain";
-        await tir.launchConfigurableApiHubTestNodeAsync({ domains: [{ name: domain, config: domainConfig }], rootFolder: folder });
+        await tir.launchConfigurableApiHubTestNodeAsync({
+            domains: [{name: domain, config: domainConfig}],
+            rootFolder: folder
+        });
         const sc = scAPI.getSecurityContext();
         sc.on("initialised", async () => {
             const walletDBEnclave = enclaveAPI.initialiseWalletDBEnclave();

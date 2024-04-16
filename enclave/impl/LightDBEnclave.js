@@ -170,7 +170,7 @@ function LightDBEnclave(dbName, slots) {
     const keySSISpace = openDSU.loadAPI("keyssi");
 
     this.storeKeySSI = (forDID, keySSI, callback) => {
-        if(typeof keySSI === "function"){
+        if (typeof keySSI === "function") {
             callback = keySSI;
             keySSI = forDID;
             forDID = undefined;
@@ -187,7 +187,7 @@ function LightDBEnclave(dbName, slots) {
     }
 
     this.getReadForKeySSI = (forDID, keySSI, callback) => {
-        if(typeof keySSI === "function"){
+        if (typeof keySSI === "function") {
             callback = keySSI;
             keySSI = forDID;
             forDID = undefined;
@@ -204,7 +204,7 @@ function LightDBEnclave(dbName, slots) {
     }
 
     this.getWriteKeySSI = (forDID, keySSI, callback) => {
-        if(typeof keySSI === "function"){
+        if (typeof keySSI === "function") {
             callback = keySSI;
             keySSI = forDID;
             forDID = undefined;

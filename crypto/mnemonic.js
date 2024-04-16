@@ -260,7 +260,9 @@ const Mnemonic = function (language) {
     }
 
     self.splitWords = function (mnemonic) {
-        return mnemonic.split(/\s/g).filter(function (x) { return x.length; });
+        return mnemonic.split(/\s/g).filter(function (x) {
+            return x.length;
+        });
     }
 
     self.joinWords = function (words) {
@@ -323,7 +325,7 @@ const Mnemonic = function (language) {
         if (mnemonic.length == 0 || mnemonic.length % 3 > 0) {
             return null;
         }
-       
+
         let idx = [];
         for (let i = 0; i < mnemonic.length; i++) {
             const word = mnemonic[i];
@@ -349,9 +351,11 @@ const Mnemonic = function (language) {
         return source;
     }
 
-    function bitLength(a){
+    function bitLength(a) {
         let l = a.length, x;
-        if (l === 0) { return 0; }
+        if (l === 0) {
+            return 0;
+        }
         x = a[l - 1];
         return (l - 1) * 32 + getPartial(x);
     }

@@ -1,6 +1,5 @@
 # OpenDSU SDK as API spaces
 
-
 http            :Http client APIs
 
 crypto          :Recommended Crypto APIs
@@ -19,7 +18,7 @@ notifications   :Notifications based on KeySSIs
 
 mq              :Working with Message Queues based on KeySSIs
 
-dc              :DSU  Channels and messaging  based on KeySSIs and DSUs
+dc              :DSU Channels and messaging based on KeySSIs and DSUs
 
 sc              :Security Context
 

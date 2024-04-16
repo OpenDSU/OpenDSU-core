@@ -20,7 +20,7 @@ const extractSReadSSIAndFilePathFromRequest = (request) => {
         filePath = `/${filePath}`;
     }
 
-    return { sReadSSI, filePath };
+    return {sReadSSI, filePath};
 };
 
 const isAvailableSpaceInLastBrick = (sizeSSI) => {
@@ -62,7 +62,7 @@ const appendToDSU = async (wallet, request, response) => {
         return response.end("File not provided");
     }
 
-    const { sReadSSI, filePath } = extractSReadSSIAndFilePathFromRequest(request);
+    const {sReadSSI, filePath} = extractSReadSSIAndFilePathFromRequest(request);
     console.log(`Appending file to sReadSSI: ${sReadSSI} at path ${filePath}...`);
 
     const Transform = require("stream").Transform;
@@ -167,7 +167,7 @@ const appendToDSU = async (wallet, request, response) => {
                 } else {
                     console.log(`Setting sizeSSI of totalSize: ${data.byteLength} / buffer size ${FILE_CHUNK_SIZE}`);
                     sizeSSI = keyssiApi.createSizeSSI(dsuDomain, data.byteLength, FILE_CHUNK_SIZE);
-                    const bricks = [{ size: sizeSSI.getIdentifier() }, brickToAppend];
+                    const bricks = [{size: sizeSSI.getIdentifier()}, brickToAppend];
                     await $$.promisify(dsu.writeFileFromBricks)(filePath, bricks);
 
                     // new file was created so now we can append to it

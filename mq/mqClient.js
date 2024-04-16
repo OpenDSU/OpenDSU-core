@@ -12,7 +12,7 @@ function send(keySSI, message, callback) {
             return OpenDSUSafeCallback(callback)(createOpenDSUErrorWrapper(`Failed to get anchoring services from bdns`, err));
         }
         let url = endpoints[0] + `/mq/send-message/${keySSI}`;
-        let options = { body: message };
+        let options = {body: message};
 
         let request = http.poll(url, options);
 
@@ -179,7 +179,7 @@ function MQHandler(didDocument, domain, pollingTimeout) {
                     return callback(err);
                 }
 
-                http.doPut(url, message, { headers: { "x-mq-authorization": token } }, callback);
+                http.doPut(url, message, {headers: {"x-mq-authorization": token}}, callback);
             });
         })
 
@@ -211,7 +211,7 @@ function MQHandler(didDocument, domain, pollingTimeout) {
                     let originalCb = callback;
                     //callback = $$.makeSaneCallback(callback);
 
-                    let options = { headers: { "x-mq-authorization": token } };
+                    let options = {headers: {"x-mq-authorization": token}};
 
                     function makeRequest() {
                         let request = http.poll(url, options, connectionTimeout, timeout);
@@ -219,7 +219,7 @@ function MQHandler(didDocument, domain, pollingTimeout) {
 
                         request.then(response => response.json())
                             .then((response) => {
-                                if(self.stopReceivingMessages){
+                                if (self.stopReceivingMessages) {
                                     return callback(new Error("Message rejected by client"));
                                 }
                                 //the return value of the listing callback helps to stop the polling mechanism in case that
@@ -230,9 +230,9 @@ function MQHandler(didDocument, domain, pollingTimeout) {
                                 }
                             })
                             .catch((err) => {
-                                if(err.rootCause != "network"){
+                                if (err.rootCause != "network") {
                                     callback(err);
-                                }else{
+                                } else {
                                     makeRequest();
                                 }
                             });
@@ -249,7 +249,7 @@ function MQHandler(didDocument, domain, pollingTimeout) {
     }
 
     this.waitForMessages = (callback) => {
-        this.readAndWaitForMore(()=>{
+        this.readAndWaitForMore(() => {
             return typeof this.stopReceivingMessages === "undefined" || this.stopReceivingMessages === false;
         }, callback);
     }
@@ -259,16 +259,16 @@ function MQHandler(didDocument, domain, pollingTimeout) {
     };
 
 
-    function getSafeMessageRead(callback){
-        return function(err, message){
-            if(err){
+    function getSafeMessageRead(callback) {
+        return function (err, message) {
+            if (err) {
                 return callback(err);
             }
-            if(message){
-                callback(undefined, message, ()=>{
+            if (message) {
+                callback(undefined, message, () => {
                     console.log("notification callback called");
-                    self.deleteMessage(message.messageId, (err)=>{
-                        if(err){
+                    self.deleteMessage(message.messageId, (err) => {
+                        if (err) {
                             console.log("Unable to delete message from mq");
                         }
                     });
@@ -286,7 +286,7 @@ function MQHandler(didDocument, domain, pollingTimeout) {
     };
 
     this.readAndWaitForMore = (waitForMore, callback) => {
-        if(typeof waitForMore === "function" && typeof callback === "undefined"){
+        if (typeof waitForMore === "function" && typeof callback === "undefined") {
             callback = waitForMore;
             waitForMore = undefined;
         }
@@ -329,7 +329,7 @@ function MQHandler(didDocument, domain, pollingTimeout) {
 
                     http.fetch(url, {
                         method: "DELETE",
-                        headers: { "x-mq-authorization": token }
+                        headers: {"x-mq-authorization": token}
                     })
                         .then(() => callback())
                         .catch(e => callback(e));
@@ -340,9 +340,10 @@ function MQHandler(didDocument, domain, pollingTimeout) {
 }
 
 let handlers = {};
+
 function getMQHandlerForDID(didDocument, domain, timeout) {
     let identifier = typeof didDocument === "object" ? didDocument.getIdentifier() : didDocument;
-    if(!handlers[identifier]){
+    if (!handlers[identifier]) {
         handlers[identifier] = new MQHandler(didDocument, domain, timeout);
     }
     return handlers[identifier];

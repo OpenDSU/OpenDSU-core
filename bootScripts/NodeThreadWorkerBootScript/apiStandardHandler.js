@@ -48,7 +48,7 @@ const handle = (dsu, res, requestedPath) => {
 
     switch (apiMethod) {
         case "app-seed": {
-            const { path, name } = querystring.parse(apiParameter);
+            const {path, name} = querystring.parse(apiParameter);
             getAppSeed(dsu, path, name, res);
             return;
         }

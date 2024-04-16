@@ -91,7 +91,7 @@ const configEnvironment = (config, refreshSC, callback) => {
             return callback(createOpenDSUErrorWrapper("Failed to read env", error));
         }
 
-        if(crypto.sha256(JSON.parse(env.toString())) === crypto.sha256(config)){
+        if (crypto.sha256(JSON.parse(env.toString())) === crypto.sha256(config)) {
             return callback(undefined, getSecurityContext());
         }
 
@@ -104,7 +104,7 @@ const configEnvironment = (config, refreshSC, callback) => {
                     const writeFileError = createOpenDSUErrorWrapper("Failed to write env", err);
                     try {
                         await mainDSU.cancelBatchAsync(batchId);
-                    }catch (e) {
+                    } catch (e) {
                         //not that important
                         //return callback(createOpenDSUErrorWrapper("Failed to cancel batch", e, writeFileError));
                         console.log(e);
@@ -224,18 +224,18 @@ const setMainDID = (did, callback) => {
     config.setEnv(MAINDIDKEY, did, callback);
 }
 
-const setMainDIDAsync = (did) =>{
+const setMainDIDAsync = (did) => {
     return $$.promisify(setMainDID)(did);
 }
 
 const getMainDID = (callback) => {
     let keys = [MAINDIDKEY, MAINDIDKEYFALLBACK];
-    config.readEnvFile((err, env)=>{
-        if(err){
+    config.readEnvFile((err, env) => {
+        if (err) {
             return callback(err);
         }
-        for(let key of keys){
-            if(env[key]){
+        for (let key of keys) {
+            if (env[key]) {
                 return callback(undefined, env[key]);
             }
         }
@@ -243,7 +243,7 @@ const getMainDID = (callback) => {
     });
 }
 
-const getMainDIDAsync = () =>{
+const getMainDIDAsync = () => {
     return $$.promisify(getMainDID)();
 }
 
@@ -271,5 +271,5 @@ module.exports = {
     getMainDID,
     setMainDIDAsync,
     getMainDIDAsync,
-    getMainDSUForNode:MainDSU.getMainDSUForNode
+    getMainDSUForNode: MainDSU.getMainDSUForNode
 };

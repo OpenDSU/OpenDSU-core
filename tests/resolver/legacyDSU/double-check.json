@@ -1,4 +1,6 @@
 {
   "confFileName": "double-check.json",
-  "ignore": ["refreshTestChild.js"]
+  "ignore": [
+    "refreshTestChild.js"
+  ]
 }

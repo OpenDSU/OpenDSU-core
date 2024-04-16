@@ -32,7 +32,7 @@ function BDNS() {
                 return callback(Error(`The provided domain is undefined`));
             }
 
-            if(typeof bdnsCache[dlDomain] === "undefined"){
+            if (typeof bdnsCache[dlDomain] === "undefined") {
                 return callback(Error(`BDNS: The provided domain <${dlDomain}> is not configured. Check if the domain name is correct and if BDNS contains info for this specific domain.`));
             }
 
@@ -56,7 +56,7 @@ function BDNS() {
 
     this.getRawInfo = (dlDomain, callback) => {
 
-        if(dlDomain && typeof dlDomain === "function"){
+        if (dlDomain && typeof dlDomain === "function") {
             callback = dlDomain;
             dlDomain = null;
         }

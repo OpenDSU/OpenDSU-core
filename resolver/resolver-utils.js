@@ -12,7 +12,7 @@ function getWebWorkerBootScript(dsuKeySSI) {
                 })()
                 `,
             ],
-            { type: "application/javascript" }
+            {type: "application/javascript"}
         )
     );
     return blobURL;

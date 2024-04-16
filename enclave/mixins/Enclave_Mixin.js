@@ -144,7 +144,7 @@ function Enclave_Mixin(target, did) {
             callback = encryptedRecord;
             encryptedRecord = plainRecord;
         }
-        if(!encryptedRecord){
+        if (!encryptedRecord) {
             encryptedRecord = plainRecord;
         }
         target.storageDB.insertRecord(table, pk, encryptedRecord, callback);
@@ -369,7 +369,7 @@ function Enclave_Mixin(target, did) {
                 }
                 target.storageDB.insertRecord(constants.TABLE_NAMES.KEY_SSIS, keySSIIdentifier, {keySSI: keySSIIdentifier}, (err) => {
                     if (err) {
-                        return target.storageDB.cancelBatch(batchId,(err) => {
+                        return target.storageDB.cancelBatch(batchId, (err) => {
                             if (err) {
                                 return callback(err);
                             }
@@ -543,8 +543,8 @@ function Enclave_Mixin(target, did) {
                 }
                 target.storageDB.updateRecord(constants.TABLE_NAMES.DIDS_PRIVATE_KEYS, didDocument.getIdentifier(), res, (err) => {
                     if (err) {
-                        return target.storageDB.cancelBatch(batchId,(e) => {
-                            if(e){
+                        return target.storageDB.cancelBatch(batchId, (e) => {
+                            if (e) {
                                 //this error is not that relevant... the updateRecord is more important...
                                 console.log(e);
                             }
@@ -912,7 +912,7 @@ function Enclave_Mixin(target, did) {
     }
 
     target.loadDSUVersionBasedOnVersionNumber = (forDID, keySSI, versionNumber, callback) => {
-        if(typeof versionNumber === "function"){
+        if (typeof versionNumber === "function") {
             callback = versionNumber;
             versionNumber = keySSI;
             keySSI = forDID;
@@ -928,7 +928,7 @@ function Enclave_Mixin(target, did) {
     }
 
     target.loadDSUVersion = (forDID, keySSI, versionHashlink, options, callback) => {
-        if(typeof versionHashlink === "function"){
+        if (typeof versionHashlink === "function") {
             callback = versionHashlink;
             versionHashlink = keySSI;
             keySSI = forDID;

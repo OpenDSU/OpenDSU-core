@@ -19,7 +19,10 @@ assert.callback('key DID SSI test', (testFinished) => {
                 "option": {}
             }
         }
-        await tir.launchConfigurableApiHubTestNodeAsync({ domains: [{ name: "vault", config: vaultDomainConfig }], rootFolder: folder });
+        await tir.launchConfigurableApiHubTestNodeAsync({
+            domains: [{name: "vault", config: vaultDomainConfig}],
+            rootFolder: folder
+        });
         sc = scAPI.getSecurityContext();
         sc.on("initialised", async () => {
             try {
@@ -51,7 +54,7 @@ assert.callback('key DID SSI test', (testFinished) => {
                         const resolvedDIDDocument = await $$.promisify(w3cDID.resolveDID)(didDocument.getIdentifier());
                         [err, signature] = await $$.call(resolvedDIDDocument.sign, dataToSign);
                         assert.true(err === undefined);
-                        
+
                         [err, result] = await $$.call(didDocument.verify, dataToSign, signature);
                         assert.true(err === undefined);
                         assert.true(result);

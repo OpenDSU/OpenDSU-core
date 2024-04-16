@@ -28,7 +28,7 @@ function createTestFolderWithDSU(folderName, callback) {
                     }
                     callback(keySSI, dsu);
                 });
-                return;
+
             });
         });
     });

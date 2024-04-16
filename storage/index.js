@@ -1,3 +1,3 @@
 module.exports = {
-  getDSUStorage: require("./DSUStorage")
+    getDSUStorage: require("./DSUStorage")
 };

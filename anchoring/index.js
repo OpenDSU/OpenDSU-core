@@ -85,7 +85,7 @@ const addVersion = (SSICapableOfSigning, newSSI, lastSSI, zkpValue, callback) =>
                                 });
                             }
 
-                            require("opendsu").loadApi("resolver").invalidateDSUCache(SSICapableOfSigning, err=>{
+                            require("opendsu").loadApi("resolver").invalidateDSUCache(SSICapableOfSigning, err => {
                                 if (err) {
                                     return reject(err);
                                 }
@@ -131,7 +131,7 @@ const createNFT = (nftKeySSI, callback) => {
     addVersion(nftKeySSI, callback)
 }
 
-function getAnchoringX(){
+function getAnchoringX() {
     //todo: See below
     //return anchoring behaviour using the persistence as apihub calls
     //execute the integration testing using the extended FS implementation (fsx)
@@ -139,32 +139,32 @@ function getAnchoringX(){
     return getAnchoringBehaviour(new RemotePersistence());
 }
 
-async function getNextVersionNumberAsync(keySSI){
+async function getNextVersionNumberAsync(keySSI) {
     const keySSISpace = require("opendsu").loadApi("keyssi");
-    if(typeof keySSI === "string"){
+    if (typeof keySSI === "string") {
         keySSI = keySSISpace.parse(keySSI);
     }
     const anchoringX = getAnchoringX();
     let nextVersion = 0;
     let anchorId = await $$.promisify(keySSI.getAnchorId)();
-    try{
+    try {
         let versions = await $$.promisify(anchoringX.getAllVersions)(anchorId, {realHistory: true});
-        if(versions){
+        if (versions) {
             nextVersion = versions.length;
-        }else{
+        } else {
             //if !versions we know that is our first version
         }
-    }catch(err){
+    } catch (err) {
         throw err;
     }
 
-    return nextVersion+1;
+    return nextVersion + 1;
 }
 
 module.exports = {
     createNFT,
     getAnchoringBehaviour,
     getAnchoringX,
-    getAnchoringImplementation:getAnchoringX,
+    getAnchoringImplementation: getAnchoringX,
     getNextVersionNumberAsync
 }

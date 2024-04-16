@@ -1,5 +1,6 @@
 let util = require("./impl/DSUDBUtil")
 const logger = $$.getLogger("opendsu", "db");
+
 function getBasicDB(storageStrategy, conflictSolvingStrategy, options) {
     let BasicDB = require("./impl/BasicDB");
     return new BasicDB(storageStrategy, conflictSolvingStrategy, options);
@@ -47,7 +48,7 @@ let getSimpleWalletDB = (dbName, options) => {
             return _storageDSU;
         }
 
-        db.onCommitBatch = function(callback, once){
+        db.onCommitBatch = function (callback, once) {
             db.getStorageDSU().onCommitBatch(callback, once);
         }
 

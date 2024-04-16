@@ -14,16 +14,16 @@ function VersionlessRecordStorageStrategy(rootDSU) {
                     return callback(err);
                 }
 
-                if(!oldRecord){
+                if (!oldRecord) {
                     let versionlessSSI;
                     [err, versionlessSSI] = await $$.call(versionlessDSU.getKeySSIAsString);
-                    if(err) {
+                    if (err) {
                         return callback(err);
                     }
 
                     [err, res] = await $$.call(rootDSU.writeFile, recordPath, versionlessSSI);
 
-                    if(err) {
+                    if (err) {
                         return callback(err);
                     }
                 }
@@ -42,14 +42,14 @@ function VersionlessRecordStorageStrategy(rootDSU) {
             versionlessDSUSSI = versionlessDSUSSI.toString();
             let versionlessDSU;
             [err, versionlessDSU] = await $$.call(resolver.loadDSU, versionlessDSUSSI);
-            if(err) {
+            if (err) {
                 return callback(err);
             }
 
             const filename = recordPath.split("/").pop();
             let record;
             [err, record] = await $$.call(versionlessDSU.readFile, filename);
-            if(err) {
+            if (err) {
                 return callback(err);
             }
 

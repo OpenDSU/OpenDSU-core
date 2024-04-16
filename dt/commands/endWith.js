@@ -15,7 +15,7 @@ const Command = require('./Command');
  *
  * @class EndWithCommand
  */
-class EndWithCommand extends Command{
+class EndWithCommand extends Command {
     constructor(varStore) {
         super(varStore);
     }
@@ -28,12 +28,12 @@ class EndWithCommand extends Command{
      * @param {function(err, Archive|KeySSI)} callback
      * @protected
      */
-    _runCommand(arg, bar, options, callback){
+    _runCommand(arg, bar, options, callback) {
         if (!callback) {
             callback = options;
             options = undefined;
         }
-        if (!callback){
+        if (!callback) {
             callback = bar;
             bar = arg;
             arg = undefined;

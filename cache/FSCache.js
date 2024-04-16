@@ -28,7 +28,7 @@ function FSCache(folderName) {
                 self.get(key, callback);
             })
         } else {
-            const filePath =path.join(folderPath, key)
+            const filePath = path.join(folderPath, key)
             fs.readFile(filePath, (err, data) => {
                 if (err) {
                     return OpenDSUSafeCallback(callback)(createOpenDSUErrorWrapper(`Failed to read file <${filePath}>`, err));
@@ -36,14 +36,14 @@ function FSCache(folderName) {
 
                 let content = data;
                 try {
-                    if(content != undefined && content != "undefined"){
+                    if (content != undefined && content != "undefined") {
                         content = JSON.parse(content.toString())
                     } else {
                         callback(undefined, undefined);
                     }
                 } catch (e) {
                     console.log(e, content);
-                    if(callback){
+                    if (callback) {
                         return callback(e);
                     }
                     return undefined;
@@ -72,19 +72,19 @@ function FSCache(folderName) {
 
     self.set = self.put;
 
-    self.clear = function(callback){
+    self.clear = function (callback) {
         fs.readdir(folderPath, function (err, files) {
             if (err) {
                 return callback(err);
             }
 
-            function deleteFile(){
-                if(!files.length){
+            function deleteFile() {
+                if (!files.length) {
                     return callback(undefined);
                 }
                 let file = files.pop();
-                fs.unlink(file, function(err){
-                    if(err){
+                fs.unlink(file, function (err) {
+                    if (err) {
                         return callback(err);
                     }
                     deleteFile();
@@ -95,7 +95,6 @@ function FSCache(folderName) {
         });
     }
 }
-
 
 
 module.exports.FSCache = FSCache;

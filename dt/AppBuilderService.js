@@ -14,26 +14,26 @@ const {_getResolver, _getKeySSISpace} = require('./commands/utils');
  * Default Options set for the {@link AppBuilderService}
  * <pre>
  *     {
-            anchoring: "default",
-            publicSecretsKey: '-$Identity-',
-            environmentKey: "-$Environment-",
-            basePath: "",
-            stripBasePathOnInstall: false,
-            walletPath: "",
-            hosts: "",
-            hint: undefined,
-            vault: "vault",
-            seedFileName: "seed",
-            appsFolderName: "apps",
-            appFolderName: "app",
-            codeFolderName: "code",
-            initFile: "init.file",
-            environment: {},
-            slots:{
-                primary: "wallet-patch",
-                secondary: "apps-patch"
-            }
-        }
+ anchoring: "default",
+ publicSecretsKey: '-$Identity-',
+ environmentKey: "-$Environment-",
+ basePath: "",
+ stripBasePathOnInstall: false,
+ walletPath: "",
+ hosts: "",
+ hint: undefined,
+ vault: "vault",
+ seedFileName: "seed",
+ appsFolderName: "apps",
+ appFolderName: "app",
+ codeFolderName: "code",
+ initFile: "init.file",
+ environment: {},
+ slots:{
+ primary: "wallet-patch",
+ secondary: "apps-patch"
+ }
+ }
  * </pre>
  */
 const OPTIONS = {
@@ -52,7 +52,7 @@ const OPTIONS = {
     codeFolderName: "code",
     initFile: "init.file",
     environment: {},
-    slots:{
+    slots: {
         primary: "wallet-patch",
         secondary: "apps-patch"
     }
@@ -61,7 +61,7 @@ const OPTIONS = {
 /**
  * Convert the Environment object into the Options object
  */
-const envToOptions = function(env, opts){
+const envToOptions = function (env, opts) {
     let options = Object.assign({}, OPTIONS, opts);
     options.environment = env;
     options.vault = env.vault;
@@ -118,7 +118,7 @@ function AppBuilderService(environment, opts) {
      * @param {function(err, ArraySSI)} callback
      * @private
      */
-    const createArraySSI = function(secrets, callback){
+    const createArraySSI = function (secrets, callback) {
         const key = _getKeySSISpace().createArraySSI(options.anchoring, secrets, 'v0', options.hint ? JSON.stringify(options.hint) : undefined);
         callback(undefined, key);
     }
@@ -130,7 +130,7 @@ function AppBuilderService(environment, opts) {
      * @param {string[]} secrets
      * @param {function(err, ArraySSI)} callback
      */
-    const createWalletSSI = function(secrets, callback){
+    const createWalletSSI = function (secrets, callback) {
         const key = _getKeySSISpace().createTemplateWalletSSI(options.anchoring, secrets, 'v0', options.hint ? JSON.stringify(options.hint) : undefined);
         callback(undefined, key);
     }
@@ -142,7 +142,7 @@ function AppBuilderService(environment, opts) {
      * @param {string} specificString
      * @param {function(err, TemplateSeedSSI)} callback
      */
-    const createSSI = function(specificString, callback){
+    const createSSI = function (specificString, callback) {
         const key = _getKeySSISpace().createTemplateSeedSSI(options.anchoring, specificString, undefined, 'v0', options.hint ? JSON.stringify(options.hint) : undefined);
         callback(undefined, key);
     }
@@ -153,7 +153,7 @@ function AppBuilderService(environment, opts) {
      * @param {object} opts DSU Creation Options
      * @param {function(err, Archive)} callback
      */
-    const createWalletDSU = function(secrets, opts, callback){
+    const createWalletDSU = function (secrets, opts, callback) {
         createWalletSSI(secrets, (err, keySSI) => {
             _getResolver().createDSUForExistingSSI(keySSI, opts, (err, dsu) => {
                 if (err)
@@ -169,7 +169,7 @@ function AppBuilderService(environment, opts) {
      * @param {object} opts DSU Creation Options
      * @param {function(err, Archive)} callback
      */
-    const createDSU = function(specific, opts, callback){
+    const createDSU = function (specific, opts, callback) {
         createSSI(specific, (err, keySSI) => {
             _getResolver().createDSU(keySSI, opts, (err, dsu) => {
                 if (err)
@@ -185,7 +185,7 @@ function AppBuilderService(environment, opts) {
      * @param {object} opts DSU Creation Options
      * @param {function(err, Archive)} callback
      */
-    const createConstDSU = function(secrets,opts , callback){
+    const createConstDSU = function (secrets, opts, callback) {
         createArraySSI(secrets, (err, keySSI) => {
             _getResolver().createDSUForExistingSSI(keySSI, opts, (err, dsu) => {
                 if (err)
@@ -195,7 +195,7 @@ function AppBuilderService(environment, opts) {
         });
     }
 
-    const getDSUFactory = function(isConst, isWallet){
+    const getDSUFactory = function (isConst, isWallet) {
         return isConst ? (isWallet ? createWalletDSU : createConstDSU) : createDSU;
     }
 
@@ -216,7 +216,7 @@ function AppBuilderService(environment, opts) {
      * @param {function(err, KeySSI)} callback
      */
     this.clone = function (arg, keyForDSUToClone, isConst, callback) {
-        if (typeof isConst === 'function'){
+        if (typeof isConst === 'function') {
             callback = isConst;
             isConst = true;
         }
@@ -229,10 +229,10 @@ function AppBuilderService(environment, opts) {
                 console.log(`Loaded Template DSU with key ${keyForDSUToClone}:\nmounts: ${mounts}`);
                 getDSUFactory(isConst)(keyGenArgs, (err, destinationDSU) => {
                     if (err)
-                        return OpenDSUSafeCallback(callback)(createOpenDSUErrorWrapper( err));
-                    doClone(dsuToClone, destinationDSU, files, mounts,  publicSecrets,(err, keySSI) => {
+                        return OpenDSUSafeCallback(callback)(createOpenDSUErrorWrapper(err));
+                    doClone(dsuToClone, destinationDSU, files, mounts, publicSecrets, (err, keySSI) => {
                         if (err)
-                            return OpenDSUSafeCallback(callback)(createOpenDSUErrorWrapper( err));
+                            return OpenDSUSafeCallback(callback)(createOpenDSUErrorWrapper(err));
                         console.log(`DSU ${keySSI} as a clone of ${keyForDSUToClone} was created`);
                         // if (publicSecrets)
                         //     return writeToCfg(destinationDSU, publicSecrets, err => callback(err, keySSI));
@@ -243,26 +243,26 @@ function AppBuilderService(environment, opts) {
         });
     }
 
-    const _getPatchContent = function(appName, callback){
+    const _getPatchContent = function (appName, callback) {
         fileService.getFolderContentAsJSON(appName, (err, content) => {
-           if (err)
-               return OpenDSUSafeCallback(callback)(createOpenDSUErrorWrapper(`Could not retrieve patch content for ${appName}`, err));
-           try {
-               content = JSON.parse(content);
-           } catch (e) {
-               return callback(`Could not parse content`);
-           }
+            if (err)
+                return OpenDSUSafeCallback(callback)(createOpenDSUErrorWrapper(`Could not retrieve patch content for ${appName}`, err));
+            try {
+                content = JSON.parse(content);
+            } catch (e) {
+                return callback(`Could not parse content`);
+            }
             content['/'][options.seedFileName] = undefined;
             delete content['/'][options.seedFileName];
 
-           callback(undefined, content);
+            callback(undefined, content);
         });
     }
 
     const filesToCommands = (content) => {
         let commands = [];
         for (let directory in content)
-            if (content.hasOwnProperty(directory)){
+            if (content.hasOwnProperty(directory)) {
                 let directoryFiles = content[directory];
                 for (let fileName in directoryFiles)
                     if (directoryFiles.hasOwnProperty(fileName))
@@ -277,21 +277,21 @@ function AppBuilderService(environment, opts) {
      * @param {string} slotPath should be '{@link OPTIONS.slots}[/appName]' when appName is required
      * @param {function(err, Archive, KeySSI)} callback
      */
-    const patch = function(dsu, slotPath, callback) {
+    const patch = function (dsu, slotPath, callback) {
         // Copy any files found in the RESPECTIVE PATCH FOLDER on the local file system
         // into the app's folder
         _getPatchContent(slotPath, (err, files) => {
             if (err)
-                return OpenDSUSafeCallback(callback)(createOpenDSUErrorWrapper( err));
+                return OpenDSUSafeCallback(callback)(createOpenDSUErrorWrapper(err));
             let commands = filesToCommands(files);
-            if (commands.length === 0){
+            if (commands.length === 0) {
                 console.log(`Application ${slotPath} does not require patching`);
                 return callback(undefined, dsu);
             }
 
             dossierBuilder.buildDossier(dsu, commands, (err, keySSI) => {
                 if (err)
-                    return OpenDSUSafeCallback(callback)(createOpenDSUErrorWrapper( err));
+                    return OpenDSUSafeCallback(callback)(createOpenDSUErrorWrapper(err));
                 console.log(`Application ${slotPath} successfully patched`);
                 callback(undefined, dsu, keySSI);
             });
@@ -303,7 +303,7 @@ function AppBuilderService(environment, opts) {
      * its basePath will always be '/' unlike the loader, we have the option to strip the base path id that's desirable
      * @param {object} env
      */
-    const resetBasePath = function(env){
+    const resetBasePath = function (env) {
         if (!env.stripBasePathOnInstall)
             return env;
         return Object.assign({}, env, {basePath: '/'});
@@ -315,7 +315,7 @@ function AppBuilderService(environment, opts) {
      * @param {object} publicSecrets what elements of the registration elements should be passed onto the SSApp
      * @param {function(err, Archive)} callback
      */
-    const initializeInstance = function(instance, publicSecrets, callback){
+    const initializeInstance = function (instance, publicSecrets, callback) {
         instance.readFile(`${options.codeFolderName}/${options.initFile}`, (err, data) => {
             if (err) {
                 console.log(`No init file found. Initialization complete`);
@@ -325,13 +325,13 @@ function AppBuilderService(environment, opts) {
             // embed the environment and identity into in the initializations commands
             let commands = data.toString().replace(options.environmentKey, JSON.stringify(resetBasePath(options.environment)));
             commands = (publicSecrets
-                    ? commands.replace(options.publicSecretsKey, JSON.stringify(publicSecrets))
-                    : commands)
+                ? commands.replace(options.publicSecretsKey, JSON.stringify(publicSecrets))
+                : commands)
                 .split(/\r?\n/).map(cmd => cmd.trim()).filter(cmd => !!cmd && !cmd.startsWith('##'));
 
             dossierBuilder.buildDossier(instance, commands, (err, keySSI) => {
                 if (err)
-                   return OpenDSUSafeCallback(callback)(createOpenDSUErrorWrapper(`Could not initialize SSApp instance`, err));
+                    return OpenDSUSafeCallback(callback)(createOpenDSUErrorWrapper(`Could not initialize SSApp instance`, err));
                 console.log(`Instance successfully initialized: ${keySSI}`);
                 callback(undefined, instance);
             });
@@ -353,10 +353,10 @@ function AppBuilderService(environment, opts) {
      * </pre>
      * @param {function(err, string|string[], publicSecrets)} callback
      */
-    const parseSecrets = function(isWallet, secrets, callback){
+    const parseSecrets = function (isWallet, secrets, callback) {
         let specificArg = secrets;
         let publicSecrets = undefined;
-        if (isWallet && typeof secrets === 'object'){
+        if (isWallet && typeof secrets === 'object') {
             specificArg = [];
             publicSecrets = {};
             Object.entries(secrets).forEach(e => {
@@ -378,25 +378,25 @@ function AppBuilderService(environment, opts) {
      * @param {string} [name]
      * @param {function(err, KeySSI, Archive)} callback
      */
-    const buildApp = function(isWallet, secrets, seed, name, callback){
-        if (typeof name === 'function'){
+    const buildApp = function (isWallet, secrets, seed, name, callback) {
+        if (typeof name === 'function') {
             if (!isWallet)
                 return callback(`No SSApp name provided`);
             callback = name;
             name = undefined;
         }
 
-        const patchAndInitialize = function(instance, publicSecrets, callback){
+        const patchAndInitialize = function (instance, publicSecrets, callback) {
             const patchPath = isWallet ? `${options.slots.primary}` : `${options.slots.secondary}/${name}`;
             patch(instance, patchPath, (err) => {
                 if (err)
                     return OpenDSUSafeCallback(callback)(createOpenDSUErrorWrapper(`Error patching SSApp ${name}`, err));
                 initializeInstance(instance, publicSecrets, (err) => {
                     if (err)
-                        return OpenDSUSafeCallback(callback)(createOpenDSUErrorWrapper( err));
+                        return OpenDSUSafeCallback(callback)(createOpenDSUErrorWrapper(err));
                     instance.getKeySSIAsString((err, keySSI) => {
                         if (err)
-                            return OpenDSUSafeCallback(callback)(createOpenDSUErrorWrapper( err));
+                            return OpenDSUSafeCallback(callback)(createOpenDSUErrorWrapper(err));
                         callback(undefined, keySSI);
                     });
                 });
@@ -405,7 +405,7 @@ function AppBuilderService(environment, opts) {
 
         parseSecrets(isWallet, secrets, (err, keyArgs, publicSecrets) => {
             if (err)
-                return OpenDSUSafeCallback(callback)(createOpenDSUErrorWrapper( err));
+                return OpenDSUSafeCallback(callback)(createOpenDSUErrorWrapper(err));
             getDSUFactory(isWallet, isWallet)(keyArgs, isWallet ? {dsuTypeSSI: seed} : undefined, (err, wallet) => {
                 if (err)
                     return callback(`Could not create instance`);
@@ -430,7 +430,7 @@ function AppBuilderService(environment, opts) {
      */
     const getListOfAppsForInstallation = (callback) => {
         fileService.getFolderContentAsJSON(options.slots.secondary, function (err, data) {
-            if (err){
+            if (err) {
                 console.log(`No Apps found`)
                 return callback(undefined, {});
             }
@@ -452,8 +452,8 @@ function AppBuilderService(environment, opts) {
      * @param {Archive} wallet
      * @param {function(err, object)} callback returns the apps details
      */
-    const installApps = function(wallet, callback){
-        const performInstallation = function(wallet, apps, appList, callback){
+    const installApps = function (wallet, callback) {
+        const performInstallation = function (wallet, apps, appList, callback) {
             if (!appList.length)
                 return callback();
             let appName = appList.pop();
@@ -484,10 +484,10 @@ function AppBuilderService(environment, opts) {
 
         getListOfAppsForInstallation((err, apps) => {
             if (err)
-                return OpenDSUSafeCallback(callback)(createOpenDSUErrorWrapper( err));
+                return OpenDSUSafeCallback(callback)(createOpenDSUErrorWrapper(err));
             apps = apps || {};
             let appList = Object.keys(apps).filter(n => n !== '/');
-            if(!appList.length)
+            if (!appList.length)
                 return callback(undefined, appList);
             let tempList = [...appList]
             performInstallation(wallet, apps, tempList, (err) => {
@@ -504,7 +504,7 @@ function AppBuilderService(environment, opts) {
      * @param {string} name the SSApp's name
      * @param {function(err, KeySSI, Archive)} callback
      */
-    this.buildSSApp = function(seed, name, callback){
+    this.buildSSApp = function (seed, name, callback) {
         return buildApp(false, seed, name, callback);
     }
 
@@ -513,7 +513,7 @@ function AppBuilderService(environment, opts) {
      * @param {object|string} secrets according to {@link parseSecrets}
      * @param {function(err, KeySSI, Archive)} callback
      */
-    this.buildWallet = function(secrets, callback){
+    this.buildWallet = function (secrets, callback) {
         fileService.getWalletSeed((err, seed) => {
             if (err)
                 return OpenDSUSafeCallback(callback)(createOpenDSUErrorWrapper("Could not retrieve template wallet SSI.", err));
@@ -532,7 +532,7 @@ function AppBuilderService(environment, opts) {
         });
     }
 
-    this.loadWallet = function(secrets, callback){
+    this.loadWallet = function (secrets, callback) {
         parseSecrets(true, secrets, (err, keyGenArgs) => {
             if (err)
                 return callback(err);
@@ -551,4 +551,5 @@ function AppBuilderService(environment, opts) {
         });
     }
 }
+
 module.exports = AppBuilderService;

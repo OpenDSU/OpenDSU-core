@@ -1,4 +1,23 @@
 {
   "confFileName": "double-check.json",
-  "ignore": ["notifications", "VersionlessDSUStressTest.js", "sharedDBPerformanceTest.js", "w3cDIDStressTestChild.js", "utils.js", "sharedEnclaveDBTest.js", "CreateTokenSSITest.js", "ethxAPITest.js", "performance tests", "contracts", "bigFiles", "obaStressTest.js", "PathKeySSITest.js","PathKeyMappingTest.js", "performance", "w3cDIDStressTest.js", "CloudEnclaveTest.js", "VersionlessDSU_mount_unmount_folders_test.js"]
+  "ignore": [
+    "notifications",
+    "VersionlessDSUStressTest.js",
+    "sharedDBPerformanceTest.js",
+    "w3cDIDStressTestChild.js",
+    "utils.js",
+    "sharedEnclaveDBTest.js",
+    "CreateTokenSSITest.js",
+    "ethxAPITest.js",
+    "performance tests",
+    "contracts",
+    "bigFiles",
+    "obaStressTest.js",
+    "PathKeySSITest.js",
+    "PathKeyMappingTest.js",
+    "performance",
+    "w3cDIDStressTest.js",
+    "CloudEnclaveTest.js",
+    "VersionlessDSU_mount_unmount_folders_test.js"
+  ]
 }

@@ -101,10 +101,10 @@ const extensionsMimeTypes = {
         name: "video/mpeg",
         binary: true
     },
-	"mp4": {
-		name: "video/mp4",
-		binary: true
-	},"mpkg": {
+    "mp4": {
+        name: "video/mp4",
+        binary: true
+    }, "mpkg": {
         name: "application/vnd.apple.installer+xm",
         binary: true
     }, "odp": {

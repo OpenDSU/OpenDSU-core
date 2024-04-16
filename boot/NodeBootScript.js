@@ -1,12 +1,12 @@
 function boot(keySSI) {
     $$.LEGACY_BEHAVIOUR_ENABLED = true;
     const worker_threads = "worker_threads";
-    const { parentPort } = require(worker_threads);
-    const { handleMessage } = require("./boot-utils.js");
+    const {parentPort} = require(worker_threads);
+    const {handleMessage} = require("./boot-utils.js");
 
     parentPort.on("message", (message) => {
         handleMessage(message, (error, result) => {
-            parentPort.postMessage({ error, result });
+            parentPort.postMessage({error, result});
         });
     });
 
@@ -29,7 +29,7 @@ function boot(keySSI) {
 
     booter.boot((error) => {
         if (error) {
-            parentPort.postMessage({ error });
+            parentPort.postMessage({error});
             throw error;
         }
 

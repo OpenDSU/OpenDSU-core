@@ -6,7 +6,7 @@
 /**
  */
 const Command = require('./Command');
-const { _err } = require('./utils');
+const {_err} = require('./utils');
 
 /**
  * Defines a variable that can later be used in the script
@@ -26,7 +26,7 @@ class DefineCommand extends Command {
      * @protected
      */
     _parseCommand(command, next, callback) {
-        if (!callback){
+        if (!callback) {
             callback = next;
             next = undefined;
         }
@@ -52,13 +52,13 @@ class DefineCommand extends Command {
         let self = this;
         const _getByName = require('./Registry');
 
-        if (!_getByName(arg.command[0])){
+        if (!_getByName(arg.command[0])) {
             this.varStore.define(arg.varName, arg.command);
             console.log(`Define executed: ${arg.command}`);
             return callback(undefined, bar);
         }
 
-        const parseCommand = function(command, callback){
+        const parseCommand = function (command, callback) {
             const cmdName = command.shift();
             const actualCmd = _getByName(cmdName);
             if (!actualCmd)

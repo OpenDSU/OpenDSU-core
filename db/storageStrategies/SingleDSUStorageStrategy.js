@@ -1,5 +1,6 @@
 const ObservableMixin = require("../../utils/ObservableMixin");
 const SingleDSURecordStorageStrategy = require("./SingleDSURecordStorageStrategy");
+
 function SingleDSUStorageStrategy(recordStorageStrategy) {
     let self = this
     let storageDSU;
@@ -10,7 +11,7 @@ function SingleDSUStorageStrategy(recordStorageStrategy) {
     this.initialise = function (_storageDSU, _dbName) {
         storageDSU = _storageDSU;
         dbName = _dbName;
-        if(!recordStorageStrategy){
+        if (!recordStorageStrategy) {
             recordStorageStrategy = new SingleDSURecordStorageStrategy(storageDSU);
         }
         this.dispatchEvent("initialised");
@@ -58,7 +59,7 @@ function SingleDSUStorageStrategy(recordStorageStrategy) {
         return await storageDSU.commitBatchAsync(...args);
     }
 
-    this.onCommitBatch = (...args)=>{
+    this.onCommitBatch = (...args) => {
         storageDSU.onCommitBatch(...args);
     }
 
@@ -324,14 +325,14 @@ function SingleDSUStorageStrategy(recordStorageStrategy) {
             const TaskCounter = require("swarmutils").TaskCounter;
 
             let batchId;
-            try{
+            try {
                 batchId = await this.startOrAttachBatchAsync();
-            }catch(err){
+            } catch (err) {
                 return callback(err);
             }
 
             const taskCounter = new TaskCounter(() => {
-               this.commitBatch(batchId, callback);
+                this.commitBatch(batchId, callback);
             });
 
             if (primaryKeys.length === 0) {
@@ -570,11 +571,11 @@ function SingleDSUStorageStrategy(recordStorageStrategy) {
     };
 
     const READ_WRITE_KEY_TABLE = "KeyValueTable";
-    this.writeKey = async (key, value, callback)=> {
+    this.writeKey = async (key, value, callback) => {
         let batchId;
-        try{
+        try {
             batchId = await this.startOrAttachBatchAsync();
-        }catch(err){
+        } catch (err) {
             return callback(err);
         }
 
@@ -600,9 +601,9 @@ function SingleDSUStorageStrategy(recordStorageStrategy) {
         const recordPath = getRecordPath(READ_WRITE_KEY_TABLE, key);
         storageDSU.writeFile(recordPath, JSON.stringify(valueObject), async (err) => {
             if (err) {
-                try{
+                try {
                     await this.cancelBatch(batchId);
-                }catch(e){
+                } catch (e) {
                     console.log(e);
                 }
                 return callback(err);

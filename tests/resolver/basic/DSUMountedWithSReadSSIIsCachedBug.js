@@ -1,4 +1,4 @@
-const { promisify } = require('util');
+const {promisify} = require('util');
 require("../../../../../builds/output/testsRuntime");
 const testIntegration = require("../../../../../psknode/tests/util/tir");
 
@@ -22,7 +22,7 @@ $$.LEGACY_BEHAVIOUR_ENABLED = true;
 // Make sure the result is not cached
 assert.callback('Test caching for DSU mounted with SReadSSI', (testfinished) => {
 
-    dc.createTestFolder('SReadSSIDSULoadCacheBug',(err,folder) => {
+    dc.createTestFolder('SReadSSIDSULoadCacheBug', (err, folder) => {
         testIntegration.launchApiHubTestNode(10, folder, async (err) => {
             if (err) {
                 throw err;

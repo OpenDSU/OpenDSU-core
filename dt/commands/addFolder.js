@@ -6,7 +6,7 @@
 /**
  */
 const Command = require('./Command');
-const { _err } = require('./utils');
+const {_err} = require('./utils');
 
 /**
  * This command copies an entire folder from the filesystem onto the destination DSU
@@ -30,8 +30,8 @@ class AddFolderCommand extends Command {
      * @return {string|object} the command argument
      * @protected
      */
-    _parseCommand(command, next, callback){
-        if (!callback){
+    _parseCommand(command, next, callback) {
+        if (!callback) {
             callback = next;
             next = undefined;
         }
@@ -45,8 +45,8 @@ class AddFolderCommand extends Command {
      * @param {function(err, Archive)} callback
      * @protected
      */
-    _runCommand(arg, bar, options, callback){
-        if (this.source){
+    _runCommand(arg, bar, options, callback) {
+        if (this.source) {
             console.log("The addFolder Method is not supported when reading from a sourceDSU");
             callback(undefined, bar);
         }
@@ -62,7 +62,7 @@ class AddFolderCommand extends Command {
         console.log(commandLog);
 
         bar.addFolder(src, dst, options, err => err
-            ? _err(`Failed to: `+commandLog, err, callback)
+            ? _err(`Failed to: ` + commandLog, err, callback)
             : callback(undefined, bar));
     }
 }

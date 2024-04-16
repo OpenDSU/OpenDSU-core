@@ -6,10 +6,9 @@
 /**
  */
 const Command = require('./Command');
-const { _err } = require('./utils');
+const {_err} = require('./utils');
 const endCommand = 'endwith';
 const startCommand = 'with';
-
 
 
 /**
@@ -38,7 +37,7 @@ class WithCommand extends Command {
         const commandsToConsider = [command];
         let cmd;
         let count = 0;
-        while (!this._isEndCommand((cmd = next.shift())) && count === 0){
+        while (!this._isEndCommand((cmd = next.shift())) && count === 0) {
             let c = cmd.split(/\s+/);
             commandsToConsider.push(c);
             if (this._isStartCommand(c[0]))
@@ -51,7 +50,7 @@ class WithCommand extends Command {
         callback(undefined, commandsToConsider);
     }
 
-    _isStartCommand(cmd){
+    _isStartCommand(cmd) {
         return cmd.indexOf(startCommand) === 0;
     }
 
@@ -72,13 +71,13 @@ class WithCommand extends Command {
             callback = options;
             options = undefined;
         }
-        if (!callback){
+        if (!callback) {
             callback = bar;
             bar = undefined;
         }
         const _getByName = require('./Registry');
 
-        const parseCommand = function(command, callback){
+        const parseCommand = function (command, callback) {
             const cmdName = command.shift();
             const actualCmd = _getByName(cmdName);
             if (!actualCmd)
@@ -86,7 +85,7 @@ class WithCommand extends Command {
             callback(undefined, cmdName, actualCmd, command);
         }
 
-        const performWith = function(newSource, commands, callback){
+        const performWith = function (newSource, commands, callback) {
             const cmd = commands.shift();
             if (!cmd)
                 return callback(`No endWith command found. this should not be possible`);
@@ -107,7 +106,7 @@ class WithCommand extends Command {
         const cmdOrVar = arg[0][0];
         const cmd = _getByName(cmdOrVar);
 
-        if (!cmd){
+        if (!cmd) {
             console.log(`With VARIABLE executed: ${arg[0]}`);
             return performWith(arg.shift().shift(), arg, callback);
         }

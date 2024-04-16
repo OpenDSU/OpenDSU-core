@@ -6,7 +6,7 @@
 /**
  */
 const Command = require('./Command');
-const { _err, _getKeySSISpace, KEY_TYPE } = require('./utils');
+const {_err, _getKeySSISpace, KEY_TYPE} = require('./utils');
 
 /**
  * Generates a KeySSI
@@ -15,7 +15,7 @@ const { _err, _getKeySSISpace, KEY_TYPE } = require('./utils');
  */
 class GenKeyCommand extends Command {
     constructor(varStore) {
-        super(varStore,undefined, false);
+        super(varStore, undefined, false);
     }
 
     /**
@@ -25,13 +25,13 @@ class GenKeyCommand extends Command {
      * @return {string|object} the command argument
      * @protected
      */
-    _parseCommand(command, next, callback){
-        if (!callback){
+    _parseCommand(command, next, callback) {
+        if (!callback) {
             callback = next;
             next = undefined;
         }
 
-        const tryParseJson = function(text){
+        const tryParseJson = function (text) {
             try {
                 let parsedArgs = JSON.parse(text);
                 if (parsedArgs && typeof parsedArgs === 'object')
@@ -50,12 +50,12 @@ class GenKeyCommand extends Command {
                 args: tryParseJson(command.shift())
             }
 
-            if (typeof arg.args === 'object' && arg.args.args){
+            if (typeof arg.args === 'object' && arg.args.args) {
                 arg.hint = arg.args.hint;
                 arg.args = tryParseJson(arg.args.args);
             }
             callback(undefined, arg);
-        } catch (e){
+        } catch (e) {
             _err(`could not parse json ${command}`, e, callback);
         }
     }
@@ -68,7 +68,7 @@ class GenKeyCommand extends Command {
      * @param {function(err, ArraySSI)} callback
      * @private
      */
-    _createArraySSI = function(args, callback){
+    _createArraySSI = function (args, callback) {
         const key = _getKeySSISpace().createArraySSI(args.domain, args.args, 'v0', args.hint ? JSON.stringify(args.hint) : undefined);
         callback(undefined, key);
     }
@@ -80,7 +80,7 @@ class GenKeyCommand extends Command {
      * @param {object} args
      * @param {function(err, ArraySSI)} callback
      */
-    _createWalletSSI = function(args, callback){
+    _createWalletSSI = function (args, callback) {
         const key = _getKeySSISpace().createTemplateWalletSSI(args.domain, args.args, 'v0', args.hint ? JSON.stringify(args.hint) : undefined);
         callback(undefined, key);
     }
@@ -92,7 +92,7 @@ class GenKeyCommand extends Command {
      * @param {object} args
      * @param {function(err, TemplateSeedSSI)} callback
      */
-    _createSSI = function(args, callback){
+    _createSSI = function (args, callback) {
         const key = _getKeySSISpace().createTemplateSeedSSI(args.domain, args.args, undefined, 'v0', args.hint ? JSON.stringify(args.hint) : undefined);
         callback(undefined, key);
     }
@@ -116,23 +116,23 @@ class GenKeyCommand extends Command {
      * @protected
      */
     _runCommand(arg, bar, options, callback) {
-        if(!callback){
+        if (!callback) {
             callback = options;
             options = bar;
             bar = undefined;
         }
-        if (typeof options === 'function'){
+        if (typeof options === 'function') {
             callback = options;
             options = undefined;
         }
-        const cb = function(err, keySSI){
+        const cb = function (err, keySSI) {
             if (err)
                 return _err(`Could not create keySSI with ${JSON.stringify(arg)}`, err, callback);
             console.log(`${arg.type} KeySSI created with SSI ${keySSI.getIdentifier()}`)
             callback(undefined, keySSI);
         }
 
-        switch (arg.type){
+        switch (arg.type) {
             case KEY_TYPE.SEED:
                 return this._createSSI(arg, cb)
             case KEY_TYPE.ARRAY:

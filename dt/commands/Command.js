@@ -2,7 +2,7 @@
  * @module Commands
  * @memberOf dt
  */
-const { _err } = require('./utils');
+const {_err} = require('./utils');
 
 /**
  * **Every Command must be registered under the index.js file in the commands folder**
@@ -14,7 +14,7 @@ const { _err } = require('./utils');
  */
 class Command {
     constructor(varStore, source, canRunIteratively) {
-        if (typeof source === 'boolean'){
+        if (typeof source === 'boolean') {
             canRunIteratively = source;
             source = undefined;
         }
@@ -34,17 +34,17 @@ class Command {
      * @param {object} [options]
      * @param {function(err, Archive|KeySSI|string|boolean)} callback
      */
-    execute(args,bar, next, options, callback){
-        if (typeof options === 'function'){
+    execute(args, bar, next, options, callback) {
+        if (typeof options === 'function') {
             callback = options;
             options = undefined;
         }
-        if (typeof next === 'function'){
+        if (typeof next === 'function') {
             callback = next;
             options = undefined;
             next = undefined;
         }
-        if (callback === undefined){
+        if (callback === undefined) {
             callback = bar;
             bar = undefined;
         }
@@ -60,7 +60,7 @@ class Command {
             if (!self.canRunIteratively || !(parsedArgs instanceof Array))
                 return self._runCommand(parsedArgs, bar, options, callback);
 
-            const iterator = function(args, callback){
+            const iterator = function (args, callback) {
                 let arg = parsedArgs.shift();
                 if (!arg)
                     return callback(undefined, bar);
@@ -81,8 +81,8 @@ class Command {
      * @param {function(err, string|string[]|object)} callback
      * @protected
      */
-    _parseCommand(command, next, callback){
-        if (!callback){
+    _parseCommand(command, next, callback) {
+        if (!callback) {
             callback = next;
             next = undefined;
         }
@@ -96,7 +96,7 @@ class Command {
      * @param {function(err, Archive|KeySSI|string)} callback
      * @protected
      */
-    _runCommand(arg, bar, options, callback){
+    _runCommand(arg, bar, options, callback) {
         throw new Error("Child classes must implement this");
     }
 }

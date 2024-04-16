@@ -61,7 +61,10 @@ assert.callback('Get all records test', (testFinished) => {
         try {
             await $$.promisify(launchApiHubTestNode)(10, folder);
             const TABLE = "test_table";
-            let records = [{pk:"key1", record:{"value": 1}}, {pk:"key2", record:{"value": 2}}, {pk:"key3", record:{"value": 3}}, {pk:"key4", record:{"value": 5}}];
+            let records = [{pk: "key1", record: {"value": 1}}, {pk: "key2", record: {"value": 2}}, {
+                pk: "key3",
+                record: {"value": 3}
+            }, {pk: "key4", record: {"value": 5}}];
             const versionlessDSUEnclave = enclaveAPI.createEnclave(openDSU.constants.ENCLAVE_TYPES.VERSIONLESS_DSU_ENCLAVE);
             versionlessDSUEnclave.on("initialised", async () => {
                 console.log("Initialized versionlessDSU Enclave");

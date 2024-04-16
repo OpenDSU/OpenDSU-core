@@ -90,7 +90,7 @@ function MemoryStorageStrategy() {
     this.getAllRecords = (tableName, callback) => {
         const table = getTable(tableName);
         let values = Object.values(table);
-        if(values.length === 0){
+        if (values.length === 0) {
             return callback(undefined, []);
         }
 
@@ -192,7 +192,7 @@ function MemoryStorageStrategy() {
     }
 
     this.safeBeginBatch = (wait, callback) => {
-        if(typeof wait === "function") {
+        if (typeof wait === "function") {
             callback = wait;
             wait = false;
         }
@@ -207,12 +207,12 @@ function MemoryStorageStrategy() {
         callback(undefined);
     }
 
-    this.startOrAttachBatchAsync = () =>{
+    this.startOrAttachBatchAsync = () => {
 
     }
 
     this.commitBatch = (onConflict, callback) => {
-        if(typeof callback === "undefined"){
+        if (typeof callback === "undefined") {
             callback = onConflict;
             onConflict = undefined;
         }
@@ -224,7 +224,7 @@ function MemoryStorageStrategy() {
     }
 
     this.cancelBatch = (batchId, callback) => {
-        if(typeof callback === "undefined"){
+        if (typeof callback === "undefined") {
             callback = batchId;
             batchId = undefined;
         }

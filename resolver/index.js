@@ -98,16 +98,16 @@ const createVersionlessDSU = (filePath, encryptionKey, domain, callback) => {
         encryptionKey = undefined;
     }
 
-    if(typeof filePath === "function") {
+    if (typeof filePath === "function") {
         callback = filePath;
         filePath = crypto.generateRandom(32).toString("hex");
         domain = bdnsSpace.getOriginPlaceholder();
         encryptionKey = undefined;
     }
 
-    if(typeof encryptionKey === "string" && encryptionKey) {
+    if (typeof encryptionKey === "string" && encryptionKey) {
         // specific string must have 32 characters required for versionlessDSU encrypt
-        if(encryptionKey.length !== 32) {
+        if (encryptionKey.length !== 32) {
             throw new Error(`encryptionKey must have exactly 32 characters (${encryptionKey.length} provided)`)
         }
     }
@@ -122,7 +122,7 @@ const createVersionlessDSU = (filePath, encryptionKey, domain, callback) => {
  * If a new anchor is detected refresh the DSU
  */
 const getLatestDSUVersion = (dsu, callback) => {
-    if(dsu.batchInProgress()){
+    if (dsu.batchInProgress()) {
         return callback(undefined, dsu);
     }
     dsu.getCurrentAnchoredHashLink((err, current) => {
@@ -274,7 +274,7 @@ const loadFallbackDSU = (keySSI, options, callback) => {
             return callback(createOpenDSUErrorWrapper(`Failed to get anchorId for keySSI ${keySSI.getIdentifier()}`, err));
         }
 
-        anchoringX.getAllVersions(anchorId, {realHistory:true}, (err, versions) => {
+        anchoringX.getAllVersions(anchorId, {realHistory: true}, (err, versions) => {
             if (err) {
                 return callback(createOpenDSUErrorWrapper(`Failed to get versions for anchorId ${anchorId}`, err));
             }
@@ -337,7 +337,7 @@ const loadDSU = (keySSI, options, callback) => {
     }
 
     const loadDSU = (addInCache) => {
-        
+
         const keySSIResolver = getResolver(options);
         keySSIResolver.loadDSU(keySSI, options, (err, dsuInstance) => {
             if (err) {

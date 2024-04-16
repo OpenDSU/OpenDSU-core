@@ -1,10 +1,10 @@
 function boot(keySSI) {
     $$.LEGACY_BEHAVIOUR_ENABLED = true;
-    const { handleMessage } = require("./boot-utils.js");
+    const {handleMessage} = require("./boot-utils.js");
 
     onmessage = (message) => {
         handleMessage(message.data, (error, result) => {
-            postMessage({ error, result });
+            postMessage({error, result});
         });
     };
 
@@ -20,7 +20,7 @@ function boot(keySSI) {
 
     booter.boot((error) => {
         if (error) {
-            postMessage({ error });
+            postMessage({error});
             throw error;
         }
 

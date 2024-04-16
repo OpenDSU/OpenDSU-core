@@ -60,7 +60,7 @@ tir.launchConfigurableApiHubTestNode({
         console.log("Second member received message:", receivedMessage);
     });
 
-    groupDID_Document.sendMessage(dataToSend, (err)=>{
+    groupDID_Document.sendMessage(dataToSend, (err) => {
         if (err) {
             return console.log(err);
         }

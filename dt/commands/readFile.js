@@ -6,7 +6,7 @@
 /**
  */
 const Command = require('./Command');
-const { _getFS, _err } = require('./utils')
+const {_getFS, _err} = require('./utils')
 
 /**
  * Reads The contents of a file from disk or from a sourceDSU
@@ -15,7 +15,7 @@ const { _getFS, _err } = require('./utils')
  *
  * @class ReadFileCommand
  */
-class ReadFileCommand extends Command{
+class ReadFileCommand extends Command {
     constructor(varStore, source) {
         super(varStore, source ? source : _getFS());
         this.dataToString = !source;
@@ -27,8 +27,8 @@ class ReadFileCommand extends Command{
      * @param {function(err, string)} callback
      * @protected
      */
-    _parseCommand(command, next, callback){
-        if (!callback){
+    _parseCommand(command, next, callback) {
+        if (!callback) {
             callback = next;
             next = undefined;
         }
@@ -42,8 +42,8 @@ class ReadFileCommand extends Command{
      * @param {function(err, Archive)} callback
      * @protected
      */
-    _runCommand(arg, bar, options, callback){
-        if (typeof options === 'function'){
+    _runCommand(arg, bar, options, callback) {
+        if (typeof options === 'function') {
             callback = options;
             options = undefined;
         }
