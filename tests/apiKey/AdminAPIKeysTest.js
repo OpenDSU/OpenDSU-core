@@ -85,7 +85,8 @@ assert.callback("Test API keys", async (callback) => {
     } catch (err) {
         error = err;
     }
-    assert.true(error.message.includes("Failed to fetch"), "Deletion of API key confirmed.");
+    assert.true(error instanceof Error, "Expected error when trying to get deleted API key.");
+    assert.true(error.message.includes("Failed to fetch"), "API key deletion should have failed.");
     callback();
 }, 50000);
 
