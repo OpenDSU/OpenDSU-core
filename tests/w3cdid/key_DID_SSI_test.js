@@ -26,19 +26,15 @@ assert.callback('key DID SSI test', (testFinished) => {
         });
         sc = scAPI.getSecurityContext();
         sc.on("initialised", async () => {
-            try {
-                const seedSSI = await $$.promisify(keySSI.createSeedSSI)(domain);
-                const didDocument = await $$.promisify(w3cDID.createIdentity)("ssi:key", seedSSI);
+            const seedSSI = await $$.promisify(keySSI.createSeedSSI)(domain);
+            const didDocument = await $$.promisify(w3cDID.createIdentity)("ssi:key", seedSSI);
 
-                const dataToSign = "someData";
-                const signature = await $$.promisify(didDocument.sign)(dataToSign);
-                const resolvedDIDDocument = await $$.promisify(w3cDID.resolveDID)(didDocument.getIdentifier());
-                const verificationResult = await $$.promisify(resolvedDIDDocument.verify)(dataToSign, signature);
-                assert.true(verificationResult, "Failed to verify signature");
-                testFinished();
-            } catch (e) {
-                throw e;
-            }
+            const dataToSign = "someData";
+            const signature = await $$.promisify(didDocument.sign)(dataToSign);
+            const resolvedDIDDocument = await $$.promisify(w3cDID.resolveDID)(didDocument.getIdentifier());
+            const verificationResult = await $$.promisify(resolvedDIDDocument.verify)(dataToSign, signature);
+            assert.true(verificationResult, "Failed to verify signature");
+            testFinished();
         });
     });
 }, 5000000);

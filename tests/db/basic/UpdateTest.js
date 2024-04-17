@@ -18,27 +18,14 @@ assert.callback('Create DSU on partial supported domain will fail', (testfinishe
             }
 
             let keySSI;
-            try {
-                const seedDSU = await $$.promisify(resolver.createSeedDSU)("default");
-                keySSI = await $$.promisify(seedDSU.getKeySSIAsObject)();
-            } catch (e) {
-                throw e;
-            }
+            const seedDSU = await $$.promisify(resolver.createSeedDSU)("default");
+            keySSI = await $$.promisify(seedDSU.getKeySSIAsObject)();
 
             let mydb = db.getWalletDB(keySSI, "myDB");
-            try {
-                await $$.promisify(mydb.insertRecord)("test", "key1", {value: "1"})
-                await $$.promisify(mydb.updateRecord)("test", "key1", {value: 2})
-            } catch (e) {
-                throw e;
-            }
-            let res;
-            try {
-                res = await $$.promisify(mydb.getRecord)("test", "key1")
-            } catch (e) {
-                throw e;
-            }
+            await $$.promisify(mydb.insertRecord)("test", "key1", {value: "1"})
+            await $$.promisify(mydb.updateRecord)("test", "key1", {value: 2})
 
+            let res = await $$.promisify(mydb.getRecord)("test", "key1")
             assert.equal(res.value, 2);
             assert.equal(res.__version, 1);
             testfinished();

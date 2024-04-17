@@ -25,18 +25,14 @@ assert.callback('W3C Key DID test', (testFinished) => {
         });
         sc = scAPI.getSecurityContext();
         sc.on("initialised", async () => {
-            try {
-                const keyPair = crypto.generateKeyPair();
-                const didDocument = await $$.promisify(w3cDID.createIdentity)("key", undefined, keyPair.privateKey);
+            const keyPair = crypto.generateKeyPair();
+            const didDocument = await $$.promisify(w3cDID.createIdentity)("key", undefined, keyPair.privateKey);
 
-                const dataToSign = "someData";
-                const signature = await $$.promisify(didDocument.sign)(dataToSign);
-                const verificationResult = await $$.promisify(didDocument.verify)(dataToSign, signature);
-                assert.true(verificationResult, "Failed to verify signature");
-                testFinished();
-            } catch (e) {
-                throw e;
-            }
+            const dataToSign = "someData";
+            const signature = await $$.promisify(didDocument.sign)(dataToSign);
+            const verificationResult = await $$.promisify(didDocument.verify)(dataToSign, signature);
+            assert.true(verificationResult, "Failed to verify signature");
+            testFinished();
         });
     });
 }, 2000000);

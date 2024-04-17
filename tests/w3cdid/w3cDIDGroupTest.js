@@ -34,13 +34,8 @@ async function createIdentities() {
     const didDocuments = [];
     for (let i = 0; i < ids.length; i++) {
         let didDocument;
-        try {
-            didDocument = await $$.promisify(w3cDID.createIdentity)("ssi:name", DOMAIN, ids[i]);
-            identities.push(didDocument.getIdentifier());
-        } catch (e) {
-            throw e;
-        }
-
+        didDocument = await $$.promisify(w3cDID.createIdentity)("ssi:name", DOMAIN, ids[i]);
+        identities.push(didDocument.getIdentifier());
         didDocuments.push(didDocument);
     }
 

@@ -25,46 +25,41 @@ assert.callback('key DID SSI test', (testFinished) => {
         });
         sc = scAPI.getSecurityContext();
         sc.on("initialised", async () => {
-            try {
-                const publicName = "publicName";
-                const newPublicName = "newPublicName";
-                const initialSecret = "secret";
-                let [err, didDocument] = await $$.call(w3cDID.resolveNameDID, domain, publicName, initialSecret);
-                assert.true(err == undefined);
-                assert.true(didDocument !== undefined);
-                console.log(didDocument.getIdentifier());
+            const publicName = "publicName";
+            const newPublicName = "newPublicName";
+            const initialSecret = "secret";
+            let [err, didDocument] = await $$.call(w3cDID.resolveNameDID, domain, publicName, initialSecret);
+            assert.true(err == undefined);
+            assert.true(didDocument !== undefined);
+            console.log(didDocument.getIdentifier());
 
-                let [error, newDidDocument] = await $$.call(w3cDID.resolveNameDID, domain, newPublicName, initialSecret);
-                assert.true(error == undefined);
-                console.log(didDocument.getIdentifier(), newDidDocument.getIdentifier());
-                let initialSignature;
-                const dataToSign = "someData";
-                [err, initialSignature] = await $$.call(didDocument.sign, dataToSign);
-                assert.true(err === undefined);
-                assert.true(initialSignature !== undefined);
+            let [error, newDidDocument] = await $$.call(w3cDID.resolveNameDID, domain, newPublicName, initialSecret);
+            assert.true(error == undefined);
+            console.log(didDocument.getIdentifier(), newDidDocument.getIdentifier());
+            let initialSignature;
+            const dataToSign = "someData";
+            [err, initialSignature] = await $$.call(didDocument.sign, dataToSign);
+            assert.true(err === undefined);
+            assert.true(initialSignature !== undefined);
 
-                const enclaveAPI = openDSU.loadAPI("enclave");
-                const enclave = enclaveAPI.initialiseMemoryEnclave();
-                enclave.on("initialised", () => {
-                    scAPI.setMainEnclave(enclave, async (err) => {
-                        assert.true(err == undefined, "Failed to set main enclave");
-                        let result, signature;
-                        [err, result] = await $$.call(w3cDID.registerNameDIDSecret, domain, publicName, initialSecret);
+            const enclaveAPI = openDSU.loadAPI("enclave");
+            const enclave = enclaveAPI.initialiseMemoryEnclave();
+            enclave.on("initialised", () => {
+                scAPI.setMainEnclave(enclave, async (err) => {
+                    assert.true(err == undefined, "Failed to set main enclave");
+                    let result, signature;
+                    [err, result] = await $$.call(w3cDID.registerNameDIDSecret, domain, publicName, initialSecret);
 
-                        const resolvedDIDDocument = await $$.promisify(w3cDID.resolveDID)(didDocument.getIdentifier());
-                        [err, signature] = await $$.call(resolvedDIDDocument.sign, dataToSign);
-                        assert.true(err === undefined);
+                    const resolvedDIDDocument = await $$.promisify(w3cDID.resolveDID)(didDocument.getIdentifier());
+                    [err, signature] = await $$.call(resolvedDIDDocument.sign, dataToSign);
+                    assert.true(err === undefined);
 
-                        [err, result] = await $$.call(didDocument.verify, dataToSign, signature);
-                        assert.true(err === undefined);
-                        assert.true(result);
-                        testFinished();
-                    })
+                    [err, result] = await $$.call(didDocument.verify, dataToSign, signature);
+                    assert.true(err === undefined);
+                    assert.true(result);
+                    testFinished();
                 })
-
-            } catch (e) {
-                throw e;
-            }
+            })
         })
     });
 }, 5000000);

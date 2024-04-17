@@ -16,29 +16,23 @@ assert.callback('key DID SSI test', (testFinished) => {
     dc.createTestFolder('createDSU', async (err, folder) => {
         const vaultDomainConfig = {
             "anchoring": {
-                "type": "FS",
-                "option": {}
+                "type": "FS", "option": {}
             }
         }
         await tir.launchConfigurableApiHubTestNodeAsync({
-            domains: [{name: "vault", config: vaultDomainConfig}],
-            rootFolder: folder
+            domains: [{name: "vault", config: vaultDomainConfig}], rootFolder: folder
         });
         sc = scAPI.getSecurityContext();
         sc.on("initialised", async () => {
-            try {
-                const seedSSI = await $$.promisify(keySSI.createSeedSSI)(domain);
-                const didDocument = await $$.promisify(w3cDID.createIdentity)("ssi:sread", seedSSI);
+            const seedSSI = await $$.promisify(keySSI.createSeedSSI)(domain);
+            const didDocument = await $$.promisify(w3cDID.createIdentity)("ssi:sread", seedSSI);
 
-                const dataToSign = "someData";
-                const signature = await $$.promisify(didDocument.sign)(dataToSign);
-                const resolvedDIDDocument = await $$.promisify(w3cDID.resolveDID)(didDocument.getIdentifier());
-                const verificationResult = await $$.promisify(resolvedDIDDocument.verify)(dataToSign, signature);
-                assert.true(verificationResult, "Failed to verify signature");
-                testFinished();
-            } catch (e) {
-                throw e;
-            }
+            const dataToSign = "someData";
+            const signature = await $$.promisify(didDocument.sign)(dataToSign);
+            const resolvedDIDDocument = await $$.promisify(w3cDID.resolveDID)(didDocument.getIdentifier());
+            const verificationResult = await $$.promisify(resolvedDIDDocument.verify)(dataToSign, signature);
+            assert.true(verificationResult, "Failed to verify signature");
+            testFinished();
         });
     });
 }, 5000000);
