@@ -472,9 +472,6 @@ function Enclave_Mixin(target, did) {
         }
         // if array contains null or undefined, throw error
         if (privateKeys.some(key => !key)) {
-            console.log("################################################################################")
-            console.log(privateKeys)
-            console.log("################################################################################")
             return callback(Error("Private key cannot be null or undefined"));
         }
 
