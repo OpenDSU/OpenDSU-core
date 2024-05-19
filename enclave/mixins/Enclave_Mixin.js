@@ -470,6 +470,13 @@ function Enclave_Mixin(target, did) {
         if (!Array.isArray(privateKeys)) {
             privateKeys = [privateKeys];
         }
+        // if array contains null or undefined, throw error
+        if (privateKeys.some(key => !key)) {
+            console.log("################################################################################")
+            console.log(privateKeys)
+            console.log("################################################################################")
+            return callback(Error("Private key cannot be null or undefined"));
+        }
 
         target.storageDB.getRecord(constants.TABLE_NAMES.DIDS_PRIVATE_KEYS, storedDID.getIdentifier(), (err, res) => {
             if (err || !res) {
@@ -492,6 +499,8 @@ function Enclave_Mixin(target, did) {
                 })
             }
 
+            // if array contains null or undefined, remove them
+            privateKeys = privateKeys.filter(key => key);
             privateKeys.forEach(privateKey => {
                 res.privateKeys.push(privateKey);
             })
@@ -516,7 +525,10 @@ function Enclave_Mixin(target, did) {
     }
 
     target.addPrivateKeyForDID = (forDid, didDocument, privateKey, callback) => {
-        const privateKeyObj = {privateKeys: [privateKey]}
+        if (!privateKey) {
+            return callback(Error("No private key provided"));
+        }
+        const privateKeyObj = {privateKeys: [privateKey]};
         target.storageDB.getRecord(constants.TABLE_NAMES.DIDS_PRIVATE_KEYS, didDocument.getIdentifier(), (err, res) => {
             if (err || !res) {
                 return target.storageDB.startOrAttachBatch((err, batchId) => {
@@ -536,6 +548,8 @@ function Enclave_Mixin(target, did) {
                 })
             }
 
+            // remove null or undefined from the array
+            res.privateKeys = res.privateKeys.filter(key => key);
             res.privateKeys.push(privateKey);
             target.storageDB.startOrAttachBatch((err, batchId) => {
                 if (err) {
