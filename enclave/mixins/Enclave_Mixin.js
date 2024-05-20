@@ -1,4 +1,5 @@
 const constants = require("../constants/constants");
+const {createOpenDSUErrorWrapper} = require("../../error");
 
 function Enclave_Mixin(target, did) {
     const openDSU = require("opendsu");
@@ -18,14 +19,19 @@ function Enclave_Mixin(target, did) {
                 return callback(err);
             }
 
-            const privateKeysAsBuff = record.privateKeys.map(privateKey => {
+            let privateKeysAsBuffArr = record.privateKeys.map(privateKey => {
                 if (privateKey) {
                     return $$.Buffer.from(privateKey)
                 }
 
                 return privateKey;
             });
-            callback(undefined, privateKeysAsBuff);
+            privateKeysAsBuffArr = privateKeysAsBuffArr.filter(privateKey => privateKey);
+            if (privateKeysAsBuffArr.length === 0) {
+                return callback(Error(`No private keys found for DID ${did}`));
+            }
+
+            callback(undefined, privateKeysAsBuffArr);
         });
     };
 
@@ -144,7 +150,7 @@ function Enclave_Mixin(target, did) {
             callback = encryptedRecord;
             encryptedRecord = plainRecord;
         }
-        if(!encryptedRecord){
+        if (!encryptedRecord) {
             encryptedRecord = plainRecord;
         }
         target.storageDB.insertRecord(table, pk, encryptedRecord, callback);
@@ -369,7 +375,7 @@ function Enclave_Mixin(target, did) {
                 }
                 target.storageDB.insertRecord(constants.TABLE_NAMES.KEY_SSIS, keySSIIdentifier, {keySSI: keySSIIdentifier}, (err) => {
                     if (err) {
-                        return target.storageDB.cancelBatch(batchId,(err) => {
+                        return target.storageDB.cancelBatch(batchId, (err) => {
                             if (err) {
                                 return callback(err);
                             }
@@ -468,13 +474,10 @@ function Enclave_Mixin(target, did) {
             storedDID = forDID;
         }
         if (!Array.isArray(privateKeys)) {
-            privateKeys = [privateKeys];
+            return callback(Error("Private keys should be an array"));
         }
         // if array contains null or undefined, throw error
         if (privateKeys.some(key => !key)) {
-            console.log("################################################################################")
-            console.log(privateKeys)
-            console.log("################################################################################")
             return callback(Error("Private key cannot be null or undefined"));
         }
 
@@ -500,10 +503,10 @@ function Enclave_Mixin(target, did) {
             }
 
             // if array contains null or undefined, remove them
-            privateKeys = privateKeys.filter(key => key);
             privateKeys.forEach(privateKey => {
                 res.privateKeys.push(privateKey);
             })
+            res.privateKeys = res.privateKeys.filter(key => key);
             target.storageDB.startOrAttachBatch((err, batchId) => {
                 if (err) {
                     return callback(err);
@@ -549,16 +552,16 @@ function Enclave_Mixin(target, did) {
             }
 
             // remove null or undefined from the array
-            res.privateKeys = res.privateKeys.filter(key => key);
             res.privateKeys.push(privateKey);
+            res.privateKeys = res.privateKeys.filter(key => key);
             target.storageDB.startOrAttachBatch((err, batchId) => {
                 if (err) {
                     return callback(err);
                 }
                 target.storageDB.updateRecord(constants.TABLE_NAMES.DIDS_PRIVATE_KEYS, didDocument.getIdentifier(), res, (err) => {
                     if (err) {
-                        return target.storageDB.cancelBatch(batchId,(e) => {
-                            if(e){
+                        return target.storageDB.cancelBatch(batchId, (e) => {
+                            if (e) {
                                 //this error is not that relevant... the updateRecord is more important...
                                 console.log(e);
                             }
@@ -665,18 +668,27 @@ function Enclave_Mixin(target, did) {
             hash = didThatIsSigning;
             didThatIsSigning = forDID;
         }
+        if (!didThatIsSigning || typeof didThatIsSigning === "string") {
+            return callback(Error(`Invalid DID provided: ${didThatIsSigning}`));
+        }
 
-        const privateKeys = didThatIsSigning.getPrivateKeys();
-        if (typeof privateKeys[privateKeys.length - 1] === "undefined") {
+        let privateKeys;
+        try {
+            privateKeys = didThatIsSigning.getPrivateKeys();
+        } catch (e) {
+            // ignored and handled below
+        }
+
+        if (!privateKeys) {
             return getPrivateInfoForDID(didThatIsSigning.getIdentifier(), async (err, privateKeys) => {
                 if (err) {
                     return callback(createOpenDSUErrorWrapper(`Failed to get private info for did ${didThatIsSigning.getIdentifier()}`, err));
                 }
 
                 let signature;
-                try{
+                try {
                     signature = CryptoSkills.applySkill(didThatIsSigning.getMethodName(), CryptoSkills.NAMES.SIGN, hash, privateKeys[privateKeys.length - 1]);
-                }catch(err){
+                } catch (err) {
                     return callback(err);
                 }
                 callback(undefined, signature);
@@ -684,9 +696,9 @@ function Enclave_Mixin(target, did) {
         }
 
         let signature;
-        try{
+        try {
             signature = CryptoSkills.applySkill(didThatIsSigning.getMethodName(), CryptoSkills.NAMES.SIGN, hash, privateKeys[privateKeys.length - 1]);
-        }catch(err){
+        } catch (err) {
             return callback(err);
         }
         callback(undefined, signature);
@@ -707,7 +719,7 @@ function Enclave_Mixin(target, did) {
             const verificationResult = CryptoSkills.applySkill(didThatIsVerifying.getMethodName(), CryptoSkills.NAMES.VERIFY, hash, publicKey, signature);
             callback(undefined, verificationResult);
         });
-    }
+    };
 
     target.signForKeySSI = (forDID, keySSI, hash, callback) => {
         const __signHashForKeySSI = (keySSI, hash) => {
@@ -735,7 +747,7 @@ function Enclave_Mixin(target, did) {
                 capableOfSigningKeySSI.sign(hash, callback);
             })
         })
-    }
+    };
 
     target.encryptAES = (forDID, secretKeyAlias, message, AESParams, callback) => {
 
@@ -755,11 +767,9 @@ function Enclave_Mixin(target, did) {
             const encryptedMessage = pskEncryption.encrypt(message, keyRecord.secretKey, AESParams);
             callback(undefined, encryptedMessage);
         })
-
-    }
+    };
 
     target.decryptAES = (forDID, secretKeyAlias, encryptedMessage, AESParams, callback) => {
-
         if (typeof AESParams == "function") {
             callback = AESParams;
             AESParams = undefined;
@@ -777,7 +787,7 @@ function Enclave_Mixin(target, did) {
             callback(undefined, decryptedMessage);
         })
 
-    }
+    };
 
     target.encryptMessage = (forDID, didFrom, didTo, message, callback) => {
         if (typeof message === "function") {
@@ -786,8 +796,13 @@ function Enclave_Mixin(target, did) {
             didTo = didFrom;
             didFrom = forDID;
         }
-        const privateKeys = didFrom.getPrivateKeys();
-        if (typeof privateKeys[privateKeys.length - 1] === "undefined") {
+        let privateKeys;
+        try{
+            privateKeys = didFrom.getPrivateKeys();
+        }catch (e) {
+            // ignored and handled below
+        }
+        if (!privateKeys) {
             getPrivateInfoForDID(didFrom.getIdentifier(), (err, privateKeys) => {
                 if (err) {
                     return callback(createOpenDSUErrorWrapper(`Failed to get private info for did ${didFrom.getIdentifier()}`, err));
@@ -798,7 +813,7 @@ function Enclave_Mixin(target, did) {
         } else {
             CryptoSkills.applySkill(didFrom.getMethodName(), CryptoSkills.NAMES.ENCRYPT_MESSAGE, privateKeys, didFrom, didTo, message, callback);
         }
-    }
+    };
 
     target.decryptMessage = (forDID, didTo, encryptedMessage, callback) => {
         if (typeof encryptedMessage === "function") {
@@ -807,8 +822,13 @@ function Enclave_Mixin(target, did) {
             didTo = forDID;
         }
 
-        const privateKeys = didTo.getPrivateKeys();
-        if (typeof privateKeys[privateKeys.length - 1] === "undefined") {
+        let privateKeys;
+        try{
+            privateKeys = didTo.getPrivateKeys();
+        }catch (e) {
+            // ignored and handled below
+        }
+        if (!privateKeys) {
             getPrivateInfoForDID(didTo.getIdentifier(), (err, privateKeys) => {
                 if (err) {
                     return callback(createOpenDSUErrorWrapper(`Failed to get private info for did ${didTo.getIdentifier()}`, err));
@@ -837,7 +857,7 @@ function Enclave_Mixin(target, did) {
                 return keySSISpace[fnName](...args);
             }
         }
-    })
+    });
 
     // expose w3cdid APIs
     Object.keys(w3cDID).forEach(fnName => {
@@ -849,7 +869,7 @@ function Enclave_Mixin(target, did) {
                 w3cDID[fnName](...args);
             }
         }
-    })
+    });
 
     const resolverAPI = openDSU.loadAPI("resolver");
 
@@ -904,7 +924,7 @@ function Enclave_Mixin(target, did) {
                 resolverAPI.createDSU(keySSI, options, callback);
             })
         }
-    }
+    };
 
     target.loadDSU = (forDID, keySSI, options, callback) => {
         if (typeof options === "function") {
@@ -933,10 +953,10 @@ function Enclave_Mixin(target, did) {
 
             callback(undefined, dsu);
         })
-    }
+    };
 
     target.loadDSUVersionBasedOnVersionNumber = (forDID, keySSI, versionNumber, callback) => {
-        if(typeof versionNumber === "function"){
+        if (typeof versionNumber === "function") {
             callback = versionNumber;
             versionNumber = keySSI;
             keySSI = forDID;
@@ -949,10 +969,10 @@ function Enclave_Mixin(target, did) {
 
             target.loadDSUVersion(forDID, keySSI, versionHashLink, callback);
         })
-    }
+    };
 
     target.loadDSUVersion = (forDID, keySSI, versionHashlink, options, callback) => {
-        if(typeof versionHashlink === "function"){
+        if (typeof versionHashlink === "function") {
             callback = versionHashlink;
             versionHashlink = keySSI;
             keySSI = forDID;
@@ -974,7 +994,7 @@ function Enclave_Mixin(target, did) {
 
         options.versionHashlink = versionHashlink;
         target.loadDSU(forDID, keySSI, options, callback);
-    }
+    };
 
     target.loadDSURecoveryMode = (forDID, ssi, contentRecoveryFnc, callback) => {
         const defaultOptions = {recoveryMode: true};
@@ -985,7 +1005,7 @@ function Enclave_Mixin(target, did) {
 
         options = Object.assign(defaultOptions, options);
         target.loadDSU(forDID, ssi, options, callback);
-    }
+    };
 }
 
 module.exports = Enclave_Mixin;

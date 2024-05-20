@@ -88,7 +88,13 @@ function we_createIdentity(enclave, didMethod, ...args) {
                 return callback(err);
             }
 
-            enclave.storeDID(didDocument, didDocument.getPrivateKeys(), err => callback(err, didDocument));
+            let privateKeys;
+            try {
+                privateKeys = didDocument.getPrivateKeys();
+            } catch (e) {
+                return callback(e);
+            }
+            enclave.storeDID(didDocument, privateKeys, err => callback(err, didDocument));
         });
     }
     if (typeof enclave === "undefined") {
@@ -151,7 +157,7 @@ function registerDIDMethod(method, implementation) {
 
 function generateSystemDIDFromSecret(secret) {
     getKeyDIDFromSecret(secret, (err, didDocument) => {
-        if(err){
+        if (err) {
             console.error("Failed to create the system DID", err);
             throw err;
         }
@@ -159,6 +165,7 @@ function generateSystemDIDFromSecret(secret) {
         $$.SYSTEM_IDENTIFIER = didDocument.getIdentifier();
     });
 }
+
 function initSystemDID() {
     if (process.env.SSO_SECRETS_ENCRYPTION_KEY) {
         generateSystemDIDFromSecret(process.env.SSO_SECRETS_ENCRYPTION_KEY);

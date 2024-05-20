@@ -1,4 +1,5 @@
 const constants = require("../../moduleConstants");
+const {createOpenDSUErrorWrapper} = require("../../error");
 
 function SecurityContext(target, PIN) {
     target = target || this;
@@ -44,8 +45,7 @@ function SecurityContext(target, PIN) {
                 keySSIApi.parse(sharedEnclaveKeySSI);
                 sharedEnclave = enclaveAPI.createEnclave(sharedEnclaveType, sharedEnclaveKeySSI);
                 return sharedEnclave;
-            }
-            catch (err) {
+            } catch (err) {
                 pinNeeded = true;
                 sharedEnclave = new Promise((res) => {
                     target.on("pinSet", async () => {
@@ -62,8 +62,7 @@ function SecurityContext(target, PIN) {
             const keySSI = crypto.encodeBase58(decryptedKey);
             try {
                 sharedEnclave = enclaveAPI.createEnclave(sharedEnclaveType, keySSI);
-            }
-            catch (e) {
+            } catch (e) {
                 throw Error(e);
             }
         }
@@ -129,7 +128,12 @@ function SecurityContext(target, PIN) {
     }
 
     target.registerDID = (didDocument, callback) => {
-        let privateKeys = didDocument.getPrivateKeys();
+        let privateKeys;
+        try {
+            privateKeys = didDocument.getPrivateKeys();
+        } catch (e) {
+            return callback(createOpenDSUErrorWrapper(`Failed to save new private key and public key in security context`, e));
+        }
         if (!Array.isArray(privateKeys)) {
             privateKeys = [privateKeys]
         }
@@ -305,8 +309,7 @@ function SecurityContext(target, PIN) {
         return new Promise((res) => {
             if (initialised) {
                 res(pinNeeded);
-            }
-            else {
+            } else {
                 target.on("initialised", async () => {
                     res(pinNeeded)
                 })
