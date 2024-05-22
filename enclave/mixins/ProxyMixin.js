@@ -35,8 +35,12 @@ function ProxyMixin(target) {
         target.__putCommandObject(commandNames.HAS_EXECUTION_ACCESS, forDID, callback);
     }
 
-    target.getCollections = (callback) => {
-        target.__putCommandObject(commandNames.GET_COLLECTIONS, callback);
+    target.getCollections = (forDID, callback) => {
+        target.__putCommandObject(commandNames.GET_COLLECTIONS, forDID, callback);
+    }
+
+    target.saveDatabase = (forDID, callback) => {
+        target.__putCommandObject(commandNames.SAVE_DATABASE, forDID, callback);
     }
 
     target.insertRecord = (forDID, table, pk, plainRecord, encryptedRecord, callback) => {
