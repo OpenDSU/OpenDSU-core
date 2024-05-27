@@ -2,42 +2,59 @@ function SeedSSIMapping(storageStrategy) {
     const utils = require("../../utils/utils");
     const openDSU = require("opendsu");
     const keySSISpace = openDSU.loadAPI("keyssi");
-    this.storeKeySSI = (keySSI, callback) => {
-        if (typeof keySSI === "string") {
-            try {
-                keySSI = keySSISpace.parse(keySSI);
-            } catch (e) {
-                return callback(e);
-            }
+    let mapping;
+
+    const addMapping = async (pathSSI) => {
+        if (typeof pathSSI === "string") {
+            pathSSI = keySSISpace.parse(pathSSI);
         }
-        utils.getKeySSIMapping(keySSI, async (err, keySSIMapping) => {
-            if (err) {
-                return callback(err);
+        const identifier = pathSSI.getIdentifier();
+        if (mapping[identifier]) {
+            return;
+        }
+        mapping[identifier] = {};
+        let keySSIMapping;
+        try {
+            keySSIMapping = await $$.promisify(utils.getKeySSIMapping)(pathSSI);
+        } catch (e) {
+            throw createOpenDSUErrorWrapper(`Failed to load keySSI mapping for pathSSI <${pathSSI}>`, e);
+        }
+        for (let key in keySSIMapping[openDSU.constants.KEY_SSIS.PATH_SSI]) {
+            if (!mapping[key]) {
+                mapping[key] = {};
             }
-
-            for (let keySSIType in keySSIMapping) {
-                for (let ssi in keySSIMapping[keySSIType]) {
-                    let record;
-                    try {
-                        record = await $$.promisify(storageStrategy.getRecord)(keySSIType, ssi);
-                    } catch (e) {
-                        // ignore error
-                    }
-
-                    if (!record) {
-                        try {
-                            await $$.promisify(storageStrategy.insertRecord)(keySSIType, ssi, {keySSI: keySSIMapping[keySSIType][ssi]});
-                        } catch (e) {
-                            return callback(e);
-                        }
-                    }
-                }
-            }
-            callback();
-        });
+            mapping[key][openDSU.constants.KEY_SSIS.PATH_SSI] = keySSIMapping[openDSU.constants.KEY_SSIS.PATH_SSI][key];
+            mapping[key][openDSU.constants.KEY_SSIS.SEED_SSI] = keySSIMapping[openDSU.constants.KEY_SSIS.SEED_SSI][key];
+            mapping[key][openDSU.constants.KEY_SSIS.SREAD_SSI] = keySSIMapping[openDSU.constants.KEY_SSIS.SREAD_SSI][key];
+            mapping[key][openDSU.constants.KEY_SSIS.SZERO_ACCESS_SSI] = keySSIMapping[openDSU.constants.KEY_SSIS.SZERO_ACCESS_SSI][key];
+        }
     }
 
-    this.getReadKeySSI = (keySSI, callback) => {
+    const ensureMappingIsLoaded = async () => {
+        if (mapping) {
+            return mapping;
+        }
+
+        let pathSSIs;
+        try {
+            pathSSIs = await $$.promisify(storageStrategy.getAllRecords)(openDSU.constants.KEY_SSIS.PATH_SSI);
+        } catch (e) {
+            throw createOpenDSUErrorWrapper(`Failed to load path SSIs`, e);
+        }
+        mapping = {};
+        if (!pathSSIs || !pathSSIs.length) {
+            return {};
+        }
+        pathSSIs = pathSSIs.map(record => record.keySSI);
+        for (let i = 0; i < pathSSIs.length; i++) {
+            const pathSSI = pathSSIs[i];
+            await addMapping(pathSSI);
+        }
+        return mapping;
+    };
+
+    this.storeKeySSI = (keySSI, callback) => {
+        callback = $$.makeSaneCallback(callback);
         if (typeof keySSI === "string") {
             try {
                 keySSI = keySSISpace.parse(keySSI);
@@ -45,19 +62,30 @@ function SeedSSIMapping(storageStrategy) {
                 return callback(e);
             }
         }
-        storageStrategy.getRecord(openDSU.constants.KEY_SSIS.SREAD_SSI, keySSI.getIdentifier(), (err, sReadSSIRecord) => {
-            if (err) {
-                return callback(err);
-            }
-            if (!sReadSSIRecord) {
-                return callback(Error(`No read key SSI found for keySSI <${keySSI.getIdentifier()}>`));
+        ensureMappingIsLoaded().then(async () => {
+            let existingRecord;
+            try {
+                existingRecord = await $$.promisify(storageStrategy.getRecord)(openDSU.constants.KEY_SSIS.PATH_SSI, keySSI.getIdentifier());
+            } catch (e) {
+                // no record found
             }
 
-            callback(undefined, sReadSSIRecord.keySSI);
+            if (!existingRecord) {
+                try {
+                    await addMapping(keySSI);
+                    await $$.promisify(storageStrategy.insertRecord)(openDSU.constants.KEY_SSIS.PATH_SSI, keySSI.getIdentifier(), {keySSI: keySSI.getIdentifier()});
+                    callback();
+                } catch (e) {
+                    callback(e);
+                }
+            } else {
+                callback();
+            }
         })
     }
 
-    this.getWriteKeySSI = (keySSI, callback) => {
+    this.getReadKeySSI = (keySSI, callback) => {
+        callback = $$.makeSaneCallback(callback);
         if (typeof keySSI === "string") {
             try {
                 keySSI = keySSISpace.parse(keySSI);
@@ -65,16 +93,31 @@ function SeedSSIMapping(storageStrategy) {
                 return callback(e);
             }
         }
-        storageStrategy.getRecord(openDSU.constants.KEY_SSIS.SEED_SSI, keySSI.getIdentifier(), (err, sWriteSSIRecord) => {
-            if (err) {
-                return callback(err);
+        ensureMappingIsLoaded().then(() => {
+            if (!mapping[keySSI.getIdentifier()]) {
+                return callback(Error(`No read key SSI found for keySSI <${keySSI.getIdentifier()}>`));
             }
-            if (!sWriteSSIRecord) {
+
+            callback(undefined, mapping[keySSI.getIdentifier()].openDSU.constants.KEY_SSIS.READ_SSI);
+        }).catch(callback);
+    }
+
+    this.getWriteKeySSI = (keySSI, callback) => {
+        callback = $$.makeSaneCallback(callback);
+        if (typeof keySSI === "string") {
+            try {
+                keySSI = keySSISpace.parse(keySSI);
+            } catch (e) {
+                return callback(e);
+            }
+        }
+        ensureMappingIsLoaded().then(() => {
+            if (!mapping[keySSI.getIdentifier()]) {
                 return callback(Error(`No write key SSI found for keySSI <${keySSI.getIdentifier()}>`));
             }
 
-            callback(undefined, sWriteSSIRecord.keySSI);
-        });
+            callback(undefined, mapping[keySSI.getIdentifier()].openDSU.constants.KEY_SSIS.SEED_SSI);
+        }).catch(callback);
     }
 }
 
