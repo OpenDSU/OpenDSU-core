@@ -1,4 +1,4 @@
-function LightDBEnclave(dbName, slots) {
+function LightDBEnclave(dbName, slots, saveSSIMapping = false) {
     const {createCommandObject} = require("../utils/createCommandObject");
     const openDSU = require("opendsu");
     const http = openDSU.loadAPI("http");
@@ -165,7 +165,7 @@ function LightDBEnclave(dbName, slots) {
     const LightDBStorageStrategy = require("../KeySSIMappings/SeedSSIMapping/LightDBStorageStrategy");
     const lightDBStorageStrategy = new LightDBStorageStrategy(this);
     const SeedSSIMapping = require("../KeySSIMappings/SeedSSIMapping/SeedSSIMapping");
-    const seedSSIMapping = SeedSSIMapping.getSeedSSIMapping(lightDBStorageStrategy);
+    const seedSSIMapping = SeedSSIMapping.getSeedSSIMapping(lightDBStorageStrategy, saveSSIMapping);
     const resolverAPI = openDSU.loadAPI("resolver");
     const keySSISpace = openDSU.loadAPI("keyssi");
 

@@ -1,4 +1,4 @@
-function SeedSSIMapping(storageStrategy) {
+function SeedSSIMapping(storageStrategy, saveMapping = false) {
     const utils = require("../../utils/utils");
     const openDSU = require("opendsu");
     const keySSISpace = openDSU.loadAPI("keyssi");
@@ -62,6 +62,33 @@ function SeedSSIMapping(storageStrategy) {
                 return callback(e);
             }
         }
+        if (saveMapping) {
+            return utils.getKeySSIMapping(keySSI, async (err, keySSIMapping) => {
+                if (err) {
+                    return callback(err);
+                }
+
+                for (let keySSIType in keySSIMapping) {
+                    for (let ssi in keySSIMapping[keySSIType]) {
+                        let record;
+                        try {
+                            record = await $$.promisify(storageStrategy.getRecord)(keySSIType, ssi);
+                        } catch (e) {
+                            // ignore error
+                        }
+
+                        if (!record) {
+                            try {
+                                await $$.promisify(storageStrategy.insertRecord)(keySSIType, ssi, {keySSI: keySSIMapping[keySSIType][ssi]});
+                            } catch (e) {
+                                return callback(e);
+                            }
+                        }
+                    }
+                }
+                callback();
+            });
+        }
         ensureMappingIsLoaded().then(async () => {
             let existingRecord;
             try {
@@ -81,7 +108,7 @@ function SeedSSIMapping(storageStrategy) {
             } else {
                 callback();
             }
-        })
+        });
     }
 
     this.getReadKeySSI = (keySSI, callback) => {
@@ -93,6 +120,20 @@ function SeedSSIMapping(storageStrategy) {
                 return callback(e);
             }
         }
+
+        if (saveMapping) {
+            return storageStrategy.getRecord(openDSU.constants.KEY_SSIS.SREAD_SSI, keySSI.getIdentifier(), (err, sReadSSIRecord) => {
+                if (err) {
+                    return callback(err);
+                }
+                if (!sReadSSIRecord) {
+                    return callback(Error(`No read key SSI found for keySSI <${keySSI.getIdentifier()}>`));
+                }
+
+                callback(undefined, sReadSSIRecord.keySSI);
+            })
+        }
+
         ensureMappingIsLoaded().then(() => {
             if (!mapping[keySSI.getIdentifier()]) {
                 return callback(Error(`No read key SSI found for keySSI <${keySSI.getIdentifier()}>`));
@@ -111,6 +152,18 @@ function SeedSSIMapping(storageStrategy) {
                 return callback(e);
             }
         }
+        if (saveMapping) {
+            return storageStrategy.getRecord(openDSU.constants.KEY_SSIS.SEED_SSI, keySSI.getIdentifier(), (err, sWriteSSIRecord) => {
+                if (err) {
+                    return callback(err);
+                }
+                if (!sWriteSSIRecord) {
+                    return callback(Error(`No write key SSI found for keySSI <${keySSI.getIdentifier()}>`));
+                }
+
+                callback(undefined, sWriteSSIRecord.keySSI);
+            });
+        }
         ensureMappingIsLoaded().then(() => {
             if (!mapping[keySSI.getIdentifier()]) {
                 return callback(Error(`No write key SSI found for keySSI <${keySSI.getIdentifier()}>`));
@@ -121,8 +174,8 @@ function SeedSSIMapping(storageStrategy) {
     }
 }
 
-const getSeedSSIMapping = (storageStrategy) => {
-    return new SeedSSIMapping(storageStrategy);
+const getSeedSSIMapping = (storageStrategy, saveMapping) => {
+    return new SeedSSIMapping(storageStrategy, saveMapping );
 }
 
 module.exports = {

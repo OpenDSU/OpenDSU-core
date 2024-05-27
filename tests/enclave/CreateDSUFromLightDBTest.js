@@ -25,7 +25,7 @@ assert.callback('Create DSU from LightDB Enclave Client Test', (testFinished) =>
         const runAssertions = async () => {
             try {
                 const DB_NAME = "test_db";
-                const lightDBEnclaveClient = enclaveAPI.initialiseLightDBEnclave(DB_NAME)
+                const lightDBEnclaveClient = enclaveAPI.initialiseLightDBEnclave(DB_NAME, undefined, true)
                 const TABLE = "test_table";
                 const addedRecord = {data: 1};
                 let dsu;
