@@ -1,12 +1,11 @@
 function SeedSSIMapping(storageStrategy, saveMapping = false) {
     const utils = require("../../utils/utils");
     const openDSU = require("opendsu");
-    const keySSISpace = openDSU.loadAPI("keyssi");
     let mapping;
 
     const addMapping = async (pathSSI) => {
         if (typeof pathSSI === "string") {
-            pathSSI = keySSISpace.parse(pathSSI);
+            pathSSI = storageStrategy.parse(pathSSI);
         }
         const identifier = pathSSI.getIdentifier();
         if (mapping[identifier]) {
@@ -57,7 +56,7 @@ function SeedSSIMapping(storageStrategy, saveMapping = false) {
         callback = $$.makeSaneCallback(callback);
         if (typeof keySSI === "string") {
             try {
-                keySSI = keySSISpace.parse(keySSI);
+                keySSI = storageStrategy.parse(keySSI);
             } catch (e) {
                 return callback(e);
             }
@@ -99,7 +98,7 @@ function SeedSSIMapping(storageStrategy, saveMapping = false) {
 
             if (!existingRecord) {
                 try {
-                    await addMapping(keySSI);
+                    await addMapping(keySSI.getIdentifier());
                     await $$.promisify(storageStrategy.insertRecord)(openDSU.constants.KEY_SSIS.PATH_SSI, keySSI.getIdentifier(), {keySSI: keySSI.getIdentifier()});
                     callback();
                 } catch (e) {
@@ -115,7 +114,7 @@ function SeedSSIMapping(storageStrategy, saveMapping = false) {
         callback = $$.makeSaneCallback(callback);
         if (typeof keySSI === "string") {
             try {
-                keySSI = keySSISpace.parse(keySSI);
+                keySSI = storageStrategy.parse(keySSI);
             } catch (e) {
                 return callback(e);
             }
@@ -147,7 +146,7 @@ function SeedSSIMapping(storageStrategy, saveMapping = false) {
         callback = $$.makeSaneCallback(callback);
         if (typeof keySSI === "string") {
             try {
-                keySSI = keySSISpace.parse(keySSI);
+                keySSI = storageStrategy.parse(keySSI);
             } catch (e) {
                 return callback(e);
             }

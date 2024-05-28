@@ -14,6 +14,10 @@ function LightDBStorageStrategy(lightDBEnclave) {
     this.getAllRecords = (table, callback) => {
         lightDBEnclave.getAllRecords($$.SYSTEM_IDENTIFIER, table, callback);
     }
+
+    this.parse = (identifier, options) => {
+        return lightDBEnclave.parse(identifier, options);
+    }
 }
 
 module.exports = LightDBStorageStrategy;

@@ -862,6 +862,11 @@ function Enclave_Mixin(target, did) {
         }
     });
 
+    const originalParse = keySSISpace.parse;
+    target.parse = (identifier, options) => {
+        return originalParse(target, identifier, options);
+    }
+
     // expose w3cdid APIs
     Object.keys(w3cDID).forEach(fnName => {
         if (fnName.startsWith("we_")) {

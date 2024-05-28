@@ -2,8 +2,8 @@ const keySSIResolver = require("key-ssi-resolver");
 const keySSIFactory = keySSIResolver.KeySSIFactory;
 const SSITypes = keySSIResolver.SSITypes;
 const openDSU = require("opendsu");
-const parse = (ssiString, options) => {
-    return keySSIFactory.create(ssiString, options);
+const parse = (enclave, ssiString, options) => {
+    return keySSIFactory.create(enclave, ssiString, options);
 };
 
 const createSeedSSI = (domain, privateKey, vn, hint, callback) => {
