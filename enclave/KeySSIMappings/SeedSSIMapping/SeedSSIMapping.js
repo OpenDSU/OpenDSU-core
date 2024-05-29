@@ -5,7 +5,7 @@ function SeedSSIMapping(storageStrategy, saveMapping = false) {
 
     const addMapping = async (pathSSI) => {
         if (typeof pathSSI === "string") {
-            pathSSI = storageStrategy.parse(pathSSI);
+            pathSSI = storageStrategy.parseKeySSI(pathSSI);
         }
         const identifier = pathSSI.getIdentifier();
         if (mapping[identifier]) {
@@ -56,7 +56,7 @@ function SeedSSIMapping(storageStrategy, saveMapping = false) {
         callback = $$.makeSaneCallback(callback);
         if (typeof keySSI === "string") {
             try {
-                keySSI = storageStrategy.parse(keySSI);
+                keySSI = storageStrategy.parseKeySSI(keySSI);
             } catch (e) {
                 return callback(e);
             }
@@ -114,7 +114,7 @@ function SeedSSIMapping(storageStrategy, saveMapping = false) {
         callback = $$.makeSaneCallback(callback);
         if (typeof keySSI === "string") {
             try {
-                keySSI = storageStrategy.parse(keySSI);
+                keySSI = storageStrategy.parseKeySSI(keySSI);
             } catch (e) {
                 return callback(e);
             }
@@ -146,7 +146,7 @@ function SeedSSIMapping(storageStrategy, saveMapping = false) {
         callback = $$.makeSaneCallback(callback);
         if (typeof keySSI === "string") {
             try {
-                keySSI = storageStrategy.parse(keySSI);
+                keySSI = storageStrategy.parseKeySSI(keySSI);
             } catch (e) {
                 return callback(e);
             }

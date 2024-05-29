@@ -113,10 +113,10 @@ function LightDBEnclave(dbName, slots, saveSSIMapping = false) {
         seedSSIMapping.getWriteKeySSI(keySSI, callback);
     }
 
-    function parseKeySSI(keySSI, callback) {
+    const parseKeySSI = (keySSI, callback) => {
         if (typeof keySSI === "string") {
             try {
-                return keySSISpace.parse(keySSI);
+                return this.parseKeySSI(keySSI);
             } catch (e) {
                 callback(e);
             }

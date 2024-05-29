@@ -15,8 +15,8 @@ function LightDBStorageStrategy(lightDBEnclave) {
         lightDBEnclave.getAllRecords($$.SYSTEM_IDENTIFIER, table, callback);
     }
 
-    this.parse = (identifier, options) => {
-        return lightDBEnclave.parse(identifier, options);
+    this.parseKeySSI = (identifier, options) => {
+        return lightDBEnclave.parseKeySSI(identifier, options);
     }
 }
 

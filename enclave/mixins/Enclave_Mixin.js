@@ -862,9 +862,8 @@ function Enclave_Mixin(target, did) {
         }
     });
 
-    const originalParse = keySSISpace.parse;
-    target.parse = (identifier, options) => {
-        return originalParse(target, identifier, options);
+    target.parseKeySSI = (identifier, options) => {
+        return keySSISpace.parse(target, identifier, options);
     }
 
     // expose w3cdid APIs
