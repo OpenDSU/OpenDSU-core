@@ -89,7 +89,11 @@ function CryptographicSkillsMixin(target) {
 
     target.encryptMessage = (privateKeys, didFrom, didTo, message, callback) => {
         const senderSeedSSI = keySSISpace.createTemplateSeedSSI(didFrom.getDomain());
-        senderSeedSSI.initialize(didFrom.getDomain(), privateKeys[0]);
+        try {
+            senderSeedSSI.initialize(didFrom.getDomain(), privateKeys[privateKeys.length - 1]);
+        } catch (e) {
+            return callback(createOpenDSUErrorWrapper(`Failed to initialize seedSSI`, e));
+        }
 
         didTo.getPublicKey("raw", async (err, receiverPublicKey) => {
             if (err) {
@@ -116,13 +120,21 @@ function CryptographicSkillsMixin(target) {
     target.decryptMessage = (privateKeys, didTo, encryptedMessage, callback) => {
         let decryptedMessageObj;
         const decryptMessageRecursively = (privateKeyIndex) => {
+            if(privateKeyIndex >= privateKeys.length){
+                return callback(createOpenDSUErrorWrapper(`Failed to decrypt message`, new Error("No private key available")));
+            }
             const privateKey = privateKeys[privateKeyIndex];
-            if (typeof privateKey === "undefined") {
-                return callback(createOpenDSUErrorWrapper(`Failed to decrypt message`, Error(`Private key is undefined`)));
+
+            if (!privateKey) {
+                return decryptMessageRecursively(privateKeyIndex + 1);
             }
 
             const receiverSeedSSI = keySSISpace.createTemplateSeedSSI(didTo.getDomain());
-            receiverSeedSSI.initialize(didTo.getDomain(), privateKey);
+            try {
+                receiverSeedSSI.initialize(didTo.getDomain(), privateKey);
+            } catch (e) {
+                return callback(createOpenDSUErrorWrapper(`Failed to initialize seedSSI`, e));
+            }
             try {
                 decryptedMessageObj = cryptoSpace.ecies_decrypt_ds(receiverSeedSSI, encryptedMessage);
             } catch (e) {

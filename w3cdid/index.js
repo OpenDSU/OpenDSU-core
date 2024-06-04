@@ -88,7 +88,13 @@ function we_createIdentity(enclave, didMethod, ...args) {
                 return callback(err);
             }
 
-            enclave.storeDID(didDocument, didDocument.getPrivateKeys(), err => callback(err, didDocument));
+            let privateKeys;
+            try {
+                privateKeys = didDocument.getPrivateKeys();
+            } catch (e) {
+                return callback(e);
+            }
+            enclave.storeDID(didDocument, privateKeys, err => callback(err, didDocument));
         });
     }
     if (typeof enclave === "undefined") {

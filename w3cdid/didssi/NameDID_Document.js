@@ -26,7 +26,7 @@ function NameDID_Document(enclave, domain, name, isInitialisation, desiredPrivat
         return name;
     };
 
-    bindAutoPendingFunctions(this, ["init", "getIdentifier", "getName", "on", "off", "dispatchEvent", "removeAllObservers", "addPublicKey", "readMessage", "getDomain", "getHash"]);
+    bindAutoPendingFunctions(this, ["getPrivateKeys", "init", "getIdentifier", "getName", "on", "off", "dispatchEvent", "removeAllObservers", "addPublicKey", "readMessage", "getDomain", "getHash"]);
     this.init();
     return this;
 }

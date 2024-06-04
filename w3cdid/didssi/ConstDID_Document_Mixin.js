@@ -19,7 +19,7 @@ function ConstDID_Document_Mixin(target, enclave, domain, name, isInitialisation
 
     const WRITABLE_DSU_PATH = "writableDSU";
     const PUB_KEYS_PATH = "publicKeys";
-
+    let initialised = false;
     const generatePublicKey = async () => {
         let seedSSI;
         try {
@@ -85,6 +85,7 @@ function ConstDID_Document_Mixin(target, enclave, domain, name, isInitialisation
 
         target.finishInitialisation();
         target.dispatchEvent("initialised");
+        initialised = true;
     };
 
     let init = async () => {
@@ -126,6 +127,9 @@ function ConstDID_Document_Mixin(target, enclave, domain, name, isInitialisation
     }
 
     target.getPrivateKeys = () => {
+        if (!target.privateKey) {
+            throw Error(`Private key not available. DID init status: ${initialised}`);
+        }
         return [target.privateKey];
     };
 

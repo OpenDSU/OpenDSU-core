@@ -24,9 +24,9 @@ function SSIKeyDID_Document(enclave, isInitialisation, seedSSI) {
             }
         }
 
-        setTimeout(() => {
+        setTimeout(()=>{
             this.dispatchEvent("initialised");
-        }, 1)
+        },1)
     }
 
     this.getMethodName = () => {
@@ -74,8 +74,8 @@ function SSIKeyDID_Document(enclave, isInitialisation, seedSSI) {
     };
 
     this.getPrivateKeys = () => {
-        if (typeof seedSSI === "undefined") {
-            return [];
+        if(typeof seedSSI === "undefined"){
+           throw Error("SeedSSI is not defined");
         }
         return [seedSSI.getPrivateKey()];
     };
@@ -89,6 +89,6 @@ module.exports = {
         return new SSIKeyDID_Document(enclave, true, seedSSI);
     },
     createDIDDocument: function (enclave, tokens) {
-        return new SSIKeyDID_Document(enclave, false, [tokens[3], tokens[4]]);
+        return new SSIKeyDID_Document(enclave, false,  [tokens[3], tokens[4]]);
     }
 };

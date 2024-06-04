@@ -1,4 +1,5 @@
 const constants = require("../../moduleConstants");
+const {createOpenDSUErrorWrapper} = require("../../error");
 
 function SecurityContext(target, PIN) {
     target = target || this;
@@ -127,7 +128,12 @@ function SecurityContext(target, PIN) {
     }
 
     target.registerDID = (didDocument, callback) => {
-        let privateKeys = didDocument.getPrivateKeys();
+        let privateKeys;
+        try {
+            privateKeys = didDocument.getPrivateKeys();
+        } catch (e) {
+            return callback(createOpenDSUErrorWrapper(`Failed to save new private key and public key in security context`, e));
+        }
         if (!Array.isArray(privateKeys)) {
             privateKeys = [privateKeys]
         }
