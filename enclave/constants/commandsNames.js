@@ -34,5 +34,6 @@ module.exports = {
     DECRYPT_MESSAGE: "decryptMessage",
     GET_PRIVATE_INFO_FOR_DID:"getPrivateInfoForDID",
     GET_COLLECTIONS: "getCollections",
-    SAVE_DATABASE: "saveDatabase"
+    SAVE_DATABASE: "saveDatabase",
+    REMOVE_COLLECTION: "removeCollection"
 }

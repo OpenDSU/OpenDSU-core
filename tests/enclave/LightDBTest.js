@@ -32,14 +32,23 @@ assert.callback('Remote enclave test', (testFinished) => {
                 const addedRecord = {data: 1};
                 try {
                     await $$.promisify(lokiAdapterClient.createDatabase)(DB_NAME);
-                    await $$.promisify(lokiAdapterClient.grantWriteAccess)($$.SYSTEM_IDENTIFIER);
                     await $$.promisify(lokiAdapterClient.insertRecord)($$.SYSTEM_IDENTIFIER, TABLE, "pk1", addedRecord);
                     await $$.promisify(lokiAdapterClient.insertRecord)($$.SYSTEM_IDENTIFIER, TABLE, "pk2", addedRecord);
                     const record = await $$.promisify(lokiAdapterClient.getRecord)($$.SYSTEM_IDENTIFIER, TABLE, "pk1");
                     assert.objectsAreEqual(record, addedRecord, "Records do not match");
                     const allRecords = await $$.promisify(lokiAdapterClient.getAllRecords)($$.SYSTEM_IDENTIFIER, TABLE);
-
                     assert.equal(allRecords.length, 2, "Not all inserted records have been retrieved")
+                    // test removeCollection function
+                    await $$.promisify(lokiAdapterClient.removeCollection)($$.SYSTEM_IDENTIFIER, TABLE);
+                    let tables;
+                    let error;
+                    try {
+                        tables = await $$.promisify(lokiAdapterClient.getCollections)($$.SYSTEM_IDENTIFIER);
+                    } catch (e) {
+                        error = e;
+                    }
+                    assert.true(typeof error === "undefined", "Error occurred when getting tables");
+                    assert.true(tables.length === 0, "Table was not removed");
                     testFinished();
                 } catch (e) {
                     return console.log(e);

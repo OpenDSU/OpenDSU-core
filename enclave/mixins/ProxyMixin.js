@@ -43,6 +43,14 @@ function ProxyMixin(target) {
         target.__putCommandObject(commandNames.SAVE_DATABASE, forDID, callback);
     }
 
+    target.removeCollection = (forDID, tableName, callback) => {
+        target.__putCommandObject(commandNames.REMOVE_COLLECTION, forDID, tableName, callback);
+    }
+
+    target.getCollections = (forDID, callback) => {
+        target.__putCommandObject(commandNames.GET_COLLECTIONS, forDID, callback);
+    }
+
     target.insertRecord = (forDID, table, pk, plainRecord, encryptedRecord, callback) => {
         if (typeof encryptedRecord === "function") {
             callback = encryptedRecord;
@@ -238,6 +246,6 @@ function ProxyMixin(target) {
             callback(undefined, decryptedMessage.message);
         });
     }
-}
+};
 
 module.exports = ProxyMixin;
