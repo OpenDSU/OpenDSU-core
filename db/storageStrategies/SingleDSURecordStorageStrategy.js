@@ -1,5 +1,20 @@
 function SingleDSURecordStorageStrategy(storageDSU) {
     this.storeRecord = (recordPath, newRecord, oldRecord, callback) => {
+        if (!storageDSU.batchInProgress()) {
+            storageDSU.safeBeginBatch(async err => {
+                if (err) {
+                    return callback(err);
+                }
+                try {
+                    await await $$.promisify(storageDSU.writeFile)(recordPath, JSON.stringify(newRecord));
+                } catch (err) {
+                    return callback(err);
+                }
+
+                storageDSU.commitBatch(callback);
+            });
+            return;
+        }
         storageDSU.writeFile(recordPath, JSON.stringify(newRecord), callback);
     }
 
