@@ -43,4 +43,4 @@ assert.callback('WalletDBEnclaveHandler test', (testFinished) => {
             testFinished();
         });
     });
-}, 1000000);
+}, 10000);
