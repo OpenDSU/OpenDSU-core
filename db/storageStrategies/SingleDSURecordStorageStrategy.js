@@ -6,7 +6,7 @@ function SingleDSURecordStorageStrategy(storageDSU) {
                     return callback(err);
                 }
                 try {
-                    await await $$.promisify(storageDSU.writeFile)(recordPath, JSON.stringify(newRecord));
+                    await $$.promisify(storageDSU.writeFile)(recordPath, JSON.stringify(newRecord));
                 } catch (err) {
                     return callback(err);
                 }
