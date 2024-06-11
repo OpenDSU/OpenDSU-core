@@ -212,7 +212,6 @@ module.exports = {
         })
     },
     initialiseVersionlessDB: function (dbName, keySSI, callback) {
-        $$.LEGACY_BEHAVIOUR_ENABLED = true;
         if (typeof keySSI === "function") {
             callback = keySSI;
             keySSI = undefined;
@@ -247,7 +246,14 @@ module.exports = {
                     }
 
                     try {
+                        await mainDSU.safeBeginBatchAsync();
+                    } catch (e) {
+                        return callback(createOpenDSUErrorWrapper(`Failed to begin batch`, e));
+                    }
+
+                    try {
                         await $$.promisify(mainDSU.writeFile)(DB_KEY_SSI_PATH, keySSI.getIdentifier());
+                        await mainDSU.commitBatchAsync();
                     } catch (e) {
                         const writeFileError = createOpenDSUErrorWrapper(`Failed to store key SSI in mainDSU for db <${dbName}>`, e);
                         return callback(writeFileError);
@@ -272,7 +278,14 @@ module.exports = {
             }
 
             try {
+                await mainDSU.safeBeginBatchAsync();
+            } catch (e) {
+                return callback(createOpenDSUErrorWrapper(`Failed to begin batch`, e));
+            }
+
+            try {
                 await $$.promisify(mainDSU.writeFile)(DB_KEY_SSI_PATH, keySSI.getIdentifier());
+                await mainDSU.commitBatchAsync();
             } catch (e) {
                 const writeFileError = createOpenDSUErrorWrapper(`Failed to store key SSI in mainDSU for db <${dbName}>`, e);
                 return callback(writeFileError);
