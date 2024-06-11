@@ -314,7 +314,6 @@ const createEmbedSSI = (domain, data) => {
 
 const createVersionlessSSI = (domain, path, encryptionKey, vn, hint) => {
     const versionlessSSI = keySSIFactory.createType(SSITypes.VERSIONLESS_SSI);
-    path = $$.Buffer.from(path).toString("base64");
     versionlessSSI.initialize(domain, path, encryptionKey, vn, hint);
     return versionlessSSI;
 };
