@@ -56,8 +56,8 @@ const ecies_decrypt_ds = (receiverKeySSI, data) => {
     return ecies_decrypt_ds(receiverKeySSI.getPrivateKey(), data);
 };
 
-const deriveEncryptionKey = (password) => {
-    return crypto.deriveKey(password);
+const deriveEncryptionKey = (password, iterations) => {
+    return crypto.deriveKey(password, iterations);
 }
 
 const convertDerSignatureToASN1 = (derSignature) => {
