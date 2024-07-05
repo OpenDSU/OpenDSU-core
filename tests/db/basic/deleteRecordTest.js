@@ -12,7 +12,7 @@ assert.callback("DB query+deleteRecord test", (testFinishCallback) => {
             if (err) {
                 throw err;
             }
-            let keySSIApis = require("../../../keyssi");
+            let keySSIApis = require("opendsu").loadAPI("keyssi");
             let storageSSI = keySSIApis.createSeedSSI("default");
 
             let mydb = db.getWalletDB(storageSSI, "testDb");
