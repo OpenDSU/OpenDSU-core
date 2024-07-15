@@ -1,6 +1,6 @@
 const methodsNames = require("../didMethodsNames");
 
-function NameDID_Document(enclave, domain, name, isInitialisation, desiredPrivateKey) {
+function NameDID_Document(enclave, domain, name, isInitialisation, desiredPrivateKey, dataObject) {
     if (arguments.length === 3) {
         isInitialisation = name;
         name = domain;
@@ -11,7 +11,7 @@ function NameDID_Document(enclave, domain, name, isInitialisation, desiredPrivat
     }
 
     let mixin = require("./ConstDID_Document_Mixin");
-    mixin(this, enclave, domain, name, isInitialisation, desiredPrivateKey);
+    mixin(this, enclave, domain, name, isInitialisation, desiredPrivateKey, dataObject);
     const bindAutoPendingFunctions = require("../../utils/BindAutoPendingFunctions").bindAutoPendingFunctions;
 
     this.getMethodName = () => {
@@ -33,10 +33,10 @@ function NameDID_Document(enclave, domain, name, isInitialisation, desiredPrivat
 
 
 module.exports = {
-    initiateDIDDocument: function (enclave, domain, name, desiredPrivateKey) {
-        return new NameDID_Document(enclave, domain, name, true, desiredPrivateKey);
+    initiateDIDDocument: function (enclave, domain, name, desiredPrivateKey, dataObject) {
+        return new NameDID_Document(enclave, domain, name, true, desiredPrivateKey, dataObject);
     },
-    createDIDDocument: function (enclave, tokens, desiredPrivateKey) {
-        return new NameDID_Document(enclave, tokens[3], tokens[4], false, desiredPrivateKey);
+    createDIDDocument: function (enclave, tokens, desiredPrivateKey, dataObject) {
+        return new NameDID_Document(enclave, tokens[3], tokens[4], false, desiredPrivateKey, dataObject);
     }
 };

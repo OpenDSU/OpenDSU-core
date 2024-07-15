@@ -1,10 +1,14 @@
 const {createOpenDSUErrorWrapper} = require("../../error");
 
-function ConstDID_Document_Mixin(target, enclave, domain, name, isInitialisation, desiredPrivateKey) {
+function ConstDID_Document_Mixin(target, enclave, domain, name, isInitialisation, desiredPrivateKey, dataObject) {
     if (arguments.length === 4) {
         isInitialisation = name;
         name = domain;
         domain = undefined;
+    }
+    if (typeof desiredPrivateKey === "object") {
+        dataObject = desiredPrivateKey;
+        desiredPrivateKey = undefined;
     }
     let mixin = require("../W3CDID_Mixin");
     const observableMixin = require("../../utils/ObservableMixin")
@@ -19,6 +23,7 @@ function ConstDID_Document_Mixin(target, enclave, domain, name, isInitialisation
 
     const WRITABLE_DSU_PATH = "writableDSU";
     const PUB_KEYS_PATH = "publicKeys";
+    const DATA_PATH = `${WRITABLE_DSU_PATH}/data`;
     let initialised = false;
     const generatePublicKey = async () => {
         let seedSSI;
@@ -31,6 +36,30 @@ function ConstDID_Document_Mixin(target, enclave, domain, name, isInitialisation
         target.privateKey = seedSSI.getPrivateKey();
         return seedSSI.getPublicKey("raw");
     };
+
+    const storeData = async () => {
+        if (typeof dataObject === "undefined") {
+            return;
+        }
+
+        let batchId;
+        try {
+            batchId = await target.dsu.startOrAttachBatchAsync();
+        } catch (e) {
+            throw createOpenDSUErrorWrapper(`Failed to begin batch`, e);
+        }
+        try {
+            await $$.promisify(target.dsu.writeFile)(DATA_PATH, JSON.stringify(dataObject));
+        } catch (e) {
+            await target.dsu.cancelBatchAsync(batchId);
+            throw createOpenDSUErrorWrapper(`Failed to write data`, e);
+        }
+        try {
+            await target.dsu.commitBatchAsync();
+        } catch (e) {
+            throw createOpenDSUErrorWrapper(`Failed to commit batch`, e);
+        }
+    }
 
     const createDSU = async () => {
         let constDSU;
@@ -51,6 +80,11 @@ function ConstDID_Document_Mixin(target, enclave, domain, name, isInitialisation
             await $$.promisify(target.addPublicKey)(publicKey);
         } catch (e) {
             return target.dispatchEvent("error", createOpenDSUErrorWrapper(`Failed to save public key`, e));
+        }
+        try {
+            await storeData();
+        } catch (e) {
+            return target.dispatchEvent("error", createOpenDSUErrorWrapper(`Failed to store data`, e));
         }
         let seedSSI;
         try {
@@ -179,6 +213,16 @@ function ConstDID_Document_Mixin(target, enclave, domain, name, isInitialisation
 
                 target.dsu.commitBatch(batchId, callback);
             });
+        });
+    }
+
+    target.getDataObject = (callback) => {
+        target.dsu.readFile(DATA_PATH, (err, data) => {
+            if (err) {
+                return callback(createOpenDSUErrorWrapper(`Failed to read data`, err));
+            }
+
+            callback(undefined, JSON.parse(data));
         });
     }
 }

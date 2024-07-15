@@ -25,12 +25,21 @@ assert.callback('key DID SSI test', (testFinished) => {
         });
         sc = scAPI.getSecurityContext();
         sc.on("initialised", async () => {
-            const didDocument = await $$.promisify(w3cDID.createIdentity)("ssi:name", domain, "publicName");
+            const dataObject = {
+                LAST_NAME: "Doe",
+                FIRST_NAME: "John",
+                AGE: 30,
+                EMAIL: "john.doe@example.com",
+                PHONE: "+40727123456"
+            }
+            const didDocument = await $$.promisify(w3cDID.createIdentity)("ssi:name", domain, "publicName", dataObject);
             const dataToSign = "someData";
             const signature = await $$.promisify(didDocument.sign)(dataToSign);
             const resolvedDIDDocument = await $$.promisify(w3cDID.resolveDID)(didDocument.getIdentifier());
             const verificationResult = await $$.promisify(resolvedDIDDocument.verify)(dataToSign, signature);
             assert.true(verificationResult, "Failed to verify signature");
+            const readData = await $$.promisify(resolvedDIDDocument.getDataObject)();
+            assert.true(readData.LAST_NAME === "Doe", "Failed to read data");
             testFinished();
         })
     });
