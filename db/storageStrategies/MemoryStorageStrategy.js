@@ -1,3 +1,5 @@
+const {getCompareFunctionForObjects} = require("./utils");
+
 function MemoryStorageStrategy() {
     const ObservableMixin = require("../../utils/ObservableMixin");
     const operators = require("./operators");
@@ -83,8 +85,9 @@ function MemoryStorageStrategy() {
                 filteredRecords.push(record);
             }
         })
-        query.sortValues(filteredRecords, sort);
-        callback(undefined, filteredRecords);
+        const {getCompareFunctionForObjects} = require("./utils");
+        filteredRecords.sort(getCompareFunctionForObjects(sort, conditionsArray[0].split(" ")[0]))
+        callback(undefined, filteredRecords.slice(0, limit));
     }
 
     this.getAllRecords = (tableName, callback) => {
