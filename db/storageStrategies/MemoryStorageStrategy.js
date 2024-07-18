@@ -1,5 +1,3 @@
-const {getCompareFunctionForObjects} = require("./utils");
-
 function MemoryStorageStrategy() {
     const ObservableMixin = require("../../utils/ObservableMixin");
     const operators = require("./operators");
