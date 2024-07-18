@@ -109,7 +109,7 @@ function MemoryStorageStrategy() {
         let currentParent = getTable(tableName)
 
         function _insertRecord(currentParent, currentKey) {
-            if (!reInsert && currentParent[currentKey] != undefined) {
+            if (!reInsert && (typeof currentParent[currentKey] !== 'undefined' && !currentParent[currentKey].__deleted)) {
                 return callback(new Error("Can't insert a new record for currentKey " + currentKey))
             }
 
@@ -122,7 +122,7 @@ function MemoryStorageStrategy() {
         } else {
             let currentKey = key[0];
             for (let i = 1; i <= key.length; i++) {
-                if (currentParent[currentKey] == undefined) {
+                if (typeof currentParent[currentKey] === 'undefined') {
                     currentParent[currentKey] = i === key.length ? undefined : {}
                 }
 
