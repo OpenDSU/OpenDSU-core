@@ -1,9 +1,9 @@
 function VersionlessRecordStorageStrategy(rootDSU) {
     const openDSU = require("opendsu");
     const resolver = openDSU.loadAPI("resolver");
-
+    const crypto = openDSU.loadAPI("crypto");
     this.storeRecord = (recordPath, newRecord, oldRecord, callback) => {
-        let base64Path = $$.Buffer.from(recordPath).toString("base64url");
+        let base64Path = crypto.encodeBase58(recordPath).toString();
         resolver.createVersionlessDSU(base64Path, (err, versionlessDSU) => {
             if (err) {
                 return callback(err);
@@ -34,7 +34,7 @@ function VersionlessRecordStorageStrategy(rootDSU) {
     }
 
     this.getRecord = (recordPath, callback) => {
-        const base64Path = $$.Buffer.from(recordPath).toString("base64url");
+        let base64Path = crypto.encodeBase58(recordPath).toString();
         rootDSU.readFile(base64Path, async (err, versionlessDSUSSI) => {
             if (err) {
                 try{
