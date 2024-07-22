@@ -138,7 +138,7 @@ function SeedSSIMapping(storageStrategy, saveMapping = false) {
                 return callback(Error(`No read key SSI found for keySSI <${keySSI.getIdentifier()}>`));
             }
 
-            callback(undefined, mapping[keySSI.getIdentifier()].openDSU.constants.KEY_SSIS.READ_SSI);
+            callback(undefined, mapping[keySSI.getIdentifier()][openDSU.constants.KEY_SSIS.SREAD_SSI]);
         }).catch(callback);
     }
 
