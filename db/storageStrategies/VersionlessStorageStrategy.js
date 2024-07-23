@@ -1,21 +1,15 @@
 const VersionlessRecordStorageStrategy = require("./VersionlessRecordStorageStrategy");
-const ObservableMixin = require("../../utils/ObservableMixin");
-const SingleDSUStorageStrategy = require("./SingleDSUStorageStrategy").SingleDSUStorageStrategy;
+const SingleDSUStorageStrategyMixin = require("./SingleDSUStorageStrategyMixin").SingleDSUStorageStrategyMixin;
 
 function VersionlessStorageStrategy(recordStorageStrategy) {
-    let storageDSU;
-    let dbName;
-
-    ObservableMixin(this);
+    SingleDSUStorageStrategyMixin(this);
+    this.recordStorageStrategy = recordStorageStrategy;
     this.initialise = function (_storageDSU, _dbName) {
-        storageDSU = _storageDSU;
-        dbName = _dbName;
-        if (!recordStorageStrategy) {
-            recordStorageStrategy = new VersionlessRecordStorageStrategy(storageDSU);
-            const singleDSUStorageStrategy = new SingleDSUStorageStrategy(recordStorageStrategy);
-            singleDSUStorageStrategy.initialise(storageDSU, dbName);
+        this.storageDSU = _storageDSU;
+        this.dbName = _dbName;
+        if (!this.recordStorageStrategy) {
+            this.recordStorageStrategy = new VersionlessRecordStorageStrategy(this.storageDSU);
             this.dispatchEvent("initialised");
-            Object.assign(this, singleDSUStorageStrategy);
         }
     }
 }
