@@ -75,7 +75,6 @@ function SecurityContext(target, PIN) {
         try {
             enclaveType = await $$.promisify(config.getEnv)(constants.MAIN_ENCLAVE.TYPE);
         } catch (e) {
-            throw createOpenDSUErrorWrapper(`Failed to get env enclaveType`, e);
         }
 
         if (typeof enclaveType === "undefined") {
@@ -85,7 +84,6 @@ function SecurityContext(target, PIN) {
         try {
             enclaveDID = await $$.promisify(config.getEnv)(constants.MAIN_ENCLAVE.DID);
         } catch (e) {
-            throw createOpenDSUErrorWrapper(`Failed to get env enclaveDID`, e);
         }
 
         try {
