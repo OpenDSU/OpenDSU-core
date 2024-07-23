@@ -71,6 +71,7 @@ function SecurityContext(target, PIN) {
     target.init = async () => {
         let enclaveType;
         let enclaveDID;
+        let enclaveKeySSI;
         try {
             enclaveType = await $$.promisify(config.getEnv)(constants.MAIN_ENCLAVE.TYPE);
         } catch (e) {
@@ -87,7 +88,12 @@ function SecurityContext(target, PIN) {
             throw createOpenDSUErrorWrapper(`Failed to get env enclaveDID`, e);
         }
 
-        enclave = enclaveAPI.createEnclave(enclaveType);
+        try {
+            enclaveKeySSI = await $$.promisify(config.getEnv)(constants.MAIN_ENCLAVE.KEY_SSI);
+        } catch (e) {
+            // ignored on purpose
+        }
+        enclave = enclaveAPI.createEnclave(enclaveType, enclaveKeySSI);
         const __saveEnclaveDIDAndFinishInit = async () => {
             if (typeof enclaveDID === "undefined") {
                 enclaveDID = await $$.promisify(enclave.getDID)();
