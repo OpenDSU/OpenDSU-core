@@ -7,55 +7,10 @@ const assert = dc.assert;
 const openDSU = require("../../index");
 $$.__registerModule("opendsu", openDSU);
 const enclaveAPI = openDSU.loadAPI("enclave");
+const keySSISpace = openDSU.loadAPI("keyssi");
+const crypto = openDSU.loadAPI("crypto");
+const resolver = openDSU.loadAPI("resolver");
 
-// assert.callback(
-//     "VersionlessDSUEnclave Test with initialiseVersionlessDSUEnclave",
-//     async (testFinished) => {
-//         const testFolder = await $$.promisify(dc.createTestFolder)("VersionlessDSUEnclaveTest");
-//         await $$.promisify(launchApiHubTestNode)(10, testFolder);
-//
-//         const sc = scAPI.getSecurityContext();
-//         sc.on("initialised", async () => {
-//             const versionlessDSUEnclave = enclaveAPI.initialiseVersionlessDSUEnclave();
-//             versionlessDSUEnclave.on("initialised", async () => {
-//                 console.log("Initialized versionlessDSU Enclave");
-//                 const TABLE = "test_table";
-//                 const addedRecord = {data: 1};
-//
-//                 await $$.promisify(versionlessDSUEnclave.insertRecord)("some_did", TABLE, "pk1", {data: "encrypted"}, addedRecord);
-//                 const record = await $$.promisify(versionlessDSUEnclave.getRecord)("some_did", TABLE, "pk1");
-//                 await $$.promisify(versionlessDSUEnclave.getDID)();
-//                 assert.objectsAreEqual(record, addedRecord, "Records do not match");
-//                 testFinished();
-//             });
-//         });
-//     },
-//     5000000
-// );
-//
-// assert.callback(
-//     "VersionlessDSUEnclave Test with createEnclave",
-//     async (testFinished) => {
-//         const testFolder = await $$.promisify(dc.createTestFolder)("VersionlessDSUEnclaveTest2");
-//         await $$.promisify(launchApiHubTestNode)(10, testFolder);
-//
-//         const sc = scAPI.getSecurityContext();
-//         sc.on("initialised", async () => {
-//             const versionlessDSUEnclave = enclaveAPI.createEnclave(openDSU.constants.ENCLAVE_TYPES.VERSIONLESS_DSU_ENCLAVE);
-//             console.log("Initialized versionlessDSU Enclave");
-//             const TABLE = "test_table";
-//             const addedRecord = { data: 1 };
-//
-//             await $$.promisify(versionlessDSUEnclave.insertRecord)("some_did", TABLE, "pk1", { data: "encrypted" }, addedRecord);
-//
-//             const record = await $$.promisify(versionlessDSUEnclave.getRecord)("some_did", TABLE, "pk1");
-//             await $$.promisify(versionlessDSUEnclave.getDID)();
-//             assert.objectsAreEqual(record, addedRecord, "Records do not match");
-//             testFinished();
-//         });
-//     },
-//     5000000
-// );
 assert.callback('Get all records test', (testFinished) => {
     dc.createTestFolder('createDSU', async (err, folder) => {
         try {
@@ -65,7 +20,12 @@ assert.callback('Get all records test', (testFinished) => {
                 pk: "key3",
                 record: {"value": 3}
             }, {pk: "key4", record: {"value": 5}}];
-            const versionlessDSUEnclave = enclaveAPI.createEnclave(openDSU.constants.ENCLAVE_TYPES.VERSIONLESS_DSU_ENCLAVE);
+            let path = crypto.deriveEncryptionKey(crypto.generateRandom(32), 3000);
+            path = crypto.sha256(path);
+            const password = crypto.encodeBase58(crypto.generateRandom(32));
+            const versionlessSSI = keySSISpace.createVersionlessSSI(undefined, path, crypto.deriveEncryptionKey(password, 1000));
+            const versionlessDSU = await $$.promisify(resolver.createDSUForExistingSSI)(versionlessSSI);
+            const versionlessDSUEnclave = enclaveAPI.createEnclave(openDSU.constants.ENCLAVE_TYPES.VERSIONLESS_DSU_ENCLAVE, versionlessSSI);
             versionlessDSUEnclave.on("initialised", async () => {
                 console.log("Initialized versionlessDSU Enclave");
                 for (let i = 0; i < records.length; i++) {
@@ -89,6 +49,10 @@ assert.callback('Get all records test', (testFinished) => {
 
                 const filteredContent = await $$.promisify(versionlessDSUEnclave.filter)(undefined, TABLE, "value > 2");
                 assert.arraysMatch(filteredContent.map(e => e.value), records.filter(e => e.value > 2).map(e => e.value));
+
+                let loadVersionlessDSUEnclave = enclaveAPI.createEnclave(openDSU.constants.ENCLAVE_TYPES.VERSIONLESS_DSU_ENCLAVE, versionlessSSI);
+                const loadedTableContent = await $$.promisify(loadVersionlessDSUEnclave.getAllRecords)(undefined, TABLE);
+                assert.arraysMatch(loadedTableContent, records);
                 testFinished();
             });
         } catch (e) {
