@@ -48,6 +48,11 @@ function APIKeysClient(baseUrl) {
     this.getAPIKey = async (appName, name, userId, headers) => {
         return await _sendRequest(`/getAPIKey/${encodeURIComponent(appName)}/${encodeURIComponent(name)}/${encodeURIComponent(userId)}`, "GET", undefined, headers);
     }
+
+    this.userHasAccess = async (appName, scope, userId, headers) => {
+        const response = await _sendRequest(`/userHasAccess/${encodeURIComponent(appName)}/${encodeURIComponent(scope)}/${encodeURIComponent(userId)}`, "GET", undefined, headers);
+        return response === "true";
+    }
 }
 
 module.exports = APIKeysClient;
