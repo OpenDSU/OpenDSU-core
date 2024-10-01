@@ -50,9 +50,9 @@ const createDSU = async (wallet, response) => {
         response.statusCode = 200;
         response.end(sReadSSIId);
     } catch (error) {
-        console.log("Error creating DSU", error);
+        console.error("Error creating DSU", error);
         response.statusCode = 500;
-        return response.end(error.message);
+        return response.end("Failed to create DSU");
     }
 };
 
@@ -188,9 +188,9 @@ const appendToDSU = async (wallet, request, response) => {
     });
 
     writeStream.on("error", (err) => {
-        console.log("Encountered write error", err);
+        console.error("Encountered write error", err);
         response.statusCode = 500;
-        response.end(err.message);
+        response.end("Failed to write stream.");
     });
 
     request.pipe(chunkTransform).pipe(writeStream);
