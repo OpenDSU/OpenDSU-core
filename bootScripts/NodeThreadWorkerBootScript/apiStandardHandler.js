@@ -13,7 +13,7 @@ const getAppSeed = function (dsu, path, appName, res) {
 
         let selectedDsu = result.find((dsu) => dsu.path === appName);
         if (!selectedDsu) {
-            const errorMessage = `Dossier with the name ${appName} was not found in the mounted points!`;
+            const errorMessage = `Dossier with the provided appName was not found in the mounted points!`;
             console.log(errorMessage, err);
             res.statusCode = 500;
             return res.end(errorMessage);
