@@ -13,6 +13,12 @@ const handle = (dsu, res, requestedPath) => {
         return res.end("File not found");
     }
     path = `/${path.join("/")}`;
+
+    if(path.indexOf("..") !== -1){
+        res.statusCode = 403;
+        return res.end();
+    }
+
     dsu.refresh((err) => {
         if (err) {
             res.statusCode = 500;
