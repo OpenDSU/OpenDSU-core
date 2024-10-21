@@ -28,9 +28,22 @@ const handle = async (dsu, req, res, seed, requestedPath, dsuCodeFileCacheHandle
 
             if (["htm", "html", "xhtml"].includes(fileExtension)) {
                 const baseUrl = `${url.substr(0, url.indexOf("/cloud-wallet"))}/cloud-wallet/${seed}/`;
+
+                // Escape the baseUrl to prevent XSS
+                const escapeHtml = (unsafe) => {
+                    return unsafe
+                        .replace(/&/g, "&amp;")
+                        .replace(/</g, "&lt;")
+                        .replace(/>/g, "&gt;")
+                        .replace(/"/g, "&quot;")
+                        .replace(/'/g, "&#039;");
+                };
+
+                const escapedBaseUrl = escapeHtml(baseUrl);
+
                 content = content.replace(
                     "PLACEHOLDER_THAT_WILL_BE_REPLACED_BY_SW_OR_SERVER_WITH_BASE_TAG",
-                    `<base href="${baseUrl}">`
+                    `<base href="${escapedBaseUrl}">`
                 );
             }
         }
