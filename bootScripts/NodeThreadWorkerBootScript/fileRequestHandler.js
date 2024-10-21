@@ -23,13 +23,23 @@ const handle = async (dsu, req, res, seed, requestedPath, dsuCodeFileCacheHandle
         res.setHeader("Content-Type", mimeType.name);
         res.statusCode = 200;
         let content = data;
+
         if (!mimeType.binary) {
             content = data.toString();
 
             if (["htm", "html", "xhtml"].includes(fileExtension)) {
-                const baseUrl = `${url.substr(0, url.indexOf("/cloud-wallet"))}/cloud-wallet/${seed}/`;
+                let baseUrl = `${url.substr(0, url.indexOf("/cloud-wallet"))}/cloud-wallet/${seed}/`;
 
-                // Escape the baseUrl to prevent XSS
+                // Validate that the URL is well-formed
+                try {
+                    const validUrl = new URL(baseUrl);
+                    baseUrl = validUrl.href;
+                } catch (e) {
+                    res.statusCode = 400;
+                    return res.end("Invalid URL detected");
+                }
+
+                // Manual HTML escaping to prevent XSS
                 const escapeHtml = (unsafe) => {
                     return unsafe
                         .replace(/&/g, "&amp;")
