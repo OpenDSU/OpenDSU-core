@@ -34,8 +34,18 @@ const handle = async (dsu, req, res, seed, requestedPath, dsuCodeFileCacheHandle
                     return res.end("Invalid URL format");
                 }
 
-                let baseUrl = `${url.substr(0, baseIndex)}/cloud-wallet/${encodeURIComponent(seed)}/`;
+                // Validate the seed for both Base58 and Base64 characters
+                const base58Pattern = /^[A-HJ-NP-Za-km-z1-9]+$/;
+                const base64Pattern = /^[A-Za-z0-9+/=]+$/;
 
+                if (!base58Pattern.test(seed) && !base64Pattern.test(seed)) {
+                    res.statusCode = 400;
+                    return res.end("Invalid seed format");
+                }
+
+                const encodedSeed = encodeURIComponent(seed);
+
+                let baseUrl = `${url.substr(0, baseIndex)}/cloud-wallet/${encodedSeed}/`;
                 const escapeHtml = (unsafe) => {
                     return unsafe
                         .replace(/&/g, "&amp;")
@@ -45,11 +55,11 @@ const handle = async (dsu, req, res, seed, requestedPath, dsuCodeFileCacheHandle
                         .replace(/'/g, "&#039;");
                 };
 
-                const sanitizedBaseUrl = escapeHtml(baseUrl);
+                const escapedBaseUrl = escapeHtml(baseUrl);
 
                 content = content.replace(
                     "PLACEHOLDER_THAT_WILL_BE_REPLACED_BY_SW_OR_SERVER_WITH_BASE_TAG",
-                    `<base href="${sanitizedBaseUrl}">`
+                    `<base href="${escapedBaseUrl}">`
                 );
             }
         }
