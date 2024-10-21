@@ -28,18 +28,14 @@ const handle = async (dsu, req, res, seed, requestedPath, dsuCodeFileCacheHandle
             content = data.toString();
 
             if (["htm", "html", "xhtml"].includes(fileExtension)) {
-                let baseUrl = `${url.substr(0, url.indexOf("/cloud-wallet"))}/cloud-wallet/${seed}/`;
-
-                // Validate that the URL is well-formed
-                try {
-                    const validUrl = new URL(baseUrl);
-                    baseUrl = validUrl.href;
-                } catch (e) {
+                const baseIndex = url.indexOf("/cloud-wallet");
+                if (baseIndex === -1) {
                     res.statusCode = 400;
-                    return res.end("Invalid URL detected");
+                    return res.end("Invalid URL format");
                 }
 
-                // Manual HTML escaping to prevent XSS
+                let baseUrl = `${url.substr(0, baseIndex)}/cloud-wallet/${encodeURIComponent(seed)}/`;
+
                 const escapeHtml = (unsafe) => {
                     return unsafe
                         .replace(/&/g, "&amp;")
@@ -49,11 +45,11 @@ const handle = async (dsu, req, res, seed, requestedPath, dsuCodeFileCacheHandle
                         .replace(/'/g, "&#039;");
                 };
 
-                const escapedBaseUrl = escapeHtml(baseUrl);
+                const sanitizedBaseUrl = escapeHtml(baseUrl);
 
                 content = content.replace(
                     "PLACEHOLDER_THAT_WILL_BE_REPLACED_BY_SW_OR_SERVER_WITH_BASE_TAG",
-                    `<base href="${escapedBaseUrl}">`
+                    `<base href="${sanitizedBaseUrl}">`
                 );
             }
         }
