@@ -41,6 +41,10 @@ function LightDBEnclave(dbName, slots, saveSSIMapping = false) {
                     return callback(err);
                 }
 
+                if(!response){
+                    return callback();
+                }
+
                 try {
                     response = JSON.parse(response);
                 } catch (e) {

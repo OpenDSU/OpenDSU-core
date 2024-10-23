@@ -87,6 +87,10 @@ function ProxyMixin(target) {
         target.__putCommandObject(commandNames.UPDATE_RECORD, forDID, table, pk, encryptedRecord, callback);
     }
 
+    target.getOneRecord = (forDID, table, callback) => {
+        target.__putCommandObject(commandNames.GET_ONE_RECORD, forDID, table, callback);
+    }
+
     target.getRecord = (forDID, table, pk, callback) => {
         target.__putCommandObject(commandNames.GET_RECORD, forDID, table, pk, callback);
     };

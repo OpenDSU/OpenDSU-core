@@ -37,5 +37,6 @@ module.exports = {
     SAVE_DATABASE: "saveDatabase",
     REMOVE_COLLECTION: "removeCollection",
     CREATE_COLLECTION: "createCollection",
-    ADD_INDEX: "addIndex"
+    ADD_INDEX: "addIndex",
+    GET_ONE_RECORD: "getOneRecord"
 }
