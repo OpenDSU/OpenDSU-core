@@ -12,8 +12,8 @@ const Client = require('./Client');
 
 
 const ID_TOKEN = 'session.idToken';
-const ACCESS_TOKEN = 'session.accessToken';
-const REFRESH_TOKEN = 'session.refreshToken';
+const ACCESS_TKN = 'session.accessToken';
+const REFRESH_TKN = 'session.refreshToken';
 const EXPIRATION_TIMESTAMP = 'session.expirationTimestamp';
 const AUTHORIZATION_CODE_VERIFIER = 'session.codeVerifier';
 const AUTHORIZATION_STATE = 'session.state';
@@ -88,7 +88,7 @@ class OIDC {
 
 
     getToken(decoded) {
-        const token = this.storage.get(ACCESS_TOKEN);
+        const token = this.storage.get(ACCESS_TKN);
         return decoded ? this.decodeToken(token) : token;
     }
 
@@ -100,7 +100,7 @@ class OIDC {
 
 
     isAccessTokenInStorage() {
-        return !!this.storage.get(ACCESS_TOKEN);
+        return !!this.storage.get(ACCESS_TKN);
     }
 
 
@@ -130,11 +130,11 @@ class OIDC {
 
     refreshWithRefreshToken() {
         console.log('refresh.refreshToken');
-        if (!this.storage.get(REFRESH_TOKEN)) {
+        if (!this.storage.get(REFRESH_TKN)) {
             return Promise.reject(Error('Refresh token not found'));
         }
         const options = {
-            refreshToken: this.storage.get(REFRESH_TOKEN)
+            refreshToken: this.storage.get(REFRESH_TKN)
         }
 
         this.storage.set(INTERACTION, INTERACTION_REFRESH);
@@ -277,8 +277,8 @@ class OIDC {
 
     updateStorageWithTokenSet(tokenSet) {
         this.storage.set(EXPIRATION_TIMESTAMP, Date.now() + (tokenSet['expires_in'] * 1000));
-        this.storage.set(ACCESS_TOKEN, tokenSet['access_token']);
-        this.storage.set(REFRESH_TOKEN, tokenSet['refresh_token']);
+        this.storage.set(ACCESS_TKN, tokenSet['access_token']);
+        this.storage.set(REFRESH_TKN, tokenSet['refresh_token']);
         if (tokenSet['id_token']) {
             this.storage.set(ID_TOKEN, tokenSet['id_token']);
         }
@@ -307,9 +307,9 @@ class OIDC {
 
 
     cleanUpTokenStorage() {
-        this.storage.remove(ACCESS_TOKEN);
+        this.storage.remove(ACCESS_TKN);
         this.storage.remove(ID_TOKEN);
-        this.storage.remove(REFRESH_TOKEN);
+        this.storage.remove(REFRESH_TKN);
         this.storage.remove(EXPIRATION_TIMESTAMP);
     }
 
