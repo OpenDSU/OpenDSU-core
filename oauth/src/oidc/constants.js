@@ -1,7 +1,7 @@
 module.exports = {
     ID_TOKEN: 'session.idToken',
-    ACCESS_TOKEN: 'session.accessToken',
-    REFRESH_TOKEN: 'session.refreshToken',
+    ACCESS_TKN: 'session.accessToken',
+    REFRESH_TKN: 'session.refreshToken',
     EXPIRATION_TIMESTAMP: 'session.expirationTimestamp',
     AUTHORIZATION_CODE_VERIFIER: 'session.codeVerifier',
     AUTHORIZATION_STATE: 'session.state',
