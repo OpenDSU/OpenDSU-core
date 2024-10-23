@@ -35,5 +35,7 @@ module.exports = {
     GET_PRIVATE_INFO_FOR_DID:"getPrivateInfoForDID",
     GET_COLLECTIONS: "getCollections",
     SAVE_DATABASE: "saveDatabase",
-    REMOVE_COLLECTION: "removeCollection"
+    REMOVE_COLLECTION: "removeCollection",
+    CREATE_COLLECTION: "createCollection",
+    ADD_INDEX: "addIndex"
 }

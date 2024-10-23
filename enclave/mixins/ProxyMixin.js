@@ -35,6 +35,18 @@ function ProxyMixin(target) {
         target.__putCommandObject(commandNames.HAS_EXECUTION_ACCESS, forDID, callback);
     }
 
+    target.createCollection = (forDID, tableName, indicesList, callback) => {
+        if (typeof indicesList === "function") {
+            callback = indicesList;
+            indicesList = undefined;
+        }
+        target.__putCommandObject(commandNames.CREATE_COLLECTION, forDID, tableName, indicesList, callback);
+    }
+
+    target.addIndex = (forDID, tableName, field, callback) => {
+        target.__putCommandObject(commandNames.ADD_INDEX, forDID, tableName, field, callback);
+    }
+
     target.getCollections = (forDID, callback) => {
         target.__putCommandObject(commandNames.GET_COLLECTIONS, forDID, callback);
     }
