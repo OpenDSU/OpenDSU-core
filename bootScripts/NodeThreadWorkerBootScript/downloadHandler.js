@@ -37,7 +37,8 @@ const handle = (dsu, res, requestedPath) => {
                 }
 
                 res.statusCode = 500;
-                return res.end(Object.prototype.toString.call(err));
+                console.debug(Object.prototype.toString.call(err));
+                return res.end();
             }
 
             // Extract the filename
