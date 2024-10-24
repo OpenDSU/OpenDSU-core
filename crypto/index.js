@@ -57,7 +57,7 @@ const ecies_decrypt_ds = (receiverKeySSI, data) => {
 };
 
 const deriveEncryptionKey = (password, iterations) => {
-    return crypto.deriveKey(password, iterations);
+    return crypto.deriveKey("aes-256-gcm", password, iterations);
 }
 
 const convertDerSignatureToASN1 = (derSignature) => {
