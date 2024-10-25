@@ -5,9 +5,9 @@ function generateSeedSSI() {
     return keySSIApis.createSeedSSI(domain);
 }
 
-function generateConstSSI() {
+function generateConstSSI(constKey) {
     const domain = 'default';
-    return keySSIApis.createConstSSI(domain);
+    return keySSIApis.createConstSSI(domain, constKey);
 }
 
 async function getAnchorId(seedSSI) {

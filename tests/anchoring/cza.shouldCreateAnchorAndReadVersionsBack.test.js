@@ -4,7 +4,7 @@ const {assert} = dc;
 const utils = require('./utils');
 
 assert.callback("Should create new anchor of type CZA and read versions back", async (callback) => {
-    const constSSI = utils.generateConstSSI();
+    const constSSI = utils.generateConstSSI("justsomething");
     const anchorId = await utils.getAnchorId(constSSI);
     const hashlink = await utils.getHashLink(constSSI);
 
