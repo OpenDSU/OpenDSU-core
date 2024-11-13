@@ -47,12 +47,13 @@ const handle = async (dsu, req, res, seed, requestedPath, dsuCodeFileCacheHandle
                 const baseUrl = `${url.substr(0, baseIndex)}/cloud-wallet/${encodedSeed}/`;
 
                 const sanitizeBaseUrl = (unsafe) => {
-                    return unsafe
-                        .replace(/&/g, "&amp;")
-                        .replace(/</g, "&lt;")
-                        .replace(/>/g, "&gt;")
-                        .replace(/"/g, "&quot;")
-                        .replace(/'/g, "&#039;");
+                    const { URL } = require('url');
+                    const parsedUrl = new URL(unsafe);
+
+                    let sanitizedUrl = `${parsedUrl.protocol}//${parsedUrl.hostname}${parsedUrl.port ? `:${parsedUrl.port}` : ''}`;
+                    sanitizedUrl += parsedUrl.pathname;
+
+                    return sanitizedUrl;
                 };
 
                 const sanitizedBaseUrl = sanitizeBaseUrl(baseUrl);
