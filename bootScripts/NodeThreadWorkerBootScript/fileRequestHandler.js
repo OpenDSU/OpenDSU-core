@@ -50,16 +50,13 @@ const handle = async (dsu, req, res, seed, requestedPath, dsuCodeFileCacheHandle
                     const { URL } = require('url');
                     const parsedUrl = new URL(unsafe);
 
-                    let sanitizedUrl = `${parsedUrl.protocol}//${parsedUrl.hostname}${parsedUrl.port ? `:${parsedUrl.port}` : ''}`;
                     let pathname = parsedUrl.pathname
                         .replace(/&/g, "&amp;")
                         .replace(/</g, "&lt;")
                         .replace(/>/g, "&gt;")
                         .replace(/"/g, "&quot;")
                         .replace(/'/g, "&#039;");
-                    sanitizedUrl += pathname;
-
-                    return sanitizedUrl;
+                    return pathname;
                 };
 
                 const sanitizedBaseUrl = sanitizeBaseUrl(baseUrl);
