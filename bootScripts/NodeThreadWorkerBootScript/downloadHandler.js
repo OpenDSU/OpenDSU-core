@@ -30,7 +30,7 @@ const handle = (dsu, res, requestedPath) => {
             res.statusCode = 500;
             return res.end(err.message);
         }
-        dsu.readFile(normalizedPath, (err, stream) => {
+        dsu.readFile(normalizedPath, {root: './'}, (err, stream) => {
             if (err) {
                 if (err instanceof Error) {
                     if (err.message.indexOf("could not be found") !== -1) {
