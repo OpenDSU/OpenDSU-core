@@ -30,16 +30,10 @@ const handle = (dsu, res, requestedPath) => {
     }
 
     const basePath = "/";
-    const requestedFullPath = path.join(basePath, ...pathSegments);
-    let normalizedPath = path.normalize(requestedFullPath);
-
-    if (!normalizedPath.startsWith(basePath)) {
-        res.statusCode = 403;
-        return res.end("Access forbidden");
-    }
+    let requestedFullPath = path.join(basePath, ...pathSegments);
 
     try{
-        normalizedPath = validatePath(normalizedPath);
+        requestedFullPath = validatePath(requestedFullPath);
     }catch(err){
         res.statusCode = 403;
         return res.end("Access forbidden");
@@ -50,7 +44,7 @@ const handle = (dsu, res, requestedPath) => {
             res.statusCode = 500;
             return res.end(err.message);
         }
-        dsu.readFile(normalizedPath, {root: './'}, (err, stream) => {
+        dsu.readFile(requestedFullPath, {root: './'}, (err, stream) => {
             if (err) {
                 if (err instanceof Error) {
                     if (err.message.indexOf("could not be found") !== -1) {
