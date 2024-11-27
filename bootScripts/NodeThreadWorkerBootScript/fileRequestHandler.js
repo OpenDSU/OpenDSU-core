@@ -29,10 +29,6 @@ const handle = async (dsu, req, res, seed, requestedPath, dsuCodeFileCacheHandle
 
             if (["htm", "html", "xhtml"].includes(fileExtension)) {
                 const baseIndex = url.indexOf("/cloud-wallet");
-                if (baseIndex === -1) {
-                    res.statusCode = 400;
-                    return res.end("Invalid URL format");
-                }
 
                 const base58Pattern = /^[A-HJ-NP-Za-km-z1-9]+$/;
                 const base64Pattern = /^[A-Za-z0-9+/=]+$/;
@@ -48,7 +44,7 @@ const handle = async (dsu, req, res, seed, requestedPath, dsuCodeFileCacheHandle
 
                 const sanitizeBaseUrl = (unsafe) => {
                     const { URL } = require('url');
-                    const parsedUrl = new URL(unsafe);
+                    const parsedUrl = new URL(unsafe, "http://localhost");
 
                     let pathname = parsedUrl.pathname
                         .replace(/&/g, "&amp;")
