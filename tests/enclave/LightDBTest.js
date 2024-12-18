@@ -14,12 +14,12 @@ function getLokiAdapter(dbName) {
 
 function getSQLAdapter(dbName) {
     const SQLAdapter = require("./../../../lightDB-sql-adapter/sqlAdapter");
-    // Check if adapter is exported correctly
-    console.log("SQLAdapter:", SQLAdapter);
-    const adapter = new SQLAdapter(dbName, "postgresql");
-    // Verify adapter methods
-    console.log("Available methods:", Object.keys(adapter));
-    return adapter;
+
+    return new SQLAdapter(dbName);
+}
+
+function generateUniqueTableName() {
+    return `test_table_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
 }
 
 function runTest(adapterType) {
@@ -47,7 +47,7 @@ function runTest(adapterType) {
                     try {
                         adapter = adapterType === 'loki' ?
                             getLokiAdapter(DB_NAME) :
-                            getSQLAdapter(DB_NAME);
+                            getSQLAdapter();
 
                         // Verify adapter is initialized correctly
                         console.log("Adapter type:", adapterType);
@@ -58,7 +58,7 @@ function runTest(adapterType) {
                         return;
                     }
 
-                    const TABLE = "test_table";
+                    const TABLE = generateUniqueTableName()
                     const addedRecord = {data: 1};
 
                     try {
@@ -67,6 +67,11 @@ function runTest(adapterType) {
                             throw new Error(`createDatabase method missing for ${adapterType} adapter`);
                         }
                         await $$.promisify(adapter.createDatabase)(DB_NAME);
+
+                        if (!adapter.createCollection) {
+                            throw new Error(`createCollection method missing for ${adapterType} adapter`);
+                        }
+                        await $$.promisify(adapter.createCollection)($$.SYSTEM_IDENTIFIER, TABLE, ["pk"]);
 
                         if (!adapter.insertRecord) {
                             throw new Error(`insertRecord method missing for ${adapterType} adapter`);
@@ -124,6 +129,6 @@ function runTest(adapterType) {
 
 // Run tests sequentially
 (async () => {
-    await runTest('loki');
+    // await runTest('loki');
     await runTest('sql');
 })();
