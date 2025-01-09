@@ -18,8 +18,8 @@ function getSQLAdapter(dbName) {
     return new SQLAdapter(dbName);
 }
 
-function generateUniqueTableName() {
-    return `test_table_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+function generateUniqueDBName() {
+    return `test_db_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
 }
 
 function runTest(adapterType) {
@@ -42,7 +42,7 @@ function runTest(adapterType) {
 
             const runAssertions = async () => {
                 try {
-                    const DB_NAME = "test_db";
+                    const DB_NAME = generateUniqueDBName();
                     let adapter;
                     try {
                         adapter = adapterType === 'loki' ?
@@ -58,47 +58,40 @@ function runTest(adapterType) {
                         return;
                     }
 
-                    const TABLE = generateUniqueTableName()
+                    const TABLE = "test_table";
                     const addedRecord = {data: 1};
 
                     try {
-                        // Verify each method exists before calling
-                        if (!adapter.createDatabase) {
-                            throw new Error(`createDatabase method missing for ${adapterType} adapter`);
-                        }
+                        // Verify each method exists using assertions
+                        assert.notNull(adapter.createDatabase, `${adapterType} adapter has createDatabase method`);
+                        assert.true(typeof adapter.createDatabase === "function", `${adapterType} adapter has createDatabase method`);
                         await $$.promisify(adapter.createDatabase)(DB_NAME);
 
-                        if (!adapter.createCollection) {
-                            throw new Error(`createCollection method missing for ${adapterType} adapter`);
-                        }
+                        assert.notNull(adapter.createCollection, `${adapterType} adapter has createCollection method`);
+                        assert.true(typeof adapter.createCollection === "function", `${adapterType} adapter has createCollection method`);
                         await $$.promisify(adapter.createCollection)($$.SYSTEM_IDENTIFIER, TABLE, ["pk"]);
 
-                        if (!adapter.insertRecord) {
-                            throw new Error(`insertRecord method missing for ${adapterType} adapter`);
-                        }
+                        assert.notNull(adapter.insertRecord, `${adapterType} adapter has insertRecord method`);
+                        assert.true(typeof adapter.insertRecord === "function", `${adapterType} adapter has insertRecord method`);
                         await $$.promisify(adapter.insertRecord)($$.SYSTEM_IDENTIFIER, TABLE, "pk1", addedRecord);
                         await $$.promisify(adapter.insertRecord)($$.SYSTEM_IDENTIFIER, TABLE, "pk2", addedRecord);
 
-                        if (!adapter.getRecord) {
-                            throw new Error(`getRecord method missing for ${adapterType} adapter`);
-                        }
+                        assert.notNull(adapter.getRecord, `${adapterType} adapter has getRecord method`);
+                        assert.true(typeof adapter.getRecord === "function", `${adapterType} adapter has getRecord method`);
                         const record = await $$.promisify(adapter.getRecord)($$.SYSTEM_IDENTIFIER, TABLE, "pk1");
                         assert.objectsAreEqual(record, addedRecord, "Records do not match");
 
-                        if (!adapter.getAllRecords) {
-                            throw new Error(`getAllRecords method missing for ${adapterType} adapter`);
-                        }
+                        assert.notNull(adapter.getAllRecords, `${adapterType} adapter has getAllRecords method`);
+                        assert.true(typeof adapter.getAllRecords === "function", `${adapterType} adapter has getAllRecords method`);
                         const allRecords = await $$.promisify(adapter.getAllRecords)($$.SYSTEM_IDENTIFIER, TABLE);
                         assert.equal(allRecords.length, 2, "Not all inserted records have been retrieved")
 
-                        if (!adapter.removeCollection) {
-                            throw new Error(`removeCollection method missing for ${adapterType} adapter`);
-                        }
+                        assert.notNull(adapter.removeCollection, `${adapterType} adapter has removeCollection method`);
+                        assert.true(typeof adapter.removeCollection === "function", `${adapterType} adapter has removeCollection method`);
                         await $$.promisify(adapter.removeCollection)($$.SYSTEM_IDENTIFIER, TABLE);
 
-                        if (!adapter.getCollections) {
-                            throw new Error(`getCollections method missing for ${adapterType} adapter`);
-                        }
+                        assert.notNull(adapter.getCollections, `${adapterType} adapter has getCollections method`);
+                        assert.true(typeof adapter.getCollections === "function", `${adapterType} adapter has getCollections method`);
                         let tables;
                         let error;
                         try {
@@ -108,6 +101,21 @@ function runTest(adapterType) {
                         }
                         assert.true(typeof error === "undefined", "Error occurred when getting tables");
                         assert.true(tables.length === 0, "Table was not removed");
+
+                        if (adapterType === 'sql') {
+                            assert.notNull(adapter.cleanupDatabase, `${adapterType} adapter has cleanupDatabase method`);
+                            assert.true(typeof adapter.cleanupDatabase === "function", `${adapterType} adapter has cleanupDatabase method`);
+                            await $$.promisify(adapter.cleanupDatabase)($$.SYSTEM_IDENTIFIER);
+
+                            // Close the connection after cleanup
+                            assert.notNull(adapter.close, `${adapterType} adapter has close method`);
+                            assert.true(typeof adapter.close === "function", `${adapterType} adapter has close method`);
+                            await adapter.close();
+
+                            // Give some time for resources to be cleaned up
+                            await new Promise(resolve => setTimeout(resolve, 1000));
+                        }
+
                         testFinished();
                     } catch (e) {
                         console.error("Test execution error:", e);
