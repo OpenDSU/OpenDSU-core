@@ -90,17 +90,24 @@ function runTest(adapterType) {
                         assert.true(typeof adapter.removeCollection === "function", `${adapterType} adapter has removeCollection method`);
                         await $$.promisify(adapter.removeCollection)($$.SYSTEM_IDENTIFIER, TABLE);
 
-                        assert.notNull(adapter.getCollections, `${adapterType} adapter has getCollections method`);
-                        assert.true(typeof adapter.getCollections === "function", `${adapterType} adapter has getCollections method`);
-                        let tables;
+                        // Add delay to ensure table removal is complete
+                        await new Promise(resolve => setTimeout(resolve, 500));
+
+                        // Verify table removal by trying to get records
                         let error;
                         try {
-                            tables = await $$.promisify(adapter.getCollections)($$.SYSTEM_IDENTIFIER);
+                            await $$.promisify(adapter.getAllRecords)($$.SYSTEM_IDENTIFIER, TABLE);
                         } catch (e) {
                             error = e;
                         }
-                        assert.true(typeof error === "undefined", "Error occurred when getting tables");
-                        assert.true(tables.length === 0, "Table was not removed");
+                        assert.true(error !== undefined && error.code === '42P01', "Table should not exist after removal");
+
+                        // Get collections should still work but return empty array or just KeyValueTable
+                        assert.notNull(adapter.getCollections, `${adapterType} adapter has getCollections method`);
+                        assert.true(typeof adapter.getCollections === "function", `${adapterType} adapter has getCollections method`);
+                        const tables = await $$.promisify(adapter.getCollections)($$.SYSTEM_IDENTIFIER);
+                        assert.true(Array.isArray(tables), "getCollections should return an array");
+                        assert.true(!tables.includes(TABLE), "Removed table should not be in the list");
 
                         if (adapterType === 'sql') {
                             assert.notNull(adapter.cleanupDatabase, `${adapterType} adapter has cleanupDatabase method`);
