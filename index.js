@@ -96,6 +96,8 @@ if (!PREVENT_DOUBLE_LOADING_OF_OPENDSU.INITIALISED) {
                 return require("./credentials");
             case "lock":
                 return require("./lock");
+            case "serverless":
+                return require("./serverless");
             case "svd":
                 return require("./svd");
             default:
