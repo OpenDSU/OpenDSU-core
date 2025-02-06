@@ -2,6 +2,7 @@ function createServerlessAPIClient(endpoint, interfaceDefinition) {
     if (!endpoint) {
         throw new Error('Endpoint URL is required');
     }
+    endpoint += "/executeCommand";
 
     // Create the client instance
     const client = {};
