@@ -28,14 +28,14 @@ function createServerlessAPIClient(userId, endpoint, interfaceDefinition) {
 
             // Handle unsuccessful responses
             let res = await response.json()
-            if (!response.ok || res.err) {
+            if (!res || res.err) {
                 const errorMessage = res.err ? res.err : "Unknown error";
                 throw new Error(`Command ${commandName} execution failed: ${errorMessage}` );
             }
 
             return res.result;
         } catch (error) {
-            throw new Error('Failed to execute command: ' + error.message);
+            throw error;
         }
     };
 
