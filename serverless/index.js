@@ -30,7 +30,7 @@ function createServerlessAPIClient(userId, endpoint, interfaceDefinition) {
             let res = await response.json()
             if (!res || res.err) {
                 const errorMessage = res.err ? res.err : "Unknown error";
-                throw new Error(`Command ${commandName} execution failed: ${errorMessage}` );
+                throw new Error(`Command ${commandName} execution failed: ${JSON.stringify(errorMessage)}` );
             }
 
             return res.result;
