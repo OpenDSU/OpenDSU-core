@@ -1,4 +1,4 @@
-function createServerlessAPIClient(userId, endpoint, interfaceDefinition) {
+function createServerlessAPIClient(userId, endpoint, namespace, interfaceDefinition) {
     if (!endpoint) {
         throw new Error('Endpoint URL is required');
     }
@@ -14,6 +14,7 @@ function createServerlessAPIClient(userId, endpoint, interfaceDefinition) {
         const command = {
             forWhom: userId,
             name: commandName,
+            namespace,
             args: args
         };
 
