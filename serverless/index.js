@@ -8,14 +8,12 @@ function createServerlessAPIClient(userId, endpoint, pluginName) {
     const commandEndpoint = `${endpoint}/executeCommand`;
 
     // Define the private execute command function
-    const __executeCommand = async (commandName, args) => {
-        args = args || [];
-
+    const __executeCommand = async (commandName, args = []) => {
         const command = {
             forWhom: userId,
             name: commandName,
             pluginName,
-            args: args
+            args
         };
 
         try {
@@ -27,10 +25,9 @@ function createServerlessAPIClient(userId, endpoint, pluginName) {
                 body: JSON.stringify(command)
             });
 
-            // Handle unsuccessful responses
-            let res = await response.json()
+            let res = await response.json();
             if (!res || res.err) {
-                const errorMessage = res.err ? res.err : "Unknown error";
+                const errorMessage = res?.err || "Unknown error";
                 throw new Error(`Command ${commandName} execution failed: ${JSON.stringify(errorMessage)}`);
             }
 
@@ -40,48 +37,50 @@ function createServerlessAPIClient(userId, endpoint, pluginName) {
         }
     };
 
-    // Create a special registerPlugin method
-    const registerPlugin = async (pluginName, pluginPath) => {
+    // Define the private registerPlugin method
+    const registerPlugin = async (newPluginName, pluginPath) => {
         try {
             const response = await fetch(`${baseEndpoint}/registerPlugin`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    pluginName,
-                    pluginPath
-                })
+                body: JSON.stringify({ pluginName: newPluginName, pluginPath })
             });
 
             if(response.status >= 400) {
                 const res = await response.json();
-                if (!res || res.err) {
-                    const errorMessage = res.err ? res.err : "Unknown error";
-                    throw new Error(`Plugin registration failed: ${JSON.stringify(errorMessage)}`);
-                }
-
-                return res.result;
+                const errorMessage = res?.err || "Unknown error";
+                throw new Error(`Plugin registration failed: ${JSON.stringify(errorMessage)}`);
             }
+
+            // Possibly return something meaningful here (e.g., response.json())
+            return;
         } catch (error) {
             throw error;
         }
     };
 
-    // Create a base object with the special method
-    const baseClient = {
+    // The target object to wrap by proxy
+    const targetObject = {
         registerPlugin
     };
 
-    // Create a Proxy to handle any method calls
-    return new Proxy(baseClient, {
-        get: (target, prop) => {
-            // If the property exists on the target (our special methods), return it
-            if (prop in target) {
-                return target[prop];
+    // Create and return the proxy
+    return new Proxy(targetObject, {
+        get(target, prop, receiver) {
+            // If the property is registerPlugin, return it directly
+            if (prop === 'registerPlugin') {
+                return Reflect.get(target, prop, receiver);
             }
 
-            // Otherwise return a function that will execute the command with the property name
+            // If the user is trying to access a 'then' property (e.g. for an async call),
+            // we avoid returning any function that would confuse consumption in async contexts
+            if (prop === 'then') {
+                return undefined;
+            }
+
+            // For all other properties, assume they are command names
             return async (...args) => {
                 return await __executeCommand(prop, args);
             };
@@ -91,4 +90,4 @@ function createServerlessAPIClient(userId, endpoint, pluginName) {
 
 module.exports = {
     createServerlessAPIClient
-}
+};
