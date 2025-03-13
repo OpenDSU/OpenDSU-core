@@ -1,11 +1,11 @@
-function createServerlessAPIClient(userId, endpoint, pluginName) {
+function createServerlessAPIClient(userId, endpoint, serverlessId, pluginName) {
     if (!endpoint) {
         throw new Error('Endpoint URL is required');
     }
 
     // Store the base endpoint and create the command endpoint
     const baseEndpoint = endpoint;
-    const commandEndpoint = `${endpoint}/executeCommand`;
+    const commandEndpoint = `${endpoint}/executeCommand/${serverlessId}`;
 
     // Define the private execute command function
     const __executeCommand = async (commandName, args = []) => {
@@ -25,13 +25,8 @@ function createServerlessAPIClient(userId, endpoint, pluginName) {
                 body: JSON.stringify(command)
             });
 
-            let res = await response.json();
-            if (!res || res.err) {
-                const errorMessage = res?.err || "Unknown error";
-                throw new Error(`Command ${commandName} execution failed: ${JSON.stringify(errorMessage)}`);
-            }
-
-            return res.result;
+            let res = await response.text();
+            return res;
         } catch (error) {
             throw error;
         }
@@ -40,7 +35,7 @@ function createServerlessAPIClient(userId, endpoint, pluginName) {
     // Define the private registerPlugin method
     const registerPlugin = async (newPluginName, pluginPath) => {
         try {
-            const response = await fetch(`${baseEndpoint}/registerPlugin`, {
+            const response = await fetch(`${baseEndpoint}/registerPlugin/${serverlessId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -54,8 +49,6 @@ function createServerlessAPIClient(userId, endpoint, pluginName) {
                 throw new Error(`Plugin registration failed: ${JSON.stringify(errorMessage)}`);
             }
 
-            // Possibly return something meaningful here (e.g., response.json())
-            return;
         } catch (error) {
             throw error;
         }
