@@ -25,8 +25,8 @@ function createServerlessAPIClient(userId, endpoint, serverlessId, pluginName) {
                 body: JSON.stringify(command)
             });
 
-            let res = await response.text();
-            return res;
+            let res = await response.json();
+            return res.result;
         } catch (error) {
             throw error;
         }
