@@ -4,8 +4,8 @@ function createServerlessAPIClient(userId, endpoint, serverlessId, pluginName) {
     }
 
     // Store the base endpoint and create the command endpoint
-    const baseEndpoint = endpoint;
-    const commandEndpoint = `${endpoint}/executeCommand/${serverlessId}`;
+    const baseEndpoint = `${endpoint}/proxy`;
+    const commandEndpoint = `${baseEndpoint}/executeCommand/${serverlessId}`;
 
     // Define the private execute command function
     const __executeCommand = async (commandName, args = []) => {
