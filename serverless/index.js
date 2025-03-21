@@ -1,5 +1,5 @@
 /**
- * EnhancedServerlessClient - Client that transparently handles both synchronous
+ * ServerlessClient - Client that transparently handles both synchronous
  * and asynchronous operations with a consistent interface
  */
 function createServerlessAPIClient(userId, endpoint, serverlessId, pluginName, webhookUrl) {
