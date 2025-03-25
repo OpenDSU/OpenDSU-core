@@ -1,8 +1,10 @@
 const NotificationManager = require('./NotificationManager');
 
-function SlowLambdaClientResponse(webhookUrl, initialCallId) {
+function ClientLambdaResponse(webhookUrl, initialCallId, operationType) {
     let progressCallback = null;
+    let endCallback = null;
     let callId = initialCallId;
+    let currentOperationType = operationType;
     const notificationManager = new NotificationManager(webhookUrl);
     let resolvePromise, rejectPromise;
     
@@ -10,6 +12,17 @@ function SlowLambdaClientResponse(webhookUrl, initialCallId) {
         resolvePromise = resolve;
         rejectPromise = reject;
     });
+
+    this._updateOperationType = (newType) => {
+        currentOperationType = newType;
+        // Add onEnd method if switching to observableLambda
+        if (newType === 'observableLambda' && !this.onEnd) {
+            this.onEnd = (callback) => {
+                endCallback = callback;
+                return this;
+            };
+        }
+    };
 
     this._setCallId = (newCallId) => {
         callId = newCallId;
@@ -19,8 +32,14 @@ function SlowLambdaClientResponse(webhookUrl, initialCallId) {
                 if (progressCallback) {
                     progressCallback(progress);
                 }
+            },
+            onEnd: () => {
+                if (currentOperationType === 'observableLambda' && endCallback) {
+                    endCallback();
+                }
             }
         }).then(result => {
+            // Pass the result when resolving
             resolvePromise(result);
         }).catch(error => {
             rejectPromise(error);
@@ -41,6 +60,14 @@ function SlowLambdaClientResponse(webhookUrl, initialCallId) {
         return this;
     };
 
+    // Only add onEnd method initially for observableLambda type
+    if (currentOperationType === 'observableLambda') {
+        this.onEnd = (callback) => {
+            endCallback = callback;
+            return this;
+        };
+    }
+
     this.then = function(onFulfilled, onRejected) {
         return promise.then(onFulfilled, onRejected);
     };
@@ -54,4 +81,4 @@ function SlowLambdaClientResponse(webhookUrl, initialCallId) {
     };
 }
 
-module.exports = SlowLambdaClientResponse;
+module.exports = ClientLambdaResponse; 

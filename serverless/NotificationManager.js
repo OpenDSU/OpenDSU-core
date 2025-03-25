@@ -6,7 +6,8 @@ function NotificationManager(webhookUrl) {
     this.waitForResult = (callId, options = {}) => {
         const {
             interval = pollingInterval,
-            onProgress = null
+            onProgress = null,
+            onEnd = null
         } = options;
 
         // Check if we're already polling for this callId
@@ -45,11 +46,14 @@ function NotificationManager(webhookUrl) {
                     const data = await response.json();
                     console.log(`Poll response for ${callId}:`, JSON.stringify(data));
 
-                    if (data.status === 'completed' && data.result) {
-                        // Got a result, clean up and resolve
-                        console.log(`Received result for call ${callId}`);
+                    if (data.status === 'completed') {
+                        // Got a completion signal, clean up and notify
+                        console.log(`Received completion for call ${callId}`);
                         clearInterval(pollTimer);
                         polling.delete(callId);
+                        if (onEnd) {
+                            onEnd();
+                        }
                         resolve(data.result);
                     } else if (data.status === 'pending' && data.progress && onProgress) {
                         // Report progress if callback provided

@@ -1,5 +1,5 @@
 function createServerlessAPIClient(userId, endpoint, serverlessId, pluginName, webhookUrl) {
-    const SlowLambdaClientResponse = require('./SlowLambdaClientResponse');
+    const ClientLambdaResponse = require('./ClientLambdaResponse');
     const EventEmitter = require('events');
 
     if (!endpoint) {
@@ -19,10 +19,10 @@ function createServerlessAPIClient(userId, endpoint, serverlessId, pluginName, w
             args: args
         };
 
-        // Return a SlowLambdaClientResponse immediately
-        const slowResponse = new SlowLambdaClientResponse(webhookUrl, null);
-        
-        // Execute the command and handle the response
+        // Create response instance before fetch
+        // Initially create as sync type, will be updated after we know the actual type
+        const clientResponse = new ClientLambdaResponse(webhookUrl, null, 'sync');
+
         fetch(commandEndpoint, {
             method: 'PUT',
             headers: {
@@ -35,25 +35,25 @@ function createServerlessAPIClient(userId, endpoint, serverlessId, pluginName, w
             }
             return response.json();
         }).then(res => {
-            if (res.operationType === 'slowLambda') {
-                if (!webhookUrl) {
-                    throw new Error('Webhook URL is required for async operations');
-                }
-                // Update the callId and start polling
-                slowResponse._setCallId(res.result);
+            if (!webhookUrl && (res.operationType === 'slowLambda' || res.operationType === 'observableLambda')) {
+                throw new Error('Webhook URL is required for async operations');
+            }
+
+            if (res.operationType === 'sync') {
+                clientResponse._resolve(res.result);
             } else {
-                // For non-slow operations, resolve immediately
-                slowResponse._resolve(res.result);
+                clientResponse._updateOperationType(res.operationType);
+                clientResponse._setCallId(res.result);
             }
         }).catch(error => {
             eventEmitter.emit('error', {
                 commandName,
                 error: error.message || String(error)
             });
-            slowResponse._reject(error);
+            clientResponse._reject(error);
         });
 
-        return slowResponse;
+        return clientResponse;
     };
 
     const baseClient = {
