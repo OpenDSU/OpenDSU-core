@@ -1,8 +1,4 @@
 function NotificationManager(webhookUrl) {
-    if (!webhookUrl) {
-        throw new Error('Webhook URL is required');
-    }
-
     const polling = new Map();
     const pollingInterval = 2000;
     const maxAttempts = 30;

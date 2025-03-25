@@ -1,14 +1,19 @@
 const NotificationManager = require('./NotificationManager');
 
-function SlowLambdaClientResponse(webhookUrl, callId) {
+function SlowLambdaClientResponse(webhookUrl, initialCallId) {
     let progressCallback = null;
+    let callId = initialCallId;
     const notificationManager = new NotificationManager(webhookUrl);
+    let resolvePromise, rejectPromise;
     
-    this.promise = new Promise((resolve, reject) => {
-        this._resolve = resolve;
-        this._reject = reject;
+    const promise = new Promise((resolve, reject) => {
+        resolvePromise = resolve;
+        rejectPromise = reject;
+    });
 
-        // Start polling immediately
+    this._setCallId = (newCallId) => {
+        callId = newCallId;
+        // Start polling once we have a callId
         notificationManager.waitForResult(callId, {
             onProgress: (progress) => {
                 if (progressCallback) {
@@ -16,16 +21,18 @@ function SlowLambdaClientResponse(webhookUrl, callId) {
                 }
             }
         }).then(result => {
-            this._resolve(result);
+            resolvePromise(result);
         }).catch(error => {
-            this._reject(error);
+            rejectPromise(error);
         }).finally(() => {
             notificationManager.cancelAll();
         });
-    });
+    };
+
+    this._resolve = resolvePromise;
+    this._reject = rejectPromise;
 
     this.setTimeout = (duration) => {
-        // Can be used to configure NotificationManager's maxAttempts if needed
         return this;
     };
 
@@ -34,10 +41,17 @@ function SlowLambdaClientResponse(webhookUrl, callId) {
         return this;
     };
 
-    // Make the instance thenable by delegating to the internal promise
-    this.then = (...args) => this.promise.then(...args);
-    this.catch = (...args) => this.promise.catch(...args);
-    this.finally = (...args) => this.promise.finally(...args);
+    this.then = function(onFulfilled, onRejected) {
+        return promise.then(onFulfilled, onRejected);
+    };
+    
+    this.catch = function(onRejected) {
+        return promise.catch(onRejected);
+    };
+    
+    this.finally = function(onFinally) {
+        return promise.finally(onFinally);
+    };
 }
 
 module.exports = SlowLambdaClientResponse;
