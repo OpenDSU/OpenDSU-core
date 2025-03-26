@@ -1,7 +1,7 @@
-function createServerlessAPIClient(userId, endpoint, serverlessId, pluginName, webhookUrl) {
-    const ClientLambdaResponse = require('./ClientLambdaResponse');
-    const EventEmitter = require('events');
+const LambdaClientResponse = require('./LambdaClientResponse');
+const EventEmitter = require('events');
 
+function createServerlessAPIClient(userId, endpoint, serverlessId, pluginName, webhookUrl) {
     if (!endpoint) {
         throw new Error('Endpoint URL is required');
     }
@@ -21,7 +21,7 @@ function createServerlessAPIClient(userId, endpoint, serverlessId, pluginName, w
 
         // Create response instance before fetch
         // Initially create as sync type, will be updated after we know the actual type
-        const clientResponse = new ClientLambdaResponse(webhookUrl, null, 'sync');
+        const clientResponse = new LambdaClientResponse(webhookUrl, null, 'sync');
 
         fetch(commandEndpoint, {
             method: 'PUT',

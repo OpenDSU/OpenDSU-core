@@ -1,6 +1,6 @@
 const NotificationManager = require('./NotificationManager');
 
-function ClientLambdaResponse(webhookUrl, initialCallId, operationType) {
+function LambdaClientResponse(webhookUrl, initialCallId, operationType) {
     let progressCallback = null;
     let endCallback = null;
     let callId = initialCallId;
@@ -14,17 +14,12 @@ function ClientLambdaResponse(webhookUrl, initialCallId, operationType) {
     });
 
     this._updateOperationType = (newType) => {
+        console.log(`LambdaClientResponse: Updating operation type from ${currentOperationType} to ${newType}`);
         currentOperationType = newType;
-        // Add onEnd method if switching to observableLambda
-        if (newType === 'observableLambda' && !this.onEnd) {
-            this.onEnd = (callback) => {
-                endCallback = callback;
-                return this;
-            };
-        }
     };
 
     this._setCallId = (newCallId) => {
+        console.log(`LambdaClientResponse: Setting callId to ${newCallId}`);
         callId = newCallId;
         // Start polling once we have a callId
         notificationManager.waitForResult(callId, {
@@ -34,7 +29,10 @@ function ClientLambdaResponse(webhookUrl, initialCallId, operationType) {
                 }
             },
             onEnd: () => {
+                console.log(`LambdaClientResponse: Received onEnd notification for callId ${callId}`);
+                console.log(`LambdaClientResponse: currentOperationType=${currentOperationType}, endCallback=${!!endCallback}`);
                 if (currentOperationType === 'observableLambda' && endCallback) {
+                    console.log('LambdaClientResponse: Calling endCallback');
                     endCallback();
                 }
             }
@@ -60,13 +58,12 @@ function ClientLambdaResponse(webhookUrl, initialCallId, operationType) {
         return this;
     };
 
-    // Only add onEnd method initially for observableLambda type
-    if (currentOperationType === 'observableLambda') {
-        this.onEnd = (callback) => {
-            endCallback = callback;
-            return this;
-        };
-    }
+    // Add onEnd method by default for all operation types
+    this.onEnd = (callback) => {
+        console.log('LambdaClientResponse: onEnd callback registered');
+        endCallback = callback;
+        return this;
+    };
 
     this.then = function(onFulfilled, onRejected) {
         return promise.then(onFulfilled, onRejected);
@@ -81,4 +78,4 @@ function ClientLambdaResponse(webhookUrl, initialCallId, operationType) {
     };
 }
 
-module.exports = ClientLambdaResponse; 
+module.exports = LambdaClientResponse; 

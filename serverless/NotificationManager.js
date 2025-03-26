@@ -54,7 +54,7 @@ function NotificationManager(webhookUrl) {
                         if (onEnd) {
                             onEnd();
                         }
-                        resolve(data.result);
+                        resolve(data.result || null);
                     } else if (data.status === 'pending' && data.progress && onProgress) {
                         // Report progress if callback provided
                         onProgress(data.progress);
