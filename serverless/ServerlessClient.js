@@ -1,39 +1,40 @@
 const LambdaClientResponse = require('./LambdaClientResponse');
 const EventEmitter = require('events');
 
-async function waitForServerReady(endpoint, serverlessId, maxAttempts = 30) {
-    const readyEndpoint = `${endpoint}/proxy/ready/${serverlessId}`;
-    const interval = 1000; // 1 second between attempts
-
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-        try {
-            const response = await fetch(readyEndpoint);
-            if (response.ok) {
-                const data = await response.json();
-                if (data.result && data.result.status === 'ready') {
-                    return true;
-                }
-            }
-        } catch (error) {
-            console.log(`Attempt ${attempt}/${maxAttempts}: Server not ready yet...`);
-        }
-
-        if (attempt < maxAttempts) {
-            await new Promise(resolve => setTimeout(resolve, interval));
-        }
-    }
-
-    throw new Error('Server failed to become ready within the specified timeout');
-}
-
-function ServerlessClient(userId, endpoint, serverlessId, pluginName, webhookUrl) {
+function ServerlessClient(userId, endpoint, serverlessId, pluginName) {
     if (!endpoint) {
         throw new Error('Endpoint URL is required');
     }
 
     const eventEmitter = new EventEmitter();
     const baseEndpoint = `${endpoint}/proxy`;
+    const webhookUrl = `${endpoint}/webhook`;
     const commandEndpoint = `${baseEndpoint}/executeCommand/${serverlessId}`;
+
+    async function waitForServerReady(endpoint, serverlessId, maxAttempts = 30) {
+        const readyEndpoint = `${endpoint}/proxy/ready/${serverlessId}`;
+        const interval = 1000;
+
+        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+            try {
+                const response = await fetch(readyEndpoint);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.result && data.result.status === 'ready') {
+                        return true;
+                    }
+                }
+            } catch (error) {
+                console.log(`Attempt ${attempt}/${maxAttempts}: Server not ready yet...`);
+            }
+
+            if (attempt < maxAttempts) {
+                await new Promise(resolve => setTimeout(resolve, interval));
+            }
+        }
+
+        throw new Error('Server failed to become ready within the specified timeout');
+    }
 
     const __executeCommand = (commandName, args) => {
         args = args || [];
@@ -44,8 +45,6 @@ function ServerlessClient(userId, endpoint, serverlessId, pluginName, webhookUrl
             args: args
         };
 
-        // Create response instance before fetch
-        // Initially create as sync type, will be updated after we know the actual type
         const clientResponse = new LambdaClientResponse(webhookUrl, null, 'sync');
 
         fetch(commandEndpoint, {
