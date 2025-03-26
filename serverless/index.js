@@ -1,7 +1,8 @@
 const ServerlessClient = require('./ServerlessClient');
 
-function createServerlessAPIClient(userId, endpoint, serverlessId, pluginName, webhookUrl) {
-    return new ServerlessClient(userId, endpoint, serverlessId, pluginName, webhookUrl);
+async function createServerlessAPIClient(userId, endpoint, serverlessId, pluginName, webhookUrl) {
+    const client = new ServerlessClient(userId, endpoint, serverlessId, pluginName, webhookUrl);
+    return await client.init();
 }
 
 module.exports = {
