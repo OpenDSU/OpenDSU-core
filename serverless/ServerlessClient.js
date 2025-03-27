@@ -1,5 +1,6 @@
 const LambdaClientResponse = require('./LambdaClientResponse');
 const EventEmitter = require('events');
+const PendingCallMixin = require('../utils/PendingCallMixin');
 
 function ServerlessClient(userId, endpoint, serverlessId, pluginName) {
     if (!endpoint) {
@@ -10,8 +11,12 @@ function ServerlessClient(userId, endpoint, serverlessId, pluginName) {
     const baseEndpoint = `${endpoint}/proxy`;
     const webhookUrl = `${endpoint}/webhook`;
     const commandEndpoint = `${baseEndpoint}/executeCommand/${serverlessId}`;
+    let isServerReady = false;
 
-    async function waitForServerReady(endpoint, serverlessId, maxAttempts = 30) {
+    // Apply PendingCallMixin to handle pending calls during restarts
+    PendingCallMixin(this);
+
+    const waitForServerReady = async (endpoint, serverlessId, maxAttempts = 30) => {
         const readyEndpoint = `${endpoint}/proxy/ready/${serverlessId}`;
         const interval = 1000;
 
@@ -21,6 +26,8 @@ function ServerlessClient(userId, endpoint, serverlessId, pluginName) {
                 if (response.ok) {
                     const data = await response.json();
                     if (data.result && data.result.status === 'ready') {
+                        isServerReady = true;
+                        this.executePendingCalls();
                         return true;
                     }
                 }
@@ -47,35 +54,48 @@ function ServerlessClient(userId, endpoint, serverlessId, pluginName) {
 
         const clientResponse = new LambdaClientResponse(webhookUrl, null, 'sync');
 
-        fetch(commandEndpoint, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(command)
-        }).then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        }).then(res => {
-            if (!webhookUrl && (res.operationType === 'slowLambda' || res.operationType === 'observableLambda')) {
-                throw new Error('Webhook URL is required for async operations');
-            }
+        const executeRequest = () => {
+            fetch(commandEndpoint, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(command)
+            }).then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            }).then(res => {
+                if (res.operationType === 'restart') {
+                    isServerReady = false;
+                    this.addPendingCall(() => executeRequest());
+                    return;
+                }
+                if (!webhookUrl && (res.operationType === 'slowLambda' || res.operationType === 'observableLambda')) {
+                    throw new Error('Webhook URL is required for async operations');
+                }
 
-            if (res.operationType === 'sync') {
-                clientResponse._resolve(res.result);
-            } else {
-                clientResponse._updateOperationType(res.operationType);
-                clientResponse._setCallId(res.result);
-            }
-        }).catch(error => {
-            eventEmitter.emit('error', {
-                commandName,
-                error: error.message || String(error)
+                if (res.operationType === 'sync') {
+                    clientResponse._resolve(res.result);
+                } else {
+                    clientResponse._updateOperationType(res.operationType);
+                    clientResponse._setCallId(res.result);
+                }
+            }).catch(error => {
+                eventEmitter.emit('error', {
+                    commandName,
+                    error: error.message || String(error)
+                });
+                clientResponse._reject(error);
             });
-            clientResponse._reject(error);
-        });
+        };
+
+        if (!isServerReady) {
+            this.addPendingCall(() => executeRequest());
+        } else {
+            executeRequest();
+        }
 
         return clientResponse;
     }
