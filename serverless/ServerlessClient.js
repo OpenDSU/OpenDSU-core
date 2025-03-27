@@ -1,5 +1,4 @@
 const LambdaClientResponse = require('./LambdaClientResponse');
-const EventEmitter = require('events');
 const PendingCallMixin = require('../utils/PendingCallMixin');
 
 function ServerlessClient(userId, endpoint, serverlessId, pluginName) {
@@ -7,13 +6,11 @@ function ServerlessClient(userId, endpoint, serverlessId, pluginName) {
         throw new Error('Endpoint URL is required');
     }
 
-    const eventEmitter = new EventEmitter();
     const baseEndpoint = `${endpoint}/proxy`;
     const webhookUrl = `${endpoint}/webhook`;
     const commandEndpoint = `${baseEndpoint}/executeCommand/${serverlessId}`;
     let isServerReady = false;
 
-    // Apply PendingCallMixin to handle pending calls during restarts
     PendingCallMixin(this);
 
     const waitForServerReady = async (endpoint, serverlessId, maxAttempts = 30) => {
@@ -83,10 +80,6 @@ function ServerlessClient(userId, endpoint, serverlessId, pluginName) {
                     clientResponse._setCallId(res.result);
                 }
             }).catch(error => {
-                eventEmitter.emit('error', {
-                    commandName,
-                    error: error.message || String(error)
-                });
                 clientResponse._reject(error);
             });
         };
@@ -104,10 +97,6 @@ function ServerlessClient(userId, endpoint, serverlessId, pluginName) {
         init: async function() {
             await waitForServerReady(endpoint, serverlessId);
             return this;
-        },
-        onError: (callback) => {
-            eventEmitter.on('error', callback);
-            return () => eventEmitter.off('error', callback);
         }
     };
 
