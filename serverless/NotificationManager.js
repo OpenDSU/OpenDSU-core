@@ -55,9 +55,10 @@ function NotificationManager(webhookUrl) {
                             onEnd();
                         }
                         resolve(data.result || null);
-                    } else if (data.status === 'pending' && data.progress && onProgress) {
-                        // Report progress if callback provided
-                        onProgress(data.progress);
+                    } else if (data.status === 'pending' && data.progress) {
+                        if (onProgress) {
+                            onProgress(data.progress);
+                        }
                     } else if (attempts >= maxAttempts) {
                         // Exceeded max attempts, clean up and reject
                         clearInterval(pollTimer);

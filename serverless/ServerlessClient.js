@@ -7,7 +7,7 @@ function ServerlessClient(userId, endpoint, serverlessId, pluginName) {
     }
 
     const baseEndpoint = `${endpoint}/proxy`;
-    const webhookUrl = `${endpoint}/webhook`;
+    const webhookUrl = `${endpoint}/internalWebhook`;
     const commandEndpoint = `${baseEndpoint}/executeCommand/${serverlessId}`;
     let isServerReady = false;
 
@@ -69,7 +69,10 @@ function ServerlessClient(userId, endpoint, serverlessId, pluginName) {
                     this.addPendingCall(() => executeRequest());
                     return;
                 }
-                if (!webhookUrl && (res.operationType === 'slowLambda' || res.operationType === 'observableLambda')) {
+                if (!webhookUrl && (res.operationType === 'slowLambda' || 
+                    res.operationType === 'observableLambda' || 
+                    res.operationType === 'cmbSlowLambda' ||
+                    res.operationType === 'cmbObservableLambda')) {
                     throw new Error('Webhook URL is required for async operations');
                 }
 
