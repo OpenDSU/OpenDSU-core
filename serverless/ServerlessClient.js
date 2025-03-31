@@ -51,14 +51,16 @@ function ServerlessClient(userId, endpoint, serverlessId, pluginName, options = 
         };
 
         const clientResponse = new LambdaClientResponse(webhookUrl, null, 'sync');
-
+        let headers = {};
+        if(options.sessionId){
+            headers = {
+                "Cookie": `sessionId=${options.sessionId}`
+            }
+        }
         const executeRequest = () => {
             fetch(commandEndpoint, {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    "Cookie": `sessionId=${options.sessionId}`
-                },
+                headers: headers,
                 body: JSON.stringify(command)
             }).then(response => {
                 if (!response.ok) {
