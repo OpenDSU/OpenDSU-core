@@ -1,7 +1,7 @@
 const LambdaClientResponse = require('./LambdaClientResponse');
 const PendingCallMixin = require('../utils/PendingCallMixin');
 
-function ServerlessClient(userId, endpoint, serverlessId, pluginName) {
+function ServerlessClient(userId, endpoint, serverlessId, pluginName, options = {}) {
     if (!endpoint) {
         throw new Error('Endpoint URL is required');
     }
@@ -46,7 +46,8 @@ function ServerlessClient(userId, endpoint, serverlessId, pluginName) {
             forWhom: userId,
             name: commandName,
             pluginName,
-            args: args
+            args: args,
+            options: options
         };
 
         const clientResponse = new LambdaClientResponse(webhookUrl, null, 'sync');
@@ -55,7 +56,8 @@ function ServerlessClient(userId, endpoint, serverlessId, pluginName) {
             fetch(commandEndpoint, {
                 method: 'PUT',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    "Cookie": `sessionId=${options.sessionId}`
                 },
                 body: JSON.stringify(command)
             }).then(response => {
@@ -69,8 +71,8 @@ function ServerlessClient(userId, endpoint, serverlessId, pluginName) {
                     this.addPendingCall(() => executeRequest());
                     return;
                 }
-                if (!webhookUrl && (res.operationType === 'slowLambda' || 
-                    res.operationType === 'observableLambda' || 
+                if (!webhookUrl && (res.operationType === 'slowLambda' ||
+                    res.operationType === 'observableLambda' ||
                     res.operationType === 'cmbSlowLambda' ||
                     res.operationType === 'cmbObservableLambda')) {
                     throw new Error('Webhook URL is required for async operations');
