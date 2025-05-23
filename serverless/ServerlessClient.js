@@ -52,7 +52,7 @@ function ServerlessClient(userId, endpoint, serverlessId, pluginName, options = 
 
         const clientResponse = new LambdaClientResponse(webhookUrl, null, 'sync');
         let headers = {};
-        if(options.sessionId){
+        if (options.sessionId) {
             headers = {
                 "Cookie": `sessionId=${options.sessionId}`
             }
@@ -63,10 +63,24 @@ function ServerlessClient(userId, endpoint, serverlessId, pluginName, options = 
                 headers: headers,
                 body: JSON.stringify(command)
             }).then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
+                return response.json().then(data => {
+                    if (!response.ok) {
+                        // Check if the response contains detailed error information
+                        if (data && data.result && typeof data.result === 'object' && data.result.message) {
+                            // Create error with detailed information
+                            const error = new Error(data.result.message);
+                            if (data.result.stack) {
+                                error.stack = data.result.stack;
+                            }
+                            error.statusCode = data.statusCode || response.status;
+                            throw error;
+                        } else {
+                            // Fallback to generic HTTP error
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                    }
+                    return data;
+                });
             }).then(res => {
                 if (res.operationType === 'restart') {
                     isServerReady = false;
@@ -101,7 +115,7 @@ function ServerlessClient(userId, endpoint, serverlessId, pluginName, options = 
     }
 
     const baseClient = {
-        init: async function() {
+        init: async function () {
             await waitForServerReady(endpoint, serverlessId);
             return this;
         }
