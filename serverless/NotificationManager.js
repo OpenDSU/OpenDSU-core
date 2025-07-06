@@ -7,7 +7,9 @@ function NotificationManager(webhookUrl) {
         const {
             interval = pollingInterval,
             onProgress = null,
-            onEnd = null
+            onEnd = null,
+            maxAttempts = 30, // Default to 30, but allow override
+            infinite = false  // Allow infinite polling
         } = options;
 
         // Check if we're already polling for this callId
@@ -22,7 +24,8 @@ function NotificationManager(webhookUrl) {
         const promise = new Promise((resolve, reject) => {
             const poll = async () => {
                 attempts++;
-                console.log(`Polling for result of call ${callId} (attempt ${attempts}/${maxAttempts})`);
+                const attemptsDisplay = infinite ? `${attempts}/infinite` : `${attempts}/${maxAttempts}`;
+                console.log(`Polling for result of call ${callId} (attempt ${attemptsDisplay})`);
 
                 try {
                     const response = await fetch(`${webhookUrl}/${callId}`, {
@@ -34,7 +37,7 @@ function NotificationManager(webhookUrl) {
 
                     if (!response.ok) {
                         console.error(`Webhook polling error: ${response.status} ${response.statusText}`);
-                        if (attempts >= maxAttempts) {
+                        if (!infinite && attempts >= maxAttempts) {
                             clearInterval(pollTimer);
                             polling.delete(callId);
                             reject(new Error(`Webhook polling failed with status ${response.status}`));
@@ -59,8 +62,8 @@ function NotificationManager(webhookUrl) {
                         if (onProgress) {
                             onProgress(data.progress);
                         }
-                    } else if (attempts >= maxAttempts) {
-                        // Exceeded max attempts, clean up and reject
+                    } else if (!infinite && attempts >= maxAttempts) {
+                        // Exceeded max attempts, clean up and reject (only if not infinite)
                         clearInterval(pollTimer);
                         polling.delete(callId);
                         reject(new Error(`Timeout waiting for result for call ${callId}`));
@@ -68,7 +71,7 @@ function NotificationManager(webhookUrl) {
                 } catch (error) {
                     console.error(`Polling error for call ${callId}:`, error);
                     // An error occurred during polling
-                    if (attempts >= maxAttempts) {
+                    if (!infinite && attempts >= maxAttempts) {
                         clearInterval(pollTimer);
                         polling.delete(callId);
                         reject(error);

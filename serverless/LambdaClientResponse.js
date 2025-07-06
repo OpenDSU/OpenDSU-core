@@ -7,7 +7,7 @@ function LambdaClientResponse(webhookUrl, initialCallId, operationType) {
     let currentOperationType = operationType;
     const notificationManager = new NotificationManager(webhookUrl);
     let resolvePromise, rejectPromise;
-    
+
     const promise = new Promise((resolve, reject) => {
         resolvePromise = resolve;
         rejectPromise = reject;
@@ -16,6 +16,16 @@ function LambdaClientResponse(webhookUrl, initialCallId, operationType) {
     this._updateOperationType = (newType) => {
         console.log(`LambdaClientResponse: Updating operation type from ${currentOperationType} to ${newType}`);
         currentOperationType = newType;
+    };
+
+    this._isLongRunningOperation = (operationType) => {
+        const longRunningOperations = [
+            'slowLambda',
+            'observableLambda',
+            'cmbSlowLambda',
+            'cmbObservableLambda'
+        ];
+        return longRunningOperations.includes(operationType);
     };
 
     this._setCallId = (newCallId) => {
@@ -31,11 +41,13 @@ function LambdaClientResponse(webhookUrl, initialCallId, operationType) {
             onEnd: () => {
                 console.log(`LambdaClientResponse: Received onEnd notification for callId ${callId}`);
                 console.log(`LambdaClientResponse: currentOperationType=${currentOperationType}, endCallback=${!!endCallback}`);
-                if (currentOperationType === 'observableLambda' && endCallback) {
+                if (this._isLongRunningOperation(currentOperationType) && endCallback) {
                     console.log('LambdaClientResponse: Calling endCallback');
                     endCallback();
                 }
-            }
+            },
+            infinite: this.infinite !== undefined ? this.infinite : this._isLongRunningOperation(currentOperationType),
+            maxAttempts: this.maxAttempts !== undefined ? this.maxAttempts : (this._isLongRunningOperation(currentOperationType) ? Infinity : 30)
         }).then(result => {
             // Pass the result when resolving
             resolvePromise(result);
@@ -53,27 +65,36 @@ function LambdaClientResponse(webhookUrl, initialCallId, operationType) {
         return this;
     };
 
+    this.setInfinite = (infinite = true) => {
+        this.infinite = infinite;
+        return this;
+    };
+
+    this.setMaxAttempts = (maxAttempts) => {
+        this.maxAttempts = maxAttempts;
+        return this;
+    };
+
     this.onProgress = (callback) => {
         progressCallback = callback;
         return this;
     };
 
-    // Add onEnd method by default for all operation types
     this.onEnd = (callback) => {
         console.log('LambdaClientResponse: onEnd callback registered');
         endCallback = callback;
         return this;
     };
 
-    this.then = function(onFulfilled, onRejected) {
+    this.then = function (onFulfilled, onRejected) {
         return promise.then(onFulfilled, onRejected);
     };
-    
-    this.catch = function(onRejected) {
+
+    this.catch = function (onRejected) {
         return promise.catch(onRejected);
     };
-    
-    this.finally = function(onFinally) {
+
+    this.finally = function (onFinally) {
         return promise.finally(onFinally);
     };
 }
