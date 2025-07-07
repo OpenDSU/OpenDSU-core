@@ -7,10 +7,24 @@ function LambdaClientResponse(webhookUrl, initialCallId, operationType) {
     let currentOperationType = operationType;
     const notificationManager = new NotificationManager(webhookUrl);
     let resolvePromise, rejectPromise;
+    let isResolved = false;
+
+    // Store the actual result
+    this.result = null;
 
     const promise = new Promise((resolve, reject) => {
-        resolvePromise = resolve;
-        rejectPromise = reject;
+        resolvePromise = (value) => {
+            if (!isResolved) {
+                isResolved = true;
+                resolve(value);
+            }
+        };
+        rejectPromise = (error) => {
+            if (!isResolved) {
+                isResolved = true;
+                reject(error);
+            }
+        };
     });
 
     this._updateOperationType = (newType) => {
@@ -31,26 +45,63 @@ function LambdaClientResponse(webhookUrl, initialCallId, operationType) {
     this._setCallId = (newCallId) => {
         console.log(`LambdaClientResponse: Setting callId to ${newCallId}`);
         callId = newCallId;
-        // Start polling once we have a callId
+
+        // For long-running operations, resolve immediately and delay polling
+        if (this._isLongRunningOperation(currentOperationType)) {
+            // Create a wrapper object that doesn't implement Promise interface
+            const wrapper = {
+                onProgress: (callback) => {
+                    progressCallback = callback;
+                    return wrapper;
+                },
+                onEnd: (callback) => {
+                    endCallback = callback;
+                    return wrapper;
+                },
+                result: null
+            };
+
+            // Store wrapper reference for later use
+            this._wrapper = wrapper;
+
+            resolvePromise(wrapper);
+
+            // Delay the start of polling to ensure callbacks are registered
+            setTimeout(() => {
+                this._startPolling();
+            }, 1);
+        } else {
+            // For sync operations, start polling immediately
+            this._startPolling();
+        }
+    };
+
+    this._startPolling = () => {
+        // Start polling for the result
         notificationManager.waitForResult(callId, {
             onProgress: (progress) => {
                 if (progressCallback) {
                     progressCallback(progress);
                 }
             },
-            onEnd: () => {
-                console.log(`LambdaClientResponse: Received onEnd notification for callId ${callId}`);
-                console.log(`LambdaClientResponse: currentOperationType=${currentOperationType}, endCallback=${!!endCallback}`);
+            onEnd: (result) => {
                 if (this._isLongRunningOperation(currentOperationType) && endCallback) {
-                    console.log('LambdaClientResponse: Calling endCallback');
-                    endCallback();
+                    endCallback(result);
                 }
             },
             infinite: this.infinite !== undefined ? this.infinite : this._isLongRunningOperation(currentOperationType),
             maxAttempts: this.maxAttempts !== undefined ? this.maxAttempts : (this._isLongRunningOperation(currentOperationType) ? Infinity : 30)
         }).then(result => {
-            // Pass the result when resolving
-            resolvePromise(result);
+            // Store the result
+            this.result = result;
+            // Update wrapper result if it exists
+            if (this._wrapper) {
+                this._wrapper.result = result;
+            }
+            // Only resolve here for non-long-running operations
+            if (!this._isLongRunningOperation(currentOperationType)) {
+                resolvePromise(result);
+            }
         }).catch(error => {
             rejectPromise(error);
         }).finally(() => {
@@ -58,7 +109,13 @@ function LambdaClientResponse(webhookUrl, initialCallId, operationType) {
         });
     };
 
-    this._resolve = resolvePromise;
+    this._resolve = (result) => {
+        this.result = result;
+        // Only resolve for sync operations, long-running operations resolve when callId is set
+        if (!this._isLongRunningOperation(currentOperationType)) {
+            resolvePromise(result);
+        }
+    };
     this._reject = rejectPromise;
 
     this.setTimeout = (duration) => {
@@ -81,7 +138,6 @@ function LambdaClientResponse(webhookUrl, initialCallId, operationType) {
     };
 
     this.onEnd = (callback) => {
-        console.log('LambdaClientResponse: onEnd callback registered');
         endCallback = callback;
         return this;
     };

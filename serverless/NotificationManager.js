@@ -1,6 +1,6 @@
 function NotificationManager(webhookUrl) {
     const polling = new Map();
-    const pollingInterval = 2000;
+    const pollingInterval = 100;
     const maxAttempts = 30;
 
     this.waitForResult = (callId, options = {}) => {
@@ -52,10 +52,16 @@ function NotificationManager(webhookUrl) {
                     if (data.status === 'completed') {
                         // Got a completion signal, clean up and notify
                         console.log(`Received completion for call ${callId}`);
+
+                        // Call onProgress if there's progress data in the completion response
+                        if (data.progress && onProgress) {
+                            onProgress(data.progress);
+                        }
+
                         clearInterval(pollTimer);
                         polling.delete(callId);
                         if (onEnd) {
-                            onEnd();
+                            onEnd(data.result);
                         }
                         resolve(data.result || null);
                     } else if (data.status === 'pending' && data.progress) {
