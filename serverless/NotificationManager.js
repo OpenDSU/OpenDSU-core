@@ -1,15 +1,16 @@
-function NotificationManager(webhookUrl) {
+function NotificationManager(webhookUrl, pollTimeout = 30000, pollInterval = 1000, infinite = false, maxAttempts = 30) {
+    const PollRequestManager = require('../http/utils/PollRequestManager');
     const polling = new Map();
-    const pollingInterval = 100;
-    const maxAttempts = 30;
+
+    // Create PollRequestManager instance with configurable timeout
+    const pollManager = new PollRequestManager(fetch, pollTimeout);
 
     this.waitForResult = (callId, options = {}) => {
         const {
-            interval = pollingInterval,
-            onProgress = null,
-            onEnd = null,
-            maxAttempts = 30, // Default to 30, but allow override
-            infinite = false  // Allow infinite polling
+            onProgress = undefined,
+            onEnd = undefined,
+            maxAttempts,
+            infinite,
         } = options;
 
         // Check if we're already polling for this callId
@@ -18,82 +19,119 @@ function NotificationManager(webhookUrl) {
         }
 
         let attempts = 0;
-        let pollTimer = null;
+        const startTime = Date.now();
 
         // Create a promise that will resolve when we get a result
         const promise = new Promise((resolve, reject) => {
-            const poll = async () => {
+            const longPoll = async () => {
                 attempts++;
                 const attemptsDisplay = infinite ? `${attempts}/infinite` : `${attempts}/${maxAttempts}`;
-                console.log(`Polling for result of call ${callId} (attempt ${attemptsDisplay})`);
+                console.log(`Long polling for result of call ${callId} (attempt ${attemptsDisplay})`);
 
                 try {
-                    const response = await fetch(`${webhookUrl}/${callId}`, {
+                    // Use PollRequestManager for robust polling
+                    const pollPromise = pollManager.createRequest(`${webhookUrl}/${callId}`, {
                         method: 'GET',
                         headers: {
                             'Content-Type': 'application/json'
                         }
                     });
 
+                    // Store the poll promise for cancellation
+                    const pollingItem = polling.get(callId);
+                    if (pollingItem) {
+                        pollingItem.currentPollPromise = pollPromise;
+                    }
+
+                    const response = await pollPromise;
+
                     if (!response.ok) {
-                        console.error(`Webhook polling error: ${response.status} ${response.statusText}`);
+                        console.error(`Webhook long polling error: ${response.status} ${response.statusText}`);
                         if (!infinite && attempts >= maxAttempts) {
-                            clearInterval(pollTimer);
                             polling.delete(callId);
-                            reject(new Error(`Webhook polling failed with status ${response.status}`));
+                            reject(new Error(`Webhook long polling failed with status ${response.status}`));
                             return;
                         }
+                        // Retry after a short delay
+                        setTimeout(() => longPoll(), pollInterval);
                         return;
                     }
 
                     const data = await response.json();
-                    console.log(`Poll response for ${callId}:`, JSON.stringify(data));
+                    console.log(`Long poll response for ${callId}:`, JSON.stringify(data));
 
                     if (data.status === 'completed') {
                         // Got a completion signal, clean up and notify
-                        console.log(`Received completion for call ${callId}`);
+                        const pollingItem = polling.get(callId);
+                        const responseTime = Date.now() - pollingItem.startTime;
+                        console.log(`Completed: ${callId} (${responseTime}ms)`);
 
                         // Call onProgress if there's progress data in the completion response
                         if (data.progress && onProgress) {
                             onProgress(data.progress);
                         }
 
-                        clearInterval(pollTimer);
                         polling.delete(callId);
                         if (onEnd) {
                             onEnd(data.result);
                         }
-                        resolve(data.result || null);
-                    } else if (data.status === 'pending' && data.progress) {
-                        if (onProgress) {
-                            onProgress(data.progress);
-                        }
-                    } else if (!infinite && attempts >= maxAttempts) {
-                        // Exceeded max attempts, clean up and reject (only if not infinite)
-                        clearInterval(pollTimer);
+                        resolve(data.result);
+                    } else if (data.status === 'expired') {
+                        // CallId expired after 3 minutes of inactivity
+                        console.log(`Expired: ${callId} (3 minutes inactive)`);
                         polling.delete(callId);
-                        reject(new Error(`Timeout waiting for result for call ${callId}`));
+                        const error = new Error(`Request expired: CallId ${callId} was inactive for more than 3 minutes`);
+                        error.code = 'EXPIRED';
+                        reject(error);
+                    } else if (data.status === 'pending') {
+                        // Connection timed out after configured timeout, progress might be available
+                        const pollingItem = polling.get(callId);
+                        const pollingTime = Date.now() - pollingItem.startTime;
+                        if (data.progress && onProgress) {
+                            console.log(`Progress: ${callId} (${pollingTime}ms)`);
+                            onProgress(data.progress);
+                        } else {
+                            console.log(`Timeout: ${callId} (${pollingTime}ms) - reconnecting`);
+                        }
+
+                        // Check if we should continue polling
+                        if (!infinite && attempts >= maxAttempts) {
+                            polling.delete(callId);
+                            reject(new Error(`Timeout waiting for result for call ${callId}`));
+                            return;
+                        }
+
+                        // Immediately reconnect for the next long poll
+                        setTimeout(() => longPoll(), 0);
                     }
                 } catch (error) {
-                    console.error(`Polling error for call ${callId}:`, error);
-                    // An error occurred during polling
+                    if (error.name === 'AbortError') {
+                        console.log(`Long polling aborted for call ${callId}`);
+                        return;
+                    }
+
+                    console.error(`Long polling error for call ${callId}:`, error);
+
                     if (!infinite && attempts >= maxAttempts) {
-                        clearInterval(pollTimer);
                         polling.delete(callId);
                         reject(error);
+                        return;
                     }
+
+                    // Retry after a short delay on error
+                    setTimeout(() => longPoll(), pollInterval);
                 }
             };
 
-            poll();
-            pollTimer = setInterval(poll, interval);
+            // Start the long polling
+            longPoll();
         });
 
         polling.set(callId, {
             promise,
-            startTime: Date.now(),
+            startTime,
             attempts: 0,
-            timer: pollTimer
+            currentPollPromise: null
         });
 
         return promise;
@@ -101,19 +139,26 @@ function NotificationManager(webhookUrl) {
 
     this.cancelPolling = (callId) => {
         const pollingItem = polling.get(callId);
-        if (pollingItem && pollingItem.timer) {
-            clearInterval(pollingItem.timer);
+        if (pollingItem) {
+            // Cancel the current poll request using PollRequestManager
+            if (pollingItem.currentPollPromise) {
+                pollManager.cancelRequest(pollingItem.currentPollPromise);
+            }
             polling.delete(callId);
         }
     }
 
     this.cancelAll = () => {
         for (const [callId, pollingItem] of polling.entries()) {
-            if (pollingItem.timer) {
-                clearInterval(pollingItem.timer);
+            if (pollingItem.currentPollPromise) {
+                pollManager.cancelRequest(pollingItem.currentPollPromise);
             }
         }
         polling.clear();
+    }
+
+    this.setConnectionTimeout = (timeout) => {
+        pollManager.setConnectionTimeout(timeout);
     }
 }
 
