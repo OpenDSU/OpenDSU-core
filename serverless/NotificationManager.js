@@ -76,13 +76,6 @@ function NotificationManager(webhookUrl, pollTimeout = 30000, pollInterval = 100
                             onEnd(data.result);
                         }
                         resolve(data.result);
-                    } else if (data.status === 'expired') {
-                        // CallId expired after 3 minutes of inactivity
-                        console.log(`Expired: ${callId} (3 minutes inactive)`);
-                        polling.delete(callId);
-                        const error = new Error(`Request expired: CallId ${callId} was inactive for more than 3 minutes`);
-                        error.code = 'EXPIRED';
-                        reject(error);
                     } else if (data.status === 'pending') {
                         // Connection timed out after configured timeout, progress might be available
                         const pollingItem = polling.get(callId);
