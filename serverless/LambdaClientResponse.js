@@ -3,6 +3,7 @@ const NotificationManager = require('./NotificationManager');
 function LambdaClientResponse(webhookUrl, initialCallId, operationType) {
     let progressCallback = null;
     let endCallback = null;
+    let errorCallback = null;
     let callId = initialCallId;
     let currentOperationType = operationType;
     const notificationManager = new NotificationManager(webhookUrl);
@@ -22,6 +23,14 @@ function LambdaClientResponse(webhookUrl, initialCallId, operationType) {
         rejectPromise = (error) => {
             if (!isResolved) {
                 isResolved = true;
+                // Call error callback if registered
+                if (errorCallback) {
+                    try {
+                        errorCallback(error);
+                    } catch (callbackError) {
+                        console.error('Error in error callback:', callbackError);
+                    }
+                }
                 reject(error);
             }
         };
@@ -58,6 +67,10 @@ function LambdaClientResponse(webhookUrl, initialCallId, operationType) {
                     endCallback = callback;
                     return wrapper;
                 },
+                onError: (callback) => {
+                    errorCallback = callback;
+                    return wrapper;
+                },
                 result: null
             };
 
@@ -89,6 +102,11 @@ function LambdaClientResponse(webhookUrl, initialCallId, operationType) {
                     endCallback(result);
                 }
             },
+            onError: (error) => {
+                if (errorCallback) {
+                    errorCallback(error);
+                }
+            },
             infinite: this.infinite !== undefined ? this.infinite : this._isLongRunningOperation(currentOperationType),
             maxAttempts: this.maxAttempts !== undefined ? this.maxAttempts : (this._isLongRunningOperation(currentOperationType) ? Infinity : 30)
         }).then(result => {
@@ -103,6 +121,8 @@ function LambdaClientResponse(webhookUrl, initialCallId, operationType) {
                 resolvePromise(result);
             }
         }).catch(error => {
+            // Ensure polling is cancelled when error occurs
+            notificationManager.cancelPolling(callId);
             rejectPromise(error);
         }).finally(() => {
             notificationManager.cancelAll();
@@ -139,6 +159,11 @@ function LambdaClientResponse(webhookUrl, initialCallId, operationType) {
 
     this.onEnd = (callback) => {
         endCallback = callback;
+        return this;
+    };
+
+    this.onError = (callback) => {
+        errorCallback = callback;
         return this;
     };
 

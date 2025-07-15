@@ -9,6 +9,7 @@ function NotificationManager(webhookUrl, pollTimeout = 30000, pollInterval = 100
         const {
             onProgress = undefined,
             onEnd = undefined,
+            onError = undefined,
             maxAttempts,
             infinite,
         } = options;
@@ -19,14 +20,16 @@ function NotificationManager(webhookUrl, pollTimeout = 30000, pollInterval = 100
         }
 
         let attempts = 0;
+        let consecutiveFailures = 0;
         const startTime = Date.now();
+        const MAX_CONSECUTIVE_FAILURES = 5; // Consider server down after 5 consecutive failures
 
         // Create a promise that will resolve when we get a result
         const promise = new Promise((resolve, reject) => {
             const longPoll = async () => {
                 attempts++;
                 const attemptsDisplay = infinite ? `${attempts}/infinite` : `${attempts}/${maxAttempts}`;
-                console.log(`Long polling for result of call ${callId} (attempt ${attemptsDisplay})`);
+                console.log(`Long polling for result of call ${callId} (attempt ${attemptsDisplay}, consecutive failures: ${consecutiveFailures})`);
 
                 try {
                     // Use PollRequestManager for robust polling
@@ -46,10 +49,37 @@ function NotificationManager(webhookUrl, pollTimeout = 30000, pollInterval = 100
                     const response = await pollPromise;
 
                     if (!response.ok) {
-                        console.error(`Webhook long polling error: ${response.status} ${response.statusText}`);
+                        consecutiveFailures++;
+                        console.error(`Webhook long polling error: ${response.status} ${response.statusText} (consecutive failures: ${consecutiveFailures})`);
+
+                        // Check if we've had too many consecutive failures (server likely down)
+                        if (consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
+                            const serverDownError = new Error(`Server appears to be down: ${consecutiveFailures} consecutive failures. Last status: ${response.status}`);
+                            serverDownError.code = 'SERVER_DOWN';
+                            serverDownError.callId = callId;
+                            serverDownError.consecutiveFailures = consecutiveFailures;
+
+                            polling.delete(callId);
+
+                            if (onError) {
+                                onError(serverDownError);
+                            }
+
+                            reject(serverDownError);
+                            return;
+                        }
+
                         if (!infinite && attempts >= maxAttempts) {
                             polling.delete(callId);
-                            reject(new Error(`Webhook long polling failed with status ${response.status}`));
+                            const timeoutError = new Error(`Webhook long polling failed with status ${response.status} after ${attempts} attempts`);
+                            timeoutError.code = 'POLLING_TIMEOUT';
+                            timeoutError.callId = callId;
+
+                            if (onError) {
+                                onError(timeoutError);
+                            }
+
+                            reject(timeoutError);
                             return;
                         }
                         // Retry after a short delay
@@ -57,8 +87,28 @@ function NotificationManager(webhookUrl, pollTimeout = 30000, pollInterval = 100
                         return;
                     }
 
+                    // Reset consecutive failures on successful response
+                    consecutiveFailures = 0;
+
                     const data = await response.json();
                     console.log(`Long poll response for ${callId}:`, JSON.stringify(data));
+
+                    // Check for error status from webhook
+                    if (data.status === 'error') {
+                        const webhookError = new Error(data.message || 'Webhook reported an error');
+                        webhookError.code = data.code || 'WEBHOOK_ERROR';
+                        webhookError.callId = callId;
+                        webhookError.details = data.details;
+
+                        polling.delete(callId);
+
+                        if (onError) {
+                            onError(webhookError);
+                        }
+
+                        reject(webhookError);
+                        return;
+                    }
 
                     if (data.status === 'completed') {
                         // Got a completion signal, clean up and notify
@@ -89,13 +139,36 @@ function NotificationManager(webhookUrl, pollTimeout = 30000, pollInterval = 100
 
                         // Check if we should continue polling
                         if (!infinite && attempts >= maxAttempts) {
+                            const timeoutError = new Error(`Timeout waiting for result for call ${callId}`);
+                            timeoutError.code = 'POLLING_TIMEOUT';
+                            timeoutError.callId = callId;
+
                             polling.delete(callId);
-                            reject(new Error(`Timeout waiting for result for call ${callId}`));
+
+                            if (onError) {
+                                onError(timeoutError);
+                            }
+
+                            reject(timeoutError);
                             return;
                         }
 
                         // Immediately reconnect for the next long poll
                         setTimeout(() => longPoll(), 0);
+                    } else if (data.status === 'expired') {
+                        // Webhook data has expired
+                        const expiredError = new Error(`Call ${callId} expired on the server`);
+                        expiredError.code = 'EXPIRED';
+                        expiredError.callId = callId;
+
+                        polling.delete(callId);
+
+                        if (onError) {
+                            onError(expiredError);
+                        }
+
+                        reject(expiredError);
+                        return;
                     }
                 } catch (error) {
                     if (error.name === 'AbortError') {
@@ -103,11 +176,40 @@ function NotificationManager(webhookUrl, pollTimeout = 30000, pollInterval = 100
                         return;
                     }
 
-                    console.error(`Long polling error for call ${callId}:`, error);
+                    consecutiveFailures++;
+                    console.error(`Long polling error for call ${callId}:`, error, `(consecutive failures: ${consecutiveFailures})`);
+
+                    // Check if we've had too many consecutive failures (likely network/server issue)
+                    if (consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
+                        const persistentError = new Error(`Persistent polling failures: ${error.message}. ${consecutiveFailures} consecutive attempts failed.`);
+                        persistentError.code = 'PERSISTENT_FAILURE';
+                        persistentError.callId = callId;
+                        persistentError.consecutiveFailures = consecutiveFailures;
+                        persistentError.originalError = error;
+
+                        polling.delete(callId);
+
+                        if (onError) {
+                            onError(persistentError);
+                        }
+
+                        reject(persistentError);
+                        return;
+                    }
 
                     if (!infinite && attempts >= maxAttempts) {
                         polling.delete(callId);
-                        reject(error);
+
+                        const finalError = new Error(`Polling failed after ${attempts} attempts: ${error.message}`);
+                        finalError.code = 'POLLING_FAILED';
+                        finalError.callId = callId;
+                        finalError.originalError = error;
+
+                        if (onError) {
+                            onError(finalError);
+                        }
+
+                        reject(finalError);
                         return;
                     }
 
