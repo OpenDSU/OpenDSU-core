@@ -158,7 +158,7 @@ function NotificationManager(webhookUrl, pollTimeout = 30000, pollInterval = 100
                     } else if (data.status === 'expired') {
                         // Webhook data has expired
                         const expiredError = new Error(`Call ${callId} expired on the server`);
-                        expiredError.code = 'EXPIRED';
+                        expiredError.code = 'PROCESS_UNAVAILABLE';
                         expiredError.callId = callId;
 
                         polling.delete(callId);
