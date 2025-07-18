@@ -1,4 +1,4 @@
-const PendingCallMixin = require("./PendingCallMixin");
+const PendingCallMixin = require("../serverless/utils/PendingCallMixin");
 /*
     Utility to make classes that depend on some initialisation easier to use.
     By using the PendingCallMixin, the member function can be used but will be called in order only after proper initialisation

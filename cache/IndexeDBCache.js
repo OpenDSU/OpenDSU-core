@@ -1,4 +1,4 @@
-const CacheMixin = require("../utils/PendingCallMixin");
+const CacheMixin = require("../serverless/utils/PendingCallMixin");
 
 function IndexedDBCache(storeName, lifetime) {
     const self = this;

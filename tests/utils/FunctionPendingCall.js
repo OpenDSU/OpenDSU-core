@@ -1,7 +1,7 @@
 require("../../../../builds/output/testsRuntime");
 const dc = require("double-check");
 const assert = dc.assert;
-const PendingCallMixin = require("../../utils/PendingCallMixin");
+const PendingCallMixin = require("../../serverless/utils/PendingCallMixin");
 
 
 assert.callback('Testing the pending call behavior, delay initialization', (testfinished) => {
@@ -13,7 +13,7 @@ assert.callback('Testing the pending call behavior, delay initialization', (test
         this.c1 = undefined
 
         const load = () => {
-            this.c1 = {name: "John", age: 40, city: "New York"};
+            this.c1 = { name: "John", age: 40, city: "New York" };
             isInitialized = true;
             this.executePendingCalls();
         };

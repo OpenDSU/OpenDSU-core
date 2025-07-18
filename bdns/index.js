@@ -1,4 +1,4 @@
-const PendingCallMixin = require("../utils/PendingCallMixin");
+const PendingCallMixin = require("../serverless/utils/PendingCallMixin");
 const getBaseURL = require("../utils/getBaseURL");
 
 function BDNS() {
@@ -13,15 +13,15 @@ function BDNS() {
             .then((response) => {
                 return response.json()
             }).then((bdnsHosts) => {
-            bdnsHosts = JSON.stringify(bdnsHosts);
-            bdnsHosts = bdnsHosts.replace(/\$ORIGIN/g, getBaseURL());
-            bdnsCache = JSON.parse(bdnsHosts);
-            isInitialized = true;
-            this.executePendingCalls();
-        }).catch((err) => {
-            console.error("Failed to retrieve BDNS hosts", err);
-            throw err;
-        })
+                bdnsHosts = JSON.stringify(bdnsHosts);
+                bdnsHosts = bdnsHosts.replace(/\$ORIGIN/g, getBaseURL());
+                bdnsCache = JSON.parse(bdnsHosts);
+                isInitialized = true;
+                this.executePendingCalls();
+            }).catch((err) => {
+                console.error("Failed to retrieve BDNS hosts", err);
+                throw err;
+            })
     };
 
     retrieveHosts();

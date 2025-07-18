@@ -1,5 +1,5 @@
 const config = require("opendsu").loadApi("config");
-const CacheMixin = require("../utils/PendingCallMixin");
+const CacheMixin = require("../serverless/utils/PendingCallMixin");
 const constants = require("../moduleConstants");
 
 function FSCache(folderName) {
@@ -14,7 +14,7 @@ function FSCache(folderName) {
     const path = require("swarmutils").path;
     const folderPath = path.join(baseFolder, folderName);
     let storageFolderIsCreated = false;
-    fs.mkdir(folderPath, {recursive: true}, (err) => {
+    fs.mkdir(folderPath, { recursive: true }, (err) => {
         if (err) {
             throw err;
         }
